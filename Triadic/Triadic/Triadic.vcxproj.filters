@@ -8,6 +8,9 @@
     <Filter Include="Lua">
       <UniqueIdentifier>{569333de-b25a-4d5e-85ea-6d96eadc3755}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Rendering">
+      <UniqueIdentifier>{d368f9df-0593-4396-ad71-f524ed02068e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
