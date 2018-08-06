@@ -11,6 +11,12 @@
     <Filter Include="Source Files\Rendering">
       <UniqueIdentifier>{d368f9df-0593-4396-ad71-f524ed02068e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Utilities">
+      <UniqueIdentifier>{e4cb0086-a458-4ce1-b8ce-1a3371b361d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\System">
+      <UniqueIdentifier>{c1fa8f3c-43ee-4200-86b8-3df43be27ddf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -112,6 +118,27 @@
     <ClCompile Include="Lua\lzio.c">
       <Filter>Lua</Filter>
     </ClCompile>
+    <ClCompile Include="camera.cpp">
+      <Filter>Source Files\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="shader.cpp">
+      <Filter>Source Files\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="texture.cpp">
+      <Filter>Source Files\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="input.cpp">
+      <Filter>Source Files\System</Filter>
+    </ClCompile>
+    <ClCompile Include="log.cpp">
+      <Filter>Source Files\System</Filter>
+    </ClCompile>
+    <ClCompile Include="systeminfo.cpp">
+      <Filter>Source Files\System</Filter>
+    </ClCompile>
+    <ClCompile Include="threadpool.cpp">
+      <Filter>Source Files\System</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Lua\lapi.h">
@@ -188,6 +215,51 @@
     </ClInclude>
     <ClInclude Include="Lua\lzio.h">
       <Filter>Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="camera.h">
+      <Filter>Source Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="common.h">
+      <Filter>Source Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="point.h">
+      <Filter>Source Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="shader.h">
+      <Filter>Source Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="texture.h">
+      <Filter>Source Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="input.h">
+      <Filter>Source Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="coredata.h">
+      <Filter>Source Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="threaddata.h">
+      <Filter>Source Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="log.h">
+      <Filter>Source Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="swap.h">
+      <Filter>Source Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="swaparray.h">
+      <Filter>Source Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="array.h">
+      <Filter>Source Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="systeminfo.h">
+      <Filter>Source Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="threadpool.h">
+      <Filter>Source Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="queue.h">
+      <Filter>Source Files\Utilities</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
