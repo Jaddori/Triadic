@@ -6,5 +6,6 @@
 #include "texture.h"
 #include "vertex.h"
 #include "model.h"
+#include "graphics.h"
 
 using namespace Rendering;

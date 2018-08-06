@@ -98,16 +98,19 @@ int main( int argc, char* argv[] )
 			//glEnable( GL_CULL_FACE );
 			glEnable( GL_DEPTH_TEST );
 
-			Camera camera;
-			camera.updatePerspective( WINDOW_WIDTH, WINDOW_HEIGHT );
-			camera.setPosition( glm::vec3( 0, 0, -10 ) );
+			//Camera camera;
+			//camera.updatePerspective( WINDOW_WIDTH, WINDOW_HEIGHT );
+			//camera.setPosition( glm::vec3( 0, 0, -10 ) );
+			//
+			//Shader shader;
+			//shader.load( "./assets/shaders/basic.vs", NULL, "./assets/shaders///basic.fs" );
+			//
+			//Texture texture;
+			//texture.load( "./assets/textures/palette.dds" );
+			//texture.upload();
 
-			Shader shader;
-			shader.load( "./assets/shaders/basic.vs", NULL, "./assets/shaders/basic.fs" );
-
-			Texture texture;
-			texture.load( "./assets/textures/palette.dds" );
-			texture.upload();
+			Graphics graphics;
+			graphics.load();
 
 			SystemInfo systemInfo;
 			systemInfo.poll();
@@ -115,18 +118,16 @@ int main( int argc, char* argv[] )
 			ThreadPool threadPool;
 			threadPool.load();
 
-			GLuint vao = 0, vbo = 0, ibo = 0;
-
-			Mesh mesh;
-			mesh.load( "./assets/models/pillar.mesh" );
-			mesh.upload();
-
-			Model model;
-			model.load( &mesh, &texture );
-
-			GLuint projectionLocation = shader.getLocation( "projectionMatrix" );
-			GLuint viewLocation = shader.getLocation( "viewMatrix" );
-			GLuint uvOffsetLocation = shader.getLocation( "uvOffset" );
+			//Mesh mesh;
+			//mesh.load( "./assets/models/pillar.mesh" );
+			//mesh.upload();
+			//
+			//Model model;
+			//model.load( &mesh, &texture );
+			//
+			//GLuint projectionLocation = shader.getLocation( "projectionMatrix" );
+			//GLuint viewLocation = shader.getLocation( "viewMatrix" );
+			//GLuint uvOffsetLocation = shader.getLocation( "uvOffset" );
 
 			bool running = true;
 			int timeElapsed = 0;
@@ -139,7 +140,7 @@ int main( int argc, char* argv[] )
 			coreData.input = &input;
 			coreData.systemInfo = &systemInfo;
 			coreData.running = &running;
-			coreData.camera = &camera;
+			coreData.camera = graphics.getCamera();
 
 			ThreadData threadData;
 			threadData.coreData = &coreData;
@@ -165,7 +166,7 @@ int main( int argc, char* argv[] )
 					}
 
 					// finalize objects
-					camera.finalize();
+					graphics.getCamera()->finalize();
 
 					threadPool.schedule();
 
@@ -181,14 +182,16 @@ int main( int argc, char* argv[] )
 				glClearColor( 1.0f, 0.0f, 0.0f, 0.0f );
 				glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-				shader.bind();
-				shader.setMat4( projectionLocation, camera.getProjectionMatrix() );
-				shader.setMat4( viewLocation, camera.getViewMatrix() );
-				shader.setVec2( uvOffsetLocation, glm::vec2( 0.0f, 0.0f ) );
+				//shader.bind();
+				//shader.setMat4( projectionLocation, camera.getProjectionMatrix() );
+				//shader.setMat4( viewLocation, camera.getViewMatrix() );
+				//shader.setVec2( uvOffsetLocation, glm::vec2( 0.0f, 0.0f ) );
+				//
+				//texture.bind();
+				//
+				//model.render();
 
-				texture.bind();
-
-				model.render();
+				graphics.render();
 
 				SDL_GL_SwapWindow( window );
 

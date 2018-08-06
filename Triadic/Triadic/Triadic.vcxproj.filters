@@ -145,6 +145,9 @@
     <ClCompile Include="model.cpp">
       <Filter>Source Files\Rendering</Filter>
     </ClCompile>
+    <ClCompile Include="graphics.cpp">
+      <Filter>Source Files\Rendering</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Lua\lapi.h">
@@ -277,6 +280,9 @@
       <Filter>Source Files\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="model.h">
+      <Filter>Source Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="graphics.h">
       <Filter>Source Files\Rendering</Filter>
     </ClInclude>
   </ItemGroup>
