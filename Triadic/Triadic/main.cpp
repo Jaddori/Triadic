@@ -1,15 +1,12 @@
 #include "GL\glew.h"
 #include "SDL\SDL.h"
 
-#include "camera.h"
-#include "shader.h"
-#include "texture.h"
 #include "input.h"
 #include "threaddata.h"
 #include "systeminfo.h"
 #include "coredata.h"
+#include "rendering.h"
 
-using namespace Rendering;
 using namespace System;
 
 int update( void* args )
@@ -98,7 +95,8 @@ int main( int argc, char* argv[] )
 				return -1;
 			}
 
-			glCullFace( GL_NONE );
+			//glEnable( GL_CULL_FACE );
+			glEnable( GL_DEPTH_TEST );
 
 			Camera camera;
 			camera.updatePerspective( WINDOW_WIDTH, WINDOW_HEIGHT );
@@ -108,7 +106,7 @@ int main( int argc, char* argv[] )
 			shader.load( "./assets/shaders/basic.vs", NULL, "./assets/shaders/basic.fs" );
 
 			Texture texture;
-			texture.load( "./assets/textures/debug.dds" );
+			texture.load( "./assets/textures/palette.dds" );
 			texture.upload();
 
 			SystemInfo systemInfo;
@@ -119,42 +117,16 @@ int main( int argc, char* argv[] )
 
 			GLuint vao = 0, vbo = 0, ibo = 0;
 
-			GLfloat vdata[] =
-			{
-				0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-				0.0f, 10.0f, 0.0f, 0.0f, 0.0f,
-				10.0f, 0.0f, 0.0f, 1.0f, 1.0f,
-				10.0f, 10.0f, 0.0f, 1.0f, 0.0f
-			};
+			Mesh mesh;
+			mesh.load( "./assets/models/pillar.mesh" );
+			mesh.upload();
 
-			GLuint idata[] = 
-			{
-				0, 1, 2,
-				1, 3, 2
-			};
-
-			glGenVertexArrays( 1, &vao );
-			glGenBuffers( 1, &vbo );
-			glGenBuffers( 1, &ibo );
-
-			glBindVertexArray( vao );
-
-			glEnableVertexAttribArray( 0 );
-			glEnableVertexAttribArray( 1 );
-
-			glBindBuffer( GL_ARRAY_BUFFER, vbo );
-			glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ibo );
-
-			glBufferData( GL_ARRAY_BUFFER, sizeof(GLfloat)*5*4, vdata, GL_STATIC_DRAW );
-			glBufferData( GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint)*6, idata, GL_STATIC_DRAW );
-
-			glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*5, 0 );
-			glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*5, (void*)(sizeof(glm::vec3)) );
-
-			glBindVertexArray( 0 );
+			Model model;
+			model.load( &mesh, &texture );
 
 			GLuint projectionLocation = shader.getLocation( "projectionMatrix" );
 			GLuint viewLocation = shader.getLocation( "viewMatrix" );
+			GLuint uvOffsetLocation = shader.getLocation( "uvOffset" );
 
 			bool running = true;
 			int timeElapsed = 0;
@@ -212,11 +184,11 @@ int main( int argc, char* argv[] )
 				shader.bind();
 				shader.setMat4( projectionLocation, camera.getProjectionMatrix() );
 				shader.setMat4( viewLocation, camera.getViewMatrix() );
+				shader.setVec2( uvOffsetLocation, glm::vec2( 0.0f, 0.0f ) );
 
 				texture.bind();
 
-				glBindVertexArray( vao );
-				glDrawElements( GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0 );
+				model.render();
 
 				SDL_GL_SwapWindow( window );
 

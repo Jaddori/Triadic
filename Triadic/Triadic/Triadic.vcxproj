@@ -181,6 +181,8 @@
     <ClCompile Include="Lua\lvm.c" />
     <ClCompile Include="Lua\lzio.c" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="mesh.cpp" />
+    <ClCompile Include="model.cpp" />
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="systeminfo.cpp" />
     <ClCompile Include="texture.cpp" />
@@ -218,8 +220,11 @@
     <ClInclude Include="Lua\lundump.h" />
     <ClInclude Include="Lua\lvm.h" />
     <ClInclude Include="Lua\lzio.h" />
+    <ClInclude Include="mesh.h" />
+    <ClInclude Include="model.h" />
     <ClInclude Include="point.h" />
     <ClInclude Include="queue.h" />
+    <ClInclude Include="rendering.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="swap.h" />
     <ClInclude Include="swaparray.h" />
@@ -227,6 +232,7 @@
     <ClInclude Include="texture.h" />
     <ClInclude Include="threaddata.h" />
     <ClInclude Include="threadpool.h" />
+    <ClInclude Include="vertex.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
