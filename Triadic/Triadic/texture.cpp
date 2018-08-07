@@ -2,7 +2,7 @@
 using namespace Rendering;
 
 Texture::Texture()
-	: id( 0 ), width( 0 ), height( 0 ), format( GL_COMPRESSED_RGBA_S3TC_DXT1_EXT ), pixels( NULL )
+	: id( 0 ), width( 0 ), height( 0 ), format( GL_COMPRESSED_RGBA_S3TC_DXT1_EXT ), pixels( NULL ), uploaded( false )
 {
 }
 
@@ -68,14 +68,19 @@ void Texture::unload()
 
 void Texture::upload()
 {
-	glGenTextures( 1, &id );
-	glBindTexture( GL_TEXTURE_2D, id );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
-	glCompressedTexImage2D( GL_TEXTURE_2D, 0, format, width, height, 0, size, pixels );
+	if( !uploaded )
+	{
+		glGenTextures( 1, &id );
+		glBindTexture( GL_TEXTURE_2D, id );
+		glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+		glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+		glCompressedTexImage2D( GL_TEXTURE_2D, 0, format, width, height, 0, size, pixels );
 
-	delete[] pixels;
-	pixels = NULL;
+		delete[] pixels;
+		pixels = NULL;
+
+		uploaded = true;
+	}
 }
 
 GLuint Texture::getID() const

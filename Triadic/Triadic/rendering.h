@@ -7,5 +7,7 @@
 #include "vertex.h"
 #include "model.h"
 #include "graphics.h"
+#include "assets.h"
+#include "transform.h"
 
 using namespace Rendering;

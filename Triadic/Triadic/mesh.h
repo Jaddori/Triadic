@@ -20,6 +20,7 @@ namespace Rendering
 
 		int getVertexCount() const;
 		int getIndexCount() const;
+		bool getUploaded() const;
 
 		const Vertex* getVertices() const;
 		const GLuint* getIndices() const;
@@ -41,5 +42,7 @@ namespace Rendering
 				GLuint indexBuffer;
 			};
 		};
+
+		bool uploaded;
 	};
 }

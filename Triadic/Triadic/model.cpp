@@ -29,3 +29,13 @@ void Model::render()
 	mesh->bind();
 	mesh->render();
 }
+
+const Mesh* Model::getMesh() const
+{
+	return mesh;
+}
+
+const Texture* Model::getTexture() const
+{
+	return texture;
+}

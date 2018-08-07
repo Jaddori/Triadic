@@ -6,6 +6,8 @@
 #include "systeminfo.h"
 #include "coredata.h"
 #include "rendering.h"
+#include "entity.h"
+#include "player.h"
 
 using namespace System;
 
@@ -31,6 +33,8 @@ int update( void* args )
 			lastTick = curTick;
 
 			// update subsystems
+			data->player->update();
+
 			Point mouseDelta = input.getMouseDelta();
 			if( input.buttonDown( SDL_BUTTON_LEFT ) )
 				camera.updateDirection( mouseDelta.x, mouseDelta.y );
@@ -141,11 +145,24 @@ int main( int argc, char* argv[] )
 			coreData.systemInfo = &systemInfo;
 			coreData.running = &running;
 			coreData.camera = graphics.getCamera();
+			coreData.assets = graphics.getAssets();
+			coreData.graphics = &graphics;
+
+			LOG_INFO( "Initializing Entity." );
+			Entity::setCoreData( &coreData );
+
+			Player player;
+			if( !player.load() )
+			{
+				LOG_ERROR( "Failed to load player." );
+				return -1;
+			}
 
 			ThreadData threadData;
 			threadData.coreData = &coreData;
 			threadData.updateDone = SDL_CreateSemaphore( 0 );
 			threadData.renderDone = SDL_CreateSemaphore( 1 );
+			threadData.player = &player;
 
 			SDL_Thread* updateThread = SDL_CreateThread( update, NULL, &threadData );
 
@@ -166,6 +183,7 @@ int main( int argc, char* argv[] )
 					}
 
 					// finalize objects
+					graphics.getAssets()->upload();
 					graphics.getCamera()->finalize();
 
 					threadPool.schedule();
@@ -190,6 +208,8 @@ int main( int argc, char* argv[] )
 				//texture.bind();
 				//
 				//model.render();
+
+				player.render();
 
 				graphics.render();
 

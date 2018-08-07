@@ -65,5 +65,7 @@ namespace Rendering
 
 		GLenum format;
 		GLbyte* pixels;
+
+		bool uploaded;
 	};
 }

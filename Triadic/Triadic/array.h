@@ -74,6 +74,15 @@ public:
 		size--;
 	}
 
+	int find( const T& element )
+	{
+		int index = -1;
+		for( int i=0; i<size && index < 0; i++ )
+			if( data[i] == element )
+				index = i;
+		return index;
+	}
+
 	int find( const T& element, CompareFunc* comp )
 	{
 		int index = -1;
@@ -192,6 +201,11 @@ public:
 
 		delete[] data;
 		data = temp;
+	}
+
+	void pop()
+	{
+		size--;
 	}
 
 protected:

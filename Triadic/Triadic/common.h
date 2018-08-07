@@ -32,14 +32,23 @@
 #define CAMERA_HORIZONTAL_SENSITIVITY 0.01f
 #define CAMERA_VERTICAL_SENSITIVITY 0.01f
 
+#define MAX_WORLD_MATRICES 512
+#define WORLD_MATRIX_QUEUE_INITIAL_CAPACITY 100
+
 // Maths
 #include "glm\glm.hpp"
 #include "glm\gtc\type_ptr.hpp"
 #include "glm\gtc\matrix_transform.hpp"
 #include "glm\gtc\noise.hpp"
+#include "glm\gtc\quaternion.hpp"
+#include "glm\gtx\quaternion.hpp"
 
 const float PI = glm::pi<float>();
 const float EPSILON = glm::epsilon<float>();
+const glm::mat4 IDENT;
+const glm::vec3 RIGHT( 1.0f, 0.0f, 0.0f );
+const glm::vec3 UP( 0.0f, 1.0f, 0.0f );
+const glm::vec3 FORWARD( 0.0f, 0.0f, 1.0f );
 
 // Lua
 #include "Lua\lua.hpp"

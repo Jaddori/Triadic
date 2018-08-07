@@ -3,7 +3,8 @@ using namespace Rendering;
 
 Mesh::Mesh()
 	: vertexCount( 0 ), indexCount( 0 ),
-	vertices( NULL ), indices( NULL )
+	vertices( NULL ), indices( NULL ),
+	uploaded( false )
 {
 }
 
@@ -69,44 +70,49 @@ void Mesh::unload()
 
 void Mesh::upload()
 {
-	LOG_ASSERT( vertices, "Trying to upload a mesh without valid vertex data." );
-	LOG_ASSERT( indices, "Trying to upload mesh without valid index data." );
-
-	glGenVertexArrays( 1, &vertexArray );
-	glGenBuffers( 2, buffers );
-
-	glBindVertexArray( vertexArray );
-
-	glEnableVertexAttribArray( 0 );
-	glEnableVertexAttribArray( 1 );
-	glEnableVertexAttribArray( 2 );
-	glEnableVertexAttribArray( 3 );
-	glEnableVertexAttribArray( 4 );
-
-	glBindBuffer( GL_ARRAY_BUFFER, vertexBuffer );
-	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, indexBuffer );
-
-	glBufferData( GL_ARRAY_BUFFER, sizeof(Vertex)*vertexCount, vertices, GL_STATIC_DRAW );
-	glBufferData( GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint)*indexCount, indices, GL_STATIC_DRAW );
-
-	glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0 );
-	glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(glm::vec3)) );
-	glVertexAttribPointer( 2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(glm::vec3)+sizeof(glm::vec2)));
-	glVertexAttribPointer( 3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(glm::vec3)*2+sizeof(glm::vec2)));
-	glVertexAttribPointer( 4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(glm::vec3)*3+sizeof(glm::vec2)));
-
-	glBindVertexArray( 0 );
-
-	if( vertices )
+	if( !uploaded )
 	{
-		delete[] vertices;
-		vertices = NULL;
-	}
+		LOG_ASSERT( vertices, "Trying to upload a mesh without valid vertex data." );
+		LOG_ASSERT( indices, "Trying to upload mesh without valid index data." );
 
-	if( indices )
-	{
-		delete[] indices;
-		indices = NULL;
+		glGenVertexArrays( 1, &vertexArray );
+		glGenBuffers( 2, buffers );
+
+		glBindVertexArray( vertexArray );
+
+		glEnableVertexAttribArray( 0 );
+		glEnableVertexAttribArray( 1 );
+		glEnableVertexAttribArray( 2 );
+		glEnableVertexAttribArray( 3 );
+		glEnableVertexAttribArray( 4 );
+
+		glBindBuffer( GL_ARRAY_BUFFER, vertexBuffer );
+		glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, indexBuffer );
+
+		glBufferData( GL_ARRAY_BUFFER, sizeof(Vertex)*vertexCount, vertices, GL_STATIC_DRAW );
+		glBufferData( GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint)*indexCount, indices, GL_STATIC_DRAW );
+
+		glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0 );
+		glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(glm::vec3)) );
+		glVertexAttribPointer( 2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(glm::vec3)+sizeof(glm::vec2)));
+		glVertexAttribPointer( 3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(glm::vec3)*2+sizeof(glm::vec2)));
+		glVertexAttribPointer( 4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(glm::vec3)*3+sizeof(glm::vec2)));
+
+		glBindVertexArray( 0 );
+
+		if( vertices )
+		{
+			delete[] vertices;
+			vertices = NULL;
+		}
+
+		if( indices )
+		{
+			delete[] indices;
+			indices = NULL;
+		}
+
+		uploaded = true;
 	}
 }
 
@@ -128,6 +134,11 @@ int Mesh::getVertexCount() const
 int Mesh::getIndexCount() const
 {
 	return indexCount;
+}
+
+bool Mesh::getUploaded() const
+{
+	return uploaded;
 }
 
 const Vertex* Mesh::getVertices() const

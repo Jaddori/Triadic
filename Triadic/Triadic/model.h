@@ -17,6 +17,9 @@ namespace Rendering
 
 		void render();
 
+		const Mesh* getMesh() const;
+		const Texture* getTexture() const;
+
 	private:
 		const Mesh* mesh;
 		const Texture* texture;
