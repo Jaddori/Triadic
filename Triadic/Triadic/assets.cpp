@@ -46,6 +46,16 @@ void Assets::upload()
 
 		dirtyMeshes = false;
 	}
+
+	if( dirtyFonts )
+	{
+		LOG_INFO( "Uploading fonts." );
+
+		for( int i=0; i<fonts.getSize(); i++ )
+			fonts[i].upload();
+
+		dirtyFonts = false;
+	}
 }
 
 int Assets::loadTexture( const char* path )
@@ -88,6 +98,27 @@ int Assets::loadMesh( const char* path )
 	return result;
 }
 
+int Assets::loadFont( const char* info, const char* texture )
+{
+	uint64_t hash = hashPath( info );
+	int result = fontHashes.find( hash );
+	if( result < 0 )
+	{
+		Font font;
+		if( font.load( info, texture ) )
+		{
+			result = fonts.getSize();
+
+			fonts.add( font );
+			fontHashes.add( hash );
+
+			dirtyFonts = true;
+		}
+	}
+
+	return result;
+}
+
 const Texture* Assets::getTexture( int index ) const
 {
 	LOG_ASSERT( index >= 0 && index < textures.getSize(), "Index %d out of range %d.", index, textures.getSize() );
@@ -100,6 +131,14 @@ const Mesh* Assets::getMesh( int index ) const
 	LOG_ASSERT( index >= 0 && index < meshes.getSize(), "Index %d out of range %d.", index, meshes.getSize() );
 
 	return &meshes[index];
+}
+
+const Font* Assets::getFont( int index ) const
+{
+	LOG_ASSERT( index >= 0 && index < fonts.getSize(), "Index %d out of range %d.",
+		index, fonts.getSize() );
+
+	return &fonts[index];
 }
 
 uint64_t Assets::hashPath( const char* path )

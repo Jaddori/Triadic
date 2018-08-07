@@ -18,4 +18,5 @@ public:
 private:
 	Transform transform;
 	int meshIndex;
+	int fontIndex;
 };

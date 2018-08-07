@@ -35,6 +35,8 @@
 #define MAX_WORLD_MATRICES 512
 #define WORLD_MATRIX_QUEUE_INITIAL_CAPACITY 100
 
+#define GRAPHICS_MAX_GLYPHS 128
+
 // Maths
 #include "glm\glm.hpp"
 #include "glm\gtc\type_ptr.hpp"

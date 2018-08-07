@@ -15,7 +15,9 @@ bool Player::load()
 	meshIndex = assets->loadMesh( "./assets/models/box.mesh" );
 	//textureIndex = assets->loadTexture( "./assets/textures/palette.dds" );
 
-	return meshIndex >= 0;
+	fontIndex = assets->loadFont( "./assets/fonts/verdana12.bin", "./assets/fonts/verdana12.dds" );
+
+	return ( meshIndex >= 0 && fontIndex >= 0 );
 }
 
 void Player::update()
@@ -38,4 +40,5 @@ void Player::update()
 void Player::render()
 {
 	coreData->graphics->queueMesh( meshIndex, &transform );
+	coreData->graphics->queueText( fontIndex, "Testing...", glm::vec2( 32, 32 ), glm::vec4( 0.0f, 0.0f, 1.0f, 1.0f ) );
 }

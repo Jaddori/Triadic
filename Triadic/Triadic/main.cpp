@@ -77,7 +77,7 @@ int main( int argc, char* argv[] )
 	SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 2 );
 	SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE );
 
-	SDL_Window* window = SDL_CreateWindow( "Triadic", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL );
+	SDL_Window* window = SDL_CreateWindow( "Triadic", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL );
 	if( window )
 	{
 		LOG_INFO( "Window created." );
@@ -184,7 +184,7 @@ int main( int argc, char* argv[] )
 
 					// finalize objects
 					graphics.getAssets()->upload();
-					graphics.getCamera()->finalize();
+					graphics.finalize();
 
 					threadPool.schedule();
 
