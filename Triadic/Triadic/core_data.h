@@ -2,7 +2,7 @@
 
 #include "common.h"
 #include "input.h"
-#include "systeminfo.h"
+#include "system_info.h"
 #include "camera.h"
 #include "assets.h"
 #include "graphics.h"

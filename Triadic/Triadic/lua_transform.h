@@ -1,7 +1,7 @@
 #pragma once
 
 #include "common.h"
-#include "coredata.h"
+#include "core_data.h"
 #include "transform.h"
 
 namespace LuaTransform

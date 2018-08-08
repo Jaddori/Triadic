@@ -1,4 +1,4 @@
-#include "instancedmodel.h"
+#include "instanced_model.h"
 using namespace Rendering;
 
 InstancedModel::InstancedModel()

@@ -1,4 +1,4 @@
-#include "luarendering.h"
+#include "lua_rendering.h"
 
 namespace LuaRendering
 {

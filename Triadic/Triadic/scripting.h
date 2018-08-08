@@ -1,16 +1,16 @@
 #pragma once
 
 #include "common.h"
-#include "coredata.h"
+#include "core_data.h"
 
-#include "luarendering.h"
-#include "luainput.h"
-#include "luaassets.h"
-#include "luatransform.h"
-#include "luasysteminfo.h"
-#include "luacamera.h"
-#include "lualog.h"
-#include "luashapes.h"
+#include "lua_rendering.h"
+#include "lua_input.h"
+#include "lua_assets.h"
+#include "lua_transform.h"
+#include "lua_systeminfo.h"
+#include "lua_camera.h"
+#include "lua_log.h"
+#include "lua_shapes.h"
 
 namespace Scripting
 {

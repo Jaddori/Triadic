@@ -1,8 +1,8 @@
 #pragma once
 
 #include "common.h"
-#include "coredata.h"
-#include "systeminfo.h"
+#include "core_data.h"
+#include "system_info.h"
 
 namespace LuaSystemInfo
 {

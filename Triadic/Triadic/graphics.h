@@ -5,7 +5,7 @@
 #include "shader.h"
 #include "camera.h"
 #include "texture.h"
-#include "instancedmodel.h"
+#include "instanced_model.h"
 #include "assets.h"
 #include "transform.h"
 #include "font.h"

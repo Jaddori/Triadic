@@ -2,9 +2,9 @@
 #include "SDL\SDL.h"
 
 #include "input.h"
-#include "threaddata.h"
-#include "systeminfo.h"
-#include "coredata.h"
+#include "thread_data.h"
+#include "system_info.h"
+#include "core_data.h"
 #include "rendering.h"
 #include "entity.h"
 #include "level.h"
@@ -41,7 +41,6 @@ int update( void* args )
 			// update subsystems
 			script.update( deltaTime );
 			script.render();
-			//data->player->update( deltaTime );
 
 			Point mouseDelta = input.getMouseDelta();
 			if( input.buttonDown( SDL_BUTTON_LEFT ) )
@@ -148,13 +147,6 @@ int main( int argc, char* argv[] )
 			LOG_INFO( "Initializing Entity." );
 			Entity::setCoreData( &coreData );
 
-			//Player player;
-			//if( !player.load() )
-			//{
-			//	LOG_ERROR( "Failed to load player." );
-			//	return -1;
-			//}
-
 			Level level;
 			if( !level.load( "./assets/levels/level01.txt" ) )
 			{
@@ -170,7 +162,6 @@ int main( int argc, char* argv[] )
 			threadData.coreData = &coreData;
 			threadData.updateDone = SDL_CreateSemaphore( 0 );
 			threadData.renderDone = SDL_CreateSemaphore( 1 );
-			//threadData.player = &player;
 			threadData.script = &script;
 
 			SDL_Thread* updateThread = SDL_CreateThread( update, NULL, &threadData );
@@ -209,7 +200,6 @@ int main( int argc, char* argv[] )
 				glClearColor( 0.1f, 0.1f, 0.1f, 0.0f );
 				glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-				//player.render();
 				level.render();
 
 				graphics.render();

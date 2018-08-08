@@ -1,4 +1,4 @@
-#include "luashapes.h"
+#include "lua_shapes.h"
 
 namespace LuaShapes
 {

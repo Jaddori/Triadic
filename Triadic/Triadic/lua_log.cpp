@@ -1,4 +1,4 @@
-#include "lualog.h"
+#include "lua_log.h"
 
 namespace LuaLog
 {

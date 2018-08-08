@@ -3,7 +3,7 @@
 #include <Windows.h>
 #include <Psapi.h>
 #include "SDL\SDL.h"
-#include "threadpool.h"
+#include "thread_pool.h"
 
 class SystemInfo
 {

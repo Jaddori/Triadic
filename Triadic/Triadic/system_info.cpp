@@ -1,4 +1,4 @@
-#include "systeminfo.h"
+#include "system_info.h"
 
 SystemInfo::SystemInfo()
 {

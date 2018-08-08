@@ -1,4 +1,4 @@
-#include "luainput.h"
+#include "lua_input.h"
 
 namespace LuaInput
 {

@@ -1,4 +1,4 @@
-#include "luasysteminfo.h"
+#include "lua_systeminfo.h"
 
 namespace LuaSystemInfo
 {

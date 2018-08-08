@@ -139,12 +139,6 @@
     <ClCompile Include="log.cpp">
       <Filter>Source Files\System</Filter>
     </ClCompile>
-    <ClCompile Include="systeminfo.cpp">
-      <Filter>Source Files\System</Filter>
-    </ClCompile>
-    <ClCompile Include="threadpool.cpp">
-      <Filter>Source Files\System</Filter>
-    </ClCompile>
     <ClCompile Include="mesh.cpp">
       <Filter>Source Files\Rendering</Filter>
     </ClCompile>
@@ -152,9 +146,6 @@
       <Filter>Source Files\Rendering</Filter>
     </ClCompile>
     <ClCompile Include="graphics.cpp">
-      <Filter>Source Files\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="instancedmodel.cpp">
       <Filter>Source Files\Rendering</Filter>
     </ClCompile>
     <ClCompile Include="assets.cpp">
@@ -178,32 +169,41 @@
     <ClCompile Include="shapes.cpp">
       <Filter>Source Files\Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="luarendering.cpp">
-      <Filter>Source Files\Scripting</Filter>
-    </ClCompile>
-    <ClCompile Include="luatransform.cpp">
-      <Filter>Source Files\Scripting</Filter>
-    </ClCompile>
-    <ClCompile Include="luaassets.cpp">
-      <Filter>Source Files\Scripting</Filter>
-    </ClCompile>
-    <ClCompile Include="luainput.cpp">
-      <Filter>Source Files\Scripting</Filter>
-    </ClCompile>
     <ClCompile Include="scripting.cpp">
       <Filter>Source Files\Scripting</Filter>
     </ClCompile>
-    <ClCompile Include="luasysteminfo.cpp">
+    <ClCompile Include="lua_assets.cpp">
       <Filter>Source Files\Scripting</Filter>
     </ClCompile>
-    <ClCompile Include="luacamera.cpp">
+    <ClCompile Include="lua_camera.cpp">
       <Filter>Source Files\Scripting</Filter>
     </ClCompile>
-    <ClCompile Include="lualog.cpp">
+    <ClCompile Include="lua_input.cpp">
       <Filter>Source Files\Scripting</Filter>
     </ClCompile>
-    <ClCompile Include="luashapes.cpp">
+    <ClCompile Include="lua_log.cpp">
       <Filter>Source Files\Scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="lua_rendering.cpp">
+      <Filter>Source Files\Scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="lua_shapes.cpp">
+      <Filter>Source Files\Scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="lua_systeminfo.cpp">
+      <Filter>Source Files\Scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="lua_transform.cpp">
+      <Filter>Source Files\Scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="instanced_model.cpp">
+      <Filter>Source Files\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="system_info.cpp">
+      <Filter>Source Files\System</Filter>
+    </ClCompile>
+    <ClCompile Include="thread_pool.cpp">
+      <Filter>Source Files\System</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -300,29 +300,14 @@
     <ClInclude Include="input.h">
       <Filter>Source Files\System</Filter>
     </ClInclude>
-    <ClInclude Include="coredata.h">
-      <Filter>Source Files\Utilities</Filter>
-    </ClInclude>
-    <ClInclude Include="threaddata.h">
-      <Filter>Source Files\System</Filter>
-    </ClInclude>
     <ClInclude Include="log.h">
       <Filter>Source Files\System</Filter>
     </ClInclude>
     <ClInclude Include="swap.h">
       <Filter>Source Files\Utilities</Filter>
     </ClInclude>
-    <ClInclude Include="swaparray.h">
-      <Filter>Source Files\Utilities</Filter>
-    </ClInclude>
     <ClInclude Include="array.h">
       <Filter>Source Files\Utilities</Filter>
-    </ClInclude>
-    <ClInclude Include="systeminfo.h">
-      <Filter>Source Files\System</Filter>
-    </ClInclude>
-    <ClInclude Include="threadpool.h">
-      <Filter>Source Files\System</Filter>
     </ClInclude>
     <ClInclude Include="queue.h">
       <Filter>Source Files\Utilities</Filter>
@@ -340,9 +325,6 @@
       <Filter>Source Files\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="graphics.h">
-      <Filter>Source Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="instancedmodel.h">
       <Filter>Source Files\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="assets.h">
@@ -369,35 +351,53 @@
     <ClInclude Include="shapes.h">
       <Filter>Source Files\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="luarendering.h">
-      <Filter>Source Files\Scripting</Filter>
-    </ClInclude>
-    <ClInclude Include="luatransform.h">
-      <Filter>Source Files\Scripting</Filter>
-    </ClInclude>
-    <ClInclude Include="luaassets.h">
-      <Filter>Source Files\Scripting</Filter>
-    </ClInclude>
-    <ClInclude Include="luainput.h">
-      <Filter>Source Files\Scripting</Filter>
-    </ClInclude>
     <ClInclude Include="scripting.h">
       <Filter>Source Files\Scripting</Filter>
     </ClInclude>
-    <ClInclude Include="luautils.h">
+    <ClInclude Include="lua_assets.h">
       <Filter>Source Files\Scripting</Filter>
     </ClInclude>
-    <ClInclude Include="luasysteminfo.h">
+    <ClInclude Include="lua_camera.h">
       <Filter>Source Files\Scripting</Filter>
     </ClInclude>
-    <ClInclude Include="luacamera.h">
+    <ClInclude Include="lua_input.h">
       <Filter>Source Files\Scripting</Filter>
     </ClInclude>
-    <ClInclude Include="lualog.h">
+    <ClInclude Include="lua_log.h">
       <Filter>Source Files\Scripting</Filter>
     </ClInclude>
-    <ClInclude Include="luashapes.h">
+    <ClInclude Include="lua_rendering.h">
       <Filter>Source Files\Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="lua_shapes.h">
+      <Filter>Source Files\Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="lua_systeminfo.h">
+      <Filter>Source Files\Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="lua_transform.h">
+      <Filter>Source Files\Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="lua_utils.h">
+      <Filter>Source Files\Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="instanced_model.h">
+      <Filter>Source Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="system_info.h">
+      <Filter>Source Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="thread_data.h">
+      <Filter>Source Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="thread_pool.h">
+      <Filter>Source Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="swap_array.h">
+      <Filter>Source Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="core_data.h">
+      <Filter>Source Files\Utilities</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

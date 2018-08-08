@@ -1,4 +1,4 @@
-#include "luacamera.h"
+#include "lua_camera.h"
 
 namespace LuaCamera
 {

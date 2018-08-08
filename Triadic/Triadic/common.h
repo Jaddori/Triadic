@@ -54,7 +54,7 @@ const glm::vec3 FORWARD( 0.0f, 0.0f, 1.0f );
 
 // Lua
 #include "Lua\lua.hpp"
-#include "luautils.h"
+#include "lua_utils.h"
 
 #define LUA_MAIN_SCRIPT "./assets/scripts/main.lua"
 
@@ -63,7 +63,7 @@ const glm::vec3 FORWARD( 0.0f, 0.0f, 1.0f );
 #include "array.h"
 #include "queue.h"
 #include "swap.h"
-#include "swaparray.h"
+#include "swap_array.h"
 //#include "Utils.h"
 
 struct Point
