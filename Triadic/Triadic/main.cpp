@@ -73,8 +73,8 @@ int update( void* args )
 int main( int argc, char* argv[] )
 {
 	LOG_START( "./log.txt" );
-	//LOG_WARNINGS();
-	LOG_INFORMATIONS();
+	LOG_WARNINGS();
+	//LOG_INFORMATIONS();
 
 	if( SDL_Init( SDL_INIT_AUDIO | SDL_INIT_EVENTS | SDL_INIT_TIMER ) )
 	{

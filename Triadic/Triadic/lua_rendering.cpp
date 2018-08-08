@@ -10,6 +10,7 @@ namespace LuaRendering
 		luaL_Reg renderingRegs[] =
 		{
 			{ "queueMesh", queueMesh },
+			{ "queueQuad", queueQuad },
 			{ "queueText", queueText },
 
 			{ NULL, NULL }
@@ -33,6 +34,45 @@ namespace LuaRendering
 				Transform* transform = lua_getuserdata<Transform>( lua, 2 );
 
 				g_coreData->graphics->queueMesh( meshIndex, transform );
+			}
+		}
+
+		return 0;
+	}
+
+	LDEC( queueQuad )
+	{
+		int args = lua_gettop( lua );
+		if( args != 4 && args != 6 )
+		{
+			LOG_ERROR( "Expected 3 or 5 argument(s). Got %d.", args );
+		}
+		else
+		{
+			if( LUA_EXPECT_NUMBER( 1 ) &&
+				LUA_EXPECT_TABLE( 2 ) &&
+				LUA_EXPECT_TABLE( 3 ) &&
+				LUA_EXPECT_TABLE( 4 ) )
+			{
+				int textureIndex = lua_toint( lua, 1 );
+
+				glm::vec2 position, size;
+				glm::vec4 color;
+
+				lua_getvec2( lua, 2, position );
+				lua_getvec2( lua, 3, size );
+				lua_getvec4( lua, 4, color );
+
+				glm::vec2 uvStart( 0, 0 ), uvEnd( 1, 1 );
+				if( args == 5 &&
+					LUA_EXPECT_TABLE( 5 ) &&
+					LUA_EXPECT_TABLE( 6 ) )
+				{
+					lua_getvec2( lua, 5, uvStart );
+					lua_getvec2( lua, 6, uvEnd );
+				}
+
+				g_coreData->graphics->queueQuad( textureIndex, position, size, uvStart, uvEnd, color );
 			}
 		}
 

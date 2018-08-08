@@ -26,6 +26,20 @@ namespace Rendering
 		Array<Glyph> glyphs[2];
 	};
 
+	struct Quad
+	{
+		glm::vec2 position;
+		glm::vec2 size;
+		glm::vec2 uvStart, uvEnd;
+		glm::vec4 color;
+	};
+
+	struct QuadCollection
+	{
+		const Texture* texture;
+		Array<Quad> quads[2];
+	};
+
 	class Graphics
 	{
 	public:
@@ -38,6 +52,7 @@ namespace Rendering
 		void render();
 
 		void queueMesh( int meshIndex, Transform* transform );
+		void queueQuad( int textureIndex, const glm::vec2& position, const glm::vec2& size, const glm::vec2& uvStart, const glm::vec2& uvEnd, const glm::vec4& color );
 		void queueText( int fontIndex, const char* text, const glm::vec2& position, const glm::vec4& color );
 
 		Camera* getCamera();
@@ -50,10 +65,6 @@ namespace Rendering
 
 		GLuint projectionLocation;
 		GLuint viewLocation;
-
-		Mesh floorMesh;
-		Model floorModel;
-		InstancedModel insFloorModel;
 
 		Assets assets;
 
@@ -68,6 +79,12 @@ namespace Rendering
 		GLuint textVAO;
 		GLuint textVBO;
 		Array<GlyphCollection> glyphCollections;
+
+		Shader quadShader;
+		GLuint quadProjectionLocation;
+		GLuint quadVAO;
+		GLuint quadVBO;
+		Array<QuadCollection> quadCollections;
 
 		int writeIndex, readIndex;
 	};

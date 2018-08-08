@@ -36,6 +36,7 @@
 #define WORLD_MATRIX_QUEUE_INITIAL_CAPACITY 100
 
 #define GRAPHICS_MAX_GLYPHS 128
+#define GRAPHICS_MAX_QUADS 128
 
 // Maths
 #include "glm\glm.hpp"

@@ -9,5 +9,6 @@ namespace LuaRendering
 	void bind( lua_State* lua, CoreData* coreData );
 
 	LDEC( queueMesh );
+	LDEC( queueQuad );
 	LDEC( queueText );
 }
