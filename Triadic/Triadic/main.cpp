@@ -8,6 +8,8 @@
 #include "rendering.h"
 #include "entity.h"
 #include "player.h"
+#include "level.h"
+#include "shapes.h"
 
 using namespace System;
 
@@ -33,7 +35,7 @@ int update( void* args )
 			lastTick = curTick;
 
 			// update subsystems
-			data->player->update();
+			data->player->update( deltaTime );
 
 			Point mouseDelta = input.getMouseDelta();
 			if( input.buttonDown( SDL_BUTTON_LEFT ) )
@@ -99,19 +101,7 @@ int main( int argc, char* argv[] )
 				return -1;
 			}
 
-			//glEnable( GL_CULL_FACE );
 			glEnable( GL_DEPTH_TEST );
-
-			//Camera camera;
-			//camera.updatePerspective( WINDOW_WIDTH, WINDOW_HEIGHT );
-			//camera.setPosition( glm::vec3( 0, 0, -10 ) );
-			//
-			//Shader shader;
-			//shader.load( "./assets/shaders/basic.vs", NULL, "./assets/shaders///basic.fs" );
-			//
-			//Texture texture;
-			//texture.load( "./assets/textures/palette.dds" );
-			//texture.upload();
 
 			Graphics graphics;
 			graphics.load();
@@ -122,23 +112,20 @@ int main( int argc, char* argv[] )
 			ThreadPool threadPool;
 			threadPool.load();
 
-			//Mesh mesh;
-			//mesh.load( "./assets/models/pillar.mesh" );
-			//mesh.upload();
-			//
-			//Model model;
-			//model.load( &mesh, &texture );
-			//
-			//GLuint projectionLocation = shader.getLocation( "projectionMatrix" );
-			//GLuint viewLocation = shader.getLocation( "viewMatrix" );
-			//GLuint uvOffsetLocation = shader.getLocation( "uvOffset" );
-
 			bool running = true;
 			int timeElapsed = 0;
 			int fps = 0;
 			bool mouseDown = false;
 
 			Input input;
+
+			DebugShapes debugShapes;
+			if( !debugShapes.load() )
+			{
+				LOG_ERROR( "Failed to load debug shapes." );
+				return -1;
+			}
+			debugShapes.upload();
 
 			CoreData coreData = {};
 			coreData.input = &input;
@@ -147,6 +134,8 @@ int main( int argc, char* argv[] )
 			coreData.camera = graphics.getCamera();
 			coreData.assets = graphics.getAssets();
 			coreData.graphics = &graphics;
+			coreData.debugShapes = &debugShapes;
+			coreData.transientMemory = (char*)malloc( CORE_DATA_TRANSIENT_MEMORY_SIZE );
 
 			LOG_INFO( "Initializing Entity." );
 			Entity::setCoreData( &coreData );
@@ -155,6 +144,13 @@ int main( int argc, char* argv[] )
 			if( !player.load() )
 			{
 				LOG_ERROR( "Failed to load player." );
+				return -1;
+			}
+
+			Level level;
+			if( !level.load( "./assets/levels/level01.txt" ) )
+			{
+				LOG_ERROR( "Failed to load level." );
 				return -1;
 			}
 
@@ -182,9 +178,35 @@ int main( int argc, char* argv[] )
 						input.update( &e );
 					}
 
+					DebugLine xline = 
+					{
+						glm::vec3(),
+						glm::vec3( 10.0f, 0.0f, 0.0f ),
+						glm::vec4( 1.0f, 0.0f, 0.0f, 1.0f )
+					};
+
+					DebugLine yline = 
+					{
+						glm::vec3(),
+						glm::vec3( 0.0f, 10.0f, 0.0f ),
+						glm::vec4( 0.0f, 1.0f, 0.0f, 1.0f )
+					};
+
+					DebugLine zline =
+					{
+						glm::vec3(),
+						glm::vec3( 0.0f, 0.0f, 10.0f ),
+						glm::vec4( 0.0f, 0.0f, 1.0f, 1.0f )
+					};
+
+					debugShapes.addLine( xline );
+					debugShapes.addLine( yline );
+					debugShapes.addLine( zline );
+
 					// finalize objects
 					graphics.getAssets()->upload();
 					graphics.finalize();
+					debugShapes.finalize();
 
 					threadPool.schedule();
 
@@ -197,21 +219,15 @@ int main( int argc, char* argv[] )
 				// render
 				systemInfo.startRender();
 
-				glClearColor( 1.0f, 0.0f, 0.0f, 0.0f );
+				glClearColor( 0.1f, 0.1f, 0.1f, 0.0f );
 				glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-				//shader.bind();
-				//shader.setMat4( projectionLocation, camera.getProjectionMatrix() );
-				//shader.setMat4( viewLocation, camera.getViewMatrix() );
-				//shader.setVec2( uvOffsetLocation, glm::vec2( 0.0f, 0.0f ) );
-				//
-				//texture.bind();
-				//
-				//model.render();
-
 				player.render();
+				level.render();
 
 				graphics.render();
+
+				debugShapes.render( graphics.getCamera()->getProjectionMatrix(), graphics.getCamera()->getViewMatrix() );
 
 				SDL_GL_SwapWindow( window );
 

@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "coredata.h"
+#include "rendering.h"
 
 class Entity
 {

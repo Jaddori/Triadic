@@ -4,6 +4,8 @@
 #include "rendering.h"
 #include "entity.h"
 
+#define PLAYER_SPEED 10.0f
+
 class Player : public Entity
 {
 public:
@@ -12,7 +14,7 @@ public:
 
 	bool load();
 
-	void update();
+	void update( float deltaTime );
 	void render();
 
 private:

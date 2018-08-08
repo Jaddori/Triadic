@@ -152,6 +152,7 @@
     <ClCompile Include="graphics.cpp" />
     <ClCompile Include="input.cpp" />
     <ClCompile Include="instancedmodel.cpp" />
+    <ClCompile Include="level.cpp" />
     <ClCompile Include="log.cpp" />
     <ClCompile Include="Lua\lapi.c" />
     <ClCompile Include="Lua\lauxlib.c" />
@@ -189,7 +190,9 @@
     <ClCompile Include="mesh.cpp" />
     <ClCompile Include="model.cpp" />
     <ClCompile Include="player.cpp" />
+    <ClCompile Include="prop.cpp" />
     <ClCompile Include="shader.cpp" />
+    <ClCompile Include="shapes.cpp" />
     <ClCompile Include="systeminfo.cpp" />
     <ClCompile Include="texture.cpp" />
     <ClCompile Include="threadpool.cpp" />
@@ -206,6 +209,7 @@
     <ClInclude Include="graphics.h" />
     <ClInclude Include="input.h" />
     <ClInclude Include="instancedmodel.h" />
+    <ClInclude Include="level.h" />
     <ClInclude Include="log.h" />
     <ClInclude Include="Lua\lapi.h" />
     <ClInclude Include="Lua\lauxlib.h" />
@@ -236,12 +240,15 @@
     <ClInclude Include="model.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="point.h" />
+    <ClInclude Include="prop.h" />
     <ClInclude Include="queue.h" />
     <ClInclude Include="rendering.h" />
     <ClInclude Include="shader.h" />
+    <ClInclude Include="shapes.h" />
     <ClInclude Include="swap.h" />
     <ClInclude Include="swaparray.h" />
     <ClInclude Include="systeminfo.h" />
+    <ClInclude Include="text.h" />
     <ClInclude Include="texture.h" />
     <ClInclude Include="threaddata.h" />
     <ClInclude Include="threadpool.h" />

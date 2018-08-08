@@ -75,7 +75,7 @@ const glm::mat4& Transform::getWorldMatrix()
 {
 	if( dirty )
 	{
-		worldMatrix = glm::scale( glm::toMat4( orientation ) * glm::translate( IDENT, position ), scale );
+		worldMatrix = glm::scale( glm::translate( IDENT, position ) * glm::toMat4( orientation ), scale );
 	}
 
 	return worldMatrix;
