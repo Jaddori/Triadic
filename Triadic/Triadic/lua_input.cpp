@@ -6,22 +6,68 @@ namespace LuaInput
 
 	void bind( lua_State* lua, CoreData* coreData )
 	{
-		// set global variables
+		// set keys
 		lua_newtable( lua );
 
-		lua_pushnumber( lua, SDL_SCANCODE_LEFT );
-		lua_setfield( lua, -2, "Left" );
+		lua_setnumber( lua, "Zero", SDL_SCANCODE_0 );
+		lua_setnumber( lua, "One", SDL_SCANCODE_1 );
+		lua_setnumber( lua, "Two", SDL_SCANCODE_2 );
+		lua_setnumber( lua, "Three", SDL_SCANCODE_3 );
+		lua_setnumber( lua, "Four", SDL_SCANCODE_4 );
+		lua_setnumber( lua, "Five", SDL_SCANCODE_5 );
+		lua_setnumber( lua, "Six", SDL_SCANCODE_6 );
+		lua_setnumber( lua, "Seven", SDL_SCANCODE_7 );
+		lua_setnumber( lua, "Eight", SDL_SCANCODE_8 );
+		lua_setnumber( lua, "Nine", SDL_SCANCODE_9 );
 
-		lua_pushnumber( lua, SDL_SCANCODE_RIGHT );
-		lua_setfield( lua, -2, "Right" );
+		lua_setnumber( lua, "KeypadZero", SDL_SCANCODE_KP_0 );
+		lua_setnumber( lua, "KeypadOne", SDL_SCANCODE_KP_1 );
+		lua_setnumber( lua, "KeypadTwo", SDL_SCANCODE_KP_2 );
+		lua_setnumber( lua, "KeypadThree", SDL_SCANCODE_KP_3 );
+		lua_setnumber( lua, "KeypadFour", SDL_SCANCODE_KP_4 );
+		lua_setnumber( lua, "KeypadFive", SDL_SCANCODE_KP_5 );
+		lua_setnumber( lua, "KeypadSix", SDL_SCANCODE_KP_6 );
+		lua_setnumber( lua, "KeypadSeven", SDL_SCANCODE_KP_7 );
+		lua_setnumber( lua, "KeypadEight", SDL_SCANCODE_KP_8 );
+		lua_setnumber( lua, "KeypadNine", SDL_SCANCODE_KP_9 );
+		
+		lua_setnumber( lua, "Backspace", SDL_SCANCODE_BACKSPACE );
+		lua_setnumber( lua, "Escape",SDL_SCANCODE_ESCAPE );
+		lua_setnumber( lua, "Space", SDL_SCANCODE_SPACE );
+		lua_setnumber( lua, "LeftAlt",SDL_SCANCODE_LALT );
+		lua_setnumber( lua, "LeftControl", SDL_SCANCODE_LCTRL );
+		lua_setnumber( lua, "LeftShift", SDL_SCANCODE_LSHIFT );
+		lua_setnumber( lua, "RightAlt",SDL_SCANCODE_RALT );
+		lua_setnumber( lua, "RightControl", SDL_SCANCODE_RCTRL );
+		lua_setnumber( lua, "RightShift", SDL_SCANCODE_RSHIFT );
 
-		lua_pushnumber( lua, SDL_SCANCODE_UP );
-		lua_setfield( lua, -2, "Up" );
+		lua_setnumber( lua, "Left", SDL_SCANCODE_LEFT );
+		lua_setnumber( lua, "Right", SDL_SCANCODE_RIGHT );
+		lua_setnumber( lua, "Up", SDL_SCANCODE_UP );
+		lua_setnumber( lua, "Down", SDL_SCANCODE_DOWN );
 
-		lua_pushnumber( lua, SDL_SCANCODE_DOWN );
-		lua_setfield( lua, -2, "Down" );
+		// set ascii keys
+		for( int i=SDL_SCANCODE_A; i<=SDL_SCANCODE_Z; i++ )
+		{
+			char name[2] = { i - SDL_SCANCODE_A + 'A', 0 };
+			lua_setnumber( lua, name, i );
+		}
 
 		lua_setglobal( lua, "Keys" );
+
+		// set buttons
+		lua_newtable( lua );
+
+		lua_pushnumber( lua, SDL_BUTTON_LEFT );
+		lua_setfield( lua, -2, "Left" );
+
+		lua_pushnumber( lua, SDL_BUTTON_RIGHT );
+		lua_setfield( lua, -2, "Right" );
+
+		lua_pushnumber( lua, SDL_BUTTON_MIDDLE );
+		lua_setfield( lua, -2, "Middle" );
+
+		lua_setglobal( lua, "Buttons" );
 
 		// register input metatable
 		luaL_newmetatable( lua, "inputMeta" );
@@ -181,7 +227,7 @@ namespace LuaInput
 
 	LDEC( getMousePosition )
 	{
-		Point position = g_coreData->input->getMouseDelta();
+		Point position = g_coreData->input->getMousePosition();
 		glm::vec2 value( position.x, position.y );
 
 		lua_newtable( lua );

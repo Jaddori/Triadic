@@ -15,8 +15,8 @@ void Graphics::load()
 {
 	shader.load( "./assets/shaders/instanced.vs", NULL, "./assets/shaders/instanced.fs" );
 
-	camera.updatePerspective( WINDOW_WIDTH, WINDOW_HEIGHT );
-	camera.setPosition( glm::vec3( 0, 0, -10 ) );
+	perspectiveCamera.updatePerspective( WINDOW_WIDTH, WINDOW_HEIGHT );
+	perspectiveCamera.setPosition( glm::vec3( 0, 0, -10 ) );
 
 	texture.load( "./assets/textures/palette.dds" );
 	texture.upload();
@@ -83,7 +83,7 @@ void Graphics::load()
 
 void Graphics::finalize()
 {
-	camera.finalize();
+	perspectiveCamera.finalize();
 	orthographicCamera.finalize();
 
 	writeIndex = ( writeIndex + 1 ) % 2;
@@ -128,8 +128,8 @@ void Graphics::finalize()
 void Graphics::render()
 {
 	shader.bind();
-	shader.setMat4( projectionLocation, camera.getProjectionMatrix() );
-	shader.setMat4( viewLocation, camera.getViewMatrix() );
+	shader.setMat4( projectionLocation, perspectiveCamera.getProjectionMatrix() );
+	shader.setMat4( viewLocation, perspectiveCamera.getViewMatrix() );
 
 	texture.bind();
 
@@ -333,9 +333,19 @@ void Graphics::queueText( int fontIndex, const char* text, const glm::vec2& posi
 	}
 }
 
-Camera* Graphics::getCamera()
+//Camera* Graphics::getCamera()
+//{
+//	return &camera;
+//}
+
+Camera* Graphics::getPerspectiveCamera()
 {
-	return &camera;
+	return &perspectiveCamera;
+}
+
+Camera* Graphics::getOrthographicCamera()
+{
+	return &orthographicCamera;
 }
 
 Assets* Graphics::getAssets()

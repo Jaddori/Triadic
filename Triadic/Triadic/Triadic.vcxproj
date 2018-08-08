@@ -156,6 +156,7 @@
     <ClCompile Include="log.cpp" />
     <ClCompile Include="lua_assets.cpp" />
     <ClCompile Include="lua_camera.cpp" />
+    <ClCompile Include="lua_filesystem.cpp" />
     <ClCompile Include="lua_input.cpp" />
     <ClCompile Include="lua_log.cpp" />
     <ClCompile Include="lua_rendering.cpp" />
@@ -221,6 +222,7 @@
     <ClInclude Include="log.h" />
     <ClInclude Include="lua_assets.h" />
     <ClInclude Include="lua_camera.h" />
+    <ClInclude Include="lua_filesystem.h" />
     <ClInclude Include="lua_input.h" />
     <ClInclude Include="lua_log.h" />
     <ClInclude Include="lua_rendering.h" />

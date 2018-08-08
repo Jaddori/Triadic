@@ -16,7 +16,6 @@ struct CoreData
 	SystemInfo* systemInfo;
 	bool* running;
 	char* transientMemory;
-	Rendering::Camera* camera;
 	Rendering::Assets* assets;
 	Rendering::Graphics* graphics;
 	Rendering::DebugShapes* debugShapes;

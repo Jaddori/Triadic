@@ -48,6 +48,7 @@ namespace LuaCamera
 		lua_newtable( lua );
 		lua_pushlightuserdata( lua, camera );
 		lua_setfield( lua, -2, "__self" );
+		luaL_setmetatable( lua, "cameraMeta" );
 
 		return 1;
 	}

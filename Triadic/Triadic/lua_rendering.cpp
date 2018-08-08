@@ -13,6 +13,9 @@ namespace LuaRendering
 			{ "queueQuad", queueQuad },
 			{ "queueText", queueText },
 
+			{ "getPerspectiveCamera", getPerspectiveCamera },
+			{ "getOrthographicCamera", getOrthographicCamera },
+
 			{ NULL, NULL }
 		};
 
@@ -101,5 +104,27 @@ namespace LuaRendering
 		}
 
 		return 0;
+	}
+
+	LDEC( getPerspectiveCamera )
+	{
+		Camera* camera = g_coreData->graphics->getPerspectiveCamera();
+
+		lua_newtable( lua );
+		lua_setuserdata( lua, "__self", camera );
+		luaL_setmetatable( lua, "cameraMeta" );
+
+		return 1;
+	}
+
+	LDEC( getOrthographicCamera )
+	{
+		Camera* camera = g_coreData->graphics->getOrthographicCamera();
+
+		lua_newtable( lua );
+		lua_setuserdata( lua, "__self", camera );
+		luaL_setmetatable( lua, "cameraMeta" );
+
+		return 1;
 	}
 }

@@ -205,6 +205,9 @@
     <ClCompile Include="thread_pool.cpp">
       <Filter>Source Files\System</Filter>
     </ClCompile>
+    <ClCompile Include="lua_filesystem.cpp">
+      <Filter>Source Files\Scripting</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Lua\lapi.h">
@@ -398,6 +401,9 @@
     </ClInclude>
     <ClInclude Include="core_data.h">
       <Filter>Source Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="lua_filesystem.h">
+      <Filter>Source Files\Scripting</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

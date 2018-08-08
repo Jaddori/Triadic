@@ -80,7 +80,8 @@ const glm::mat4& Transform::getWorldMatrix()
 {
 	if( dirty )
 	{
-		worldMatrix = glm::scale( glm::translate( IDENT, position ) * glm::toMat4( orientation ), scale );
+		//worldMatrix = glm::scale( glm::translate( IDENT, position ) * glm::toMat4( orientation ), scale );
+		worldMatrix = glm::translate( IDENT, position );
 	}
 
 	return worldMatrix;

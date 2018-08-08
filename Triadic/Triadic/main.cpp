@@ -19,7 +19,6 @@ int update( void* args )
 	ThreadData* data = (ThreadData*)args;
 
 	Input& input = *data->coreData->input;
-	Camera& camera = *data->coreData->camera;
 	Script& script = *data->script;
 
 	uint64_t lastTick = SDL_GetTicks();
@@ -42,20 +41,20 @@ int update( void* args )
 			script.update( deltaTime );
 			script.render();
 
-			Point mouseDelta = input.getMouseDelta();
-			if( input.buttonDown( SDL_BUTTON_LEFT ) )
-				camera.updateDirection( mouseDelta.x, mouseDelta.y );
-			
-			glm::vec3 movement;
-			if( input.keyDown( SDL_SCANCODE_A ) )
-				movement.x -= 1.0f;
-			if( input.keyDown( SDL_SCANCODE_D ) )
-				movement.x += 1.0f;
-			if( input.keyDown( SDL_SCANCODE_W ) )
-				movement.z += 1.0f;
-			if( input.keyDown( SDL_SCANCODE_S ) )
-				movement.z -= 1.0f;
-			camera.relativeMovement( movement );
+			//Point mouseDelta = input.getMouseDelta();
+			//if( input.buttonDown( SDL_BUTTON_LEFT ) )
+			//	camera.updateDirection( mouseDelta.x, mouseDelta.y );
+			//
+			//glm::vec3 movement;
+			//if( input.keyDown( SDL_SCANCODE_A ) )
+			//	movement.x -= 1.0f;
+			//if( input.keyDown( SDL_SCANCODE_D ) )
+			//	movement.x += 1.0f;
+			//if( input.keyDown( SDL_SCANCODE_W ) )
+			//	movement.z += 1.0f;
+			//if( input.keyDown( SDL_SCANCODE_S ) )
+			//	movement.z -= 1.0f;
+			//camera.relativeMovement( movement );
 
 			data->coreData->systemInfo->stopUpdate();
 
@@ -138,7 +137,6 @@ int main( int argc, char* argv[] )
 			coreData.input = &input;
 			coreData.systemInfo = &systemInfo;
 			coreData.running = &running;
-			coreData.camera = graphics.getCamera();
 			coreData.assets = graphics.getAssets();
 			coreData.graphics = &graphics;
 			coreData.debugShapes = &debugShapes;
@@ -204,7 +202,7 @@ int main( int argc, char* argv[] )
 
 				graphics.render();
 
-				debugShapes.render( graphics.getCamera()->getProjectionMatrix(), graphics.getCamera()->getViewMatrix() );
+				debugShapes.render( graphics.getPerspectiveCamera()->getProjectionMatrix(), graphics.getPerspectiveCamera()->getViewMatrix() );
 
 				SDL_GL_SwapWindow( window );
 

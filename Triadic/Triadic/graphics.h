@@ -55,11 +55,14 @@ namespace Rendering
 		void queueQuad( int textureIndex, const glm::vec2& position, const glm::vec2& size, const glm::vec2& uvStart, const glm::vec2& uvEnd, const glm::vec4& color );
 		void queueText( int fontIndex, const char* text, const glm::vec2& position, const glm::vec4& color );
 
-		Camera* getCamera();
+		//Camera* getCamera();
+		Camera* getPerspectiveCamera();
+		Camera* getOrthographicCamera();
 		Assets* getAssets();
 
 	private:
-		Camera camera;
+		//Camera camera;
+		Camera perspectiveCamera;
 		Shader shader;
 		Texture texture;
 

@@ -11,6 +11,7 @@
 #include "lua_camera.h"
 #include "lua_log.h"
 #include "lua_shapes.h"
+#include "lua_filesystem.h"
 
 namespace Scripting
 {

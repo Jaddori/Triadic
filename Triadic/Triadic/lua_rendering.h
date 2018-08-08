@@ -11,4 +11,7 @@ namespace LuaRendering
 	LDEC( queueMesh );
 	LDEC( queueQuad );
 	LDEC( queueText );
+
+	LDEC( getPerspectiveCamera );
+	LDEC( getOrthographicCamera );
 }

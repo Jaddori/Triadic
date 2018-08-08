@@ -9,10 +9,10 @@ namespace LuaLog
 		luaL_newmetatable( lua, "logMeta" );
 		luaL_Reg logRegs[] =
 		{
-			{ "logInfo", logInfo },
-			{ "logWarning", logWarning },
-			{ "logError", logError },
-			{ "logDebug", logDebug },
+			{ "info", logInfo },
+			{ "warning", logWarning },
+			{ "error", logError },
+			{ "debug", logDebug },
 
 			{ NULL, NULL }
 		};

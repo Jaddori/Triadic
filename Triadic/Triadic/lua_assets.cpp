@@ -33,11 +33,14 @@ namespace LuaAssets
 			{ "getBitmapSize", getBitmapSize },
 			{ "getWidth", getWidth },
 			{ "getHeight", getHeight },
+
+			{ NULL, NULL }
 		};
 
-		luaL_setfuncs( lua, assetsRegs, 0 );
+		luaL_setfuncs( lua, fontRegs, 0 );
 		lua_pushvalue( lua, -1 );
 		lua_setfield( lua, -2, "__index" );
+		lua_setglobal( lua, "Font" );
 
 		g_coreData = coreData;
 	}
@@ -125,6 +128,8 @@ namespace LuaAssets
 				lua_pushlightuserdata( lua, (void*)font );
 				lua_setfield( lua, -2, "__self" );
 				luaL_setmetatable( lua, "fontMeta" );
+
+				result = 1;
 			}
 		}
 
