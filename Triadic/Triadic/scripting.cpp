@@ -138,7 +138,7 @@ void Script::run( int functionReference, const char* debugName )
 	if( valid )
 	{
 		lua_rawgeti( lua, LUA_REGISTRYINDEX, functionReference );
-		if( lua_pcall( lua, 0, 0, 0, ) != 0 )
+		if( lua_pcall( lua, 0, 0, 0 ) != 0 )
 		{
 			LOG_ERROR( "Failed to run function reference for: %s", debugName );
 			LOG_ERROR( "%s", lua_tostring( lua, -1 ) );

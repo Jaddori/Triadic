@@ -20,7 +20,7 @@ void SystemInfo::poll()
 	PROCESS_MEMORY_COUNTERS memInfo;
 	GetProcessMemoryInfo( GetCurrentProcess(), &memInfo, sizeof(memInfo) );
 
-	ram = memInfo.PagefileUsage;
+	ram = (int)memInfo.PagefileUsage;
 }
 
 void SystemInfo::startUpdate()

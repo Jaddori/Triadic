@@ -58,14 +58,14 @@ namespace LuaSystemInfo
 
 	LDEC( getUpdateMs )
 	{
-		float ms = g_coreData->systemInfo->getUpdateMs();
+		int ms = g_coreData->systemInfo->getUpdateMs();
 		lua_pushnumber( lua, ms );
 		return 1;
 	}
 
 	LDEC( getRenderMs )
 	{
-		float ms = g_coreData->systemInfo->getRenderMs();
+		int ms = g_coreData->systemInfo->getRenderMs();
 		lua_pushnumber( lua, ms );
 		return 1;
 	}

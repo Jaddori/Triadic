@@ -215,7 +215,7 @@ int main( int argc, char* argv[] )
 				
 				uint64_t minTicks = TICKS_PER_FRAME;
 				if( elapsedTicks < minTicks )
-					SDL_Delay( minTicks - elapsedTicks );
+					SDL_Delay( (Uint32)( minTicks - elapsedTicks ) );
 			}
 
 			LOG_INFO( "Waiting for update thread to finish." );
