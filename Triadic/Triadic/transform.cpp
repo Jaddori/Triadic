@@ -51,6 +51,11 @@ void Transform::setScale( const glm::vec3& s )
 	dirty = true;
 }
 
+void Transform::setActive( bool a )
+{
+	active = a;
+}
+
 const glm::vec3& Transform::getPosition() const
 {
 	return position;

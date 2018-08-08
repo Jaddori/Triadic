@@ -7,11 +7,12 @@
 #include "coredata.h"
 #include "rendering.h"
 #include "entity.h"
-#include "player.h"
 #include "level.h"
 #include "shapes.h"
+#include "scripting.h"
 
 using namespace System;
+using namespace Scripting;
 
 int update( void* args )
 {
@@ -19,6 +20,7 @@ int update( void* args )
 
 	Input& input = *data->coreData->input;
 	Camera& camera = *data->coreData->camera;
+	Script& script = *data->script;
 
 	uint64_t lastTick = SDL_GetTicks();
 
@@ -27,6 +29,8 @@ int update( void* args )
 		int result = SDL_SemWaitTimeout( data->renderDone, THREAD_UPDATE_WAIT );
 		if( result == 0 )
 		{
+			data->coreData->systemInfo->startUpdate();
+
 			if( input.keyDown( SDL_SCANCODE_ESCAPE ) )
 				*data->coreData->running = false;
 
@@ -35,7 +39,9 @@ int update( void* args )
 			lastTick = curTick;
 
 			// update subsystems
-			data->player->update( deltaTime );
+			script.update( deltaTime );
+			script.render();
+			//data->player->update( deltaTime );
 
 			Point mouseDelta = input.getMouseDelta();
 			if( input.buttonDown( SDL_BUTTON_LEFT ) )
@@ -51,6 +57,8 @@ int update( void* args )
 			if( input.keyDown( SDL_SCANCODE_S ) )
 				movement.z -= 1.0f;
 			camera.relativeMovement( movement );
+
+			data->coreData->systemInfo->stopUpdate();
 
 			SDL_SemPost( data->updateDone );
 		}
@@ -88,6 +96,8 @@ int main( int argc, char* argv[] )
 
 		if( context )
 		{
+			SDL_GL_SetSwapInterval( 0 );
+
 			LOG_INFO( "OpenGL context created." );
 
 			glewExperimental = GL_TRUE;
@@ -113,8 +123,6 @@ int main( int argc, char* argv[] )
 			threadPool.load();
 
 			bool running = true;
-			int timeElapsed = 0;
-			int fps = 0;
 			bool mouseDown = false;
 
 			Input input;
@@ -140,12 +148,12 @@ int main( int argc, char* argv[] )
 			LOG_INFO( "Initializing Entity." );
 			Entity::setCoreData( &coreData );
 
-			Player player;
-			if( !player.load() )
-			{
-				LOG_ERROR( "Failed to load player." );
-				return -1;
-			}
+			//Player player;
+			//if( !player.load() )
+			//{
+			//	LOG_ERROR( "Failed to load player." );
+			//	return -1;
+			//}
 
 			Level level;
 			if( !level.load( "./assets/levels/level01.txt" ) )
@@ -154,11 +162,16 @@ int main( int argc, char* argv[] )
 				return -1;
 			}
 
+			Script script;
+			script.bind( &coreData );
+			script.load();
+
 			ThreadData threadData;
 			threadData.coreData = &coreData;
 			threadData.updateDone = SDL_CreateSemaphore( 0 );
 			threadData.renderDone = SDL_CreateSemaphore( 1 );
-			threadData.player = &player;
+			//threadData.player = &player;
+			threadData.script = &script;
 
 			SDL_Thread* updateThread = SDL_CreateThread( update, NULL, &threadData );
 
@@ -178,31 +191,6 @@ int main( int argc, char* argv[] )
 						input.update( &e );
 					}
 
-					DebugLine xline = 
-					{
-						glm::vec3(),
-						glm::vec3( 10.0f, 0.0f, 0.0f ),
-						glm::vec4( 1.0f, 0.0f, 0.0f, 1.0f )
-					};
-
-					DebugLine yline = 
-					{
-						glm::vec3(),
-						glm::vec3( 0.0f, 10.0f, 0.0f ),
-						glm::vec4( 0.0f, 1.0f, 0.0f, 1.0f )
-					};
-
-					DebugLine zline =
-					{
-						glm::vec3(),
-						glm::vec3( 0.0f, 0.0f, 10.0f ),
-						glm::vec4( 0.0f, 0.0f, 1.0f, 1.0f )
-					};
-
-					debugShapes.addLine( xline );
-					debugShapes.addLine( yline );
-					debugShapes.addLine( zline );
-
 					// finalize objects
 					graphics.getAssets()->upload();
 					graphics.finalize();
@@ -213,7 +201,6 @@ int main( int argc, char* argv[] )
 					SDL_SemPost( threadData.renderDone );
 				}
 
-				fps++;
 				uint64_t startTicks = SDL_GetTicks();
 
 				// render
@@ -222,7 +209,7 @@ int main( int argc, char* argv[] )
 				glClearColor( 0.1f, 0.1f, 0.1f, 0.0f );
 				glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-				player.render();
+				//player.render();
 				level.render();
 
 				graphics.render();
@@ -231,29 +218,20 @@ int main( int argc, char* argv[] )
 
 				SDL_GL_SwapWindow( window );
 
+				systemInfo.stopRender();
+
 				uint64_t endTicks = SDL_GetTicks();
 				uint64_t elapsedTicks = endTicks - startTicks;
-
-				timeElapsed += elapsedTicks;
-				if( timeElapsed > 1000 )
-				{
-					char buf[32] = {};
-					_snprintf( buf, 32, "FPS: %d", fps );
-					SDL_SetWindowTitle( window, buf );
-
-					timeElapsed -= 1000;
-					fps = 0;
-				}
 				
-				if( elapsedTicks < TICKS_PER_FRAME )
-					SDL_Delay( TICKS_PER_FRAME - elapsedTicks );
-
-				systemInfo.stopRender();
+				uint64_t minTicks = TICKS_PER_FRAME;
+				if( elapsedTicks < minTicks )
+					SDL_Delay( minTicks - elapsedTicks );
 			}
 
 			LOG_INFO( "Waiting for update thread to finish." );
 			SDL_WaitThread( updateThread, NULL );
 			
+			// UNLOAD
 			threadPool.unload();
 
 			LOG_INFO( "Deleting OpenGL context." );

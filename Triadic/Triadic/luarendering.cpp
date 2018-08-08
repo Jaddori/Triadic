@@ -1,0 +1,65 @@
+#include "luarendering.h"
+
+namespace LuaRendering
+{
+	static CoreData* g_coreData;
+
+	void bind( lua_State* lua, CoreData* coreData )
+	{
+		luaL_newmetatable( lua, "renderingMeta" );
+		luaL_Reg renderingRegs[] =
+		{
+			{ "queueMesh", queueMesh },
+			{ "queueText", queueText },
+
+			{ NULL, NULL }
+		};
+
+		luaL_setfuncs( lua, renderingRegs, 0 );
+		lua_pushvalue( lua, -1 );
+		lua_setfield( lua, -2, "__index" );
+		lua_setglobal( lua, "Graphics" );
+
+		g_coreData = coreData;
+	}
+
+	LDEC( queueMesh )
+	{
+		LUA_EXPECT_ARGS( 2 )
+		{
+			if( LUA_EXPECT_NUMBER( 1 ) && LUA_EXPECT_TABLE( 2 ) )
+			{
+				int meshIndex = lua_toint( lua, 1 );
+				Transform* transform = lua_getuserdata<Transform>( lua, 2 );
+
+				g_coreData->graphics->queueMesh( meshIndex, transform );
+			}
+		}
+
+		return 0;
+	}
+
+	LDEC( queueText )
+	{
+		LUA_EXPECT_ARGS( 4 )
+		{
+			if( LUA_EXPECT_NUMBER( 1 ) &&
+				LUA_EXPECT_STRING( 2 ) &&
+				LUA_EXPECT_TABLE( 3 ) &&
+				LUA_EXPECT_TABLE( 4 ) )
+			{
+				glm::vec2 position;
+				glm::vec4 color;
+
+				int fontIndex = lua_toint( lua, 1 );
+				const char* text = lua_tostring( lua, 2 );
+				lua_getvec2( lua, 3, position );
+				lua_getvec4( lua, 4, color );
+
+				g_coreData->graphics->queueText( fontIndex, text, position, color );
+			}
+		}
+
+		return 0;
+	}
+}

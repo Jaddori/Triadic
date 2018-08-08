@@ -99,6 +99,31 @@ void Graphics::finalize()
 	const int GLYPH_COLLECTION_COUNT = glyphCollections.getSize();
 	for( int i=0; i<GLYPH_COLLECTION_COUNT; i++ )
 		glyphCollections[i].glyphs[writeIndex].clear();
+
+	// finalize world matrices
+	const int MESH_COUNT = meshQueue.getSize();
+	for( int curMesh = 0; curMesh < MESH_COUNT; curMesh++ )
+	{
+		worldMatrixQueue[curMesh].clear();
+
+		int meshIndex = meshQueue[curMesh];
+		const Mesh* mesh = assets.getMesh( meshIndex );
+		Array<Transform*>& transforms = transformQueue[curMesh];
+
+		if( mesh->getUploaded() )
+		{
+			const int transformCount = transforms.getSize();
+			for( int curTransform = 0; curTransform < transformCount; curTransform++ )
+			{
+				if( transforms[curTransform]->getActive() )
+				{
+					worldMatrixQueue[curMesh].add( transforms[curTransform]->getWorldMatrix() );
+				}
+			}
+		}
+
+		transforms.clear();
+	}
 }
 
 void Graphics::render()
@@ -109,39 +134,24 @@ void Graphics::render()
 
 	texture.bind();
 
-	for( int curMesh = 0; curMesh < meshQueue.getSize(); curMesh++ )
+	const int MESH_COUNT = meshQueue.getSize();
+	for( int curMesh = 0; curMesh < MESH_COUNT; curMesh++ )
 	{
 		int meshIndex = meshQueue[curMesh];
 		const Mesh* mesh = assets.getMesh( meshIndex );
-		Array<Transform*>& transforms = transformQueue[curMesh];
+		Array<glm::mat4>& matrices = worldMatrixQueue[curMesh];
 
 		if( mesh->getUploaded() )
 		{
-			worldMatrixQueue.clear();
-
-			int activeTransforms = 0;
-
-			const int transformCount = transforms.getSize();
-			for( int curTransform = 0; curTransform < transformCount; curTransform++ )
-			{
-				if( transforms[curTransform]->getActive() )
-				{
-					worldMatrixQueue.add( transforms[curTransform]->getWorldMatrix() );
-					activeTransforms++;
-				}
-			}
-
 			mesh->bind();
 
 			glBindBuffer( GL_UNIFORM_BUFFER, uniformBuffer );
-			glBufferData( GL_UNIFORM_BUFFER, sizeof(glm::mat4)*worldMatrixQueue.getSize(), &worldMatrixQueue.getConstData()[0][0], GL_DYNAMIC_DRAW );
+			glBufferData( GL_UNIFORM_BUFFER, sizeof(glm::mat4)*matrices.getSize(), &matrices.getConstData()[0][0], GL_DYNAMIC_DRAW );
 
-			glDrawElementsInstanced( GL_TRIANGLES, mesh->getIndexCount(), GL_UNSIGNED_INT, NULL, activeTransforms );
+			glDrawElementsInstanced( GL_TRIANGLES, mesh->getIndexCount(), GL_UNSIGNED_INT, NULL, matrices.getSize() );
 
 			glBindBuffer( GL_UNIFORM_BUFFER, 0 );
 		}
-
-		transforms.clear();
 	}
 
 	// render text
@@ -194,6 +204,7 @@ void Graphics::queueMesh( int meshIndex, Transform* transform )
 
 		meshQueue.append() = meshIndex;
 		transformQueue.append();
+		worldMatrixQueue.append();
 	}
 
 	transformQueue[index].add( transform );

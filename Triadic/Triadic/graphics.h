@@ -59,7 +59,7 @@ namespace Rendering
 
 		Array<int> meshQueue;
 		Array<Array<Transform*>> transformQueue;
-		Array<glm::mat4> worldMatrixQueue;
+		Array<Array<glm::mat4>> worldMatrixQueue;
 		GLuint uniformBuffer;
 
 		Shader textShader;

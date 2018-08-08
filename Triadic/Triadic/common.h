@@ -17,8 +17,8 @@
 #define WINDOW_HEIGHT 720
 #define WINDOW_VIEWPORT glm::vec4( 0.0f, 0.0f, WINDOW_WIDTH, WINDOW_HEIGHT )
 
-#define FPS 144
-#define TICKS_PER_FRAME ( 1000.0f / FPS )
+#define FPS 200
+#define TICKS_PER_FRAME (uint64_t)( ( 1000.0f / FPS ) + 0.5f )
 
 // Threading
 #define THREAD_UPDATE_WAIT 1000
@@ -54,9 +54,11 @@ const glm::vec3 FORWARD( 0.0f, 0.0f, 1.0f );
 
 // Lua
 #include "Lua\lua.hpp"
-//#include "LuaUtils.h"
-//
-//// Core
+#include "luautils.h"
+
+#define LUA_MAIN_SCRIPT "./assets/scripts/main.lua"
+
+// Core
 #include "log.h"
 #include "array.h"
 #include "queue.h"
