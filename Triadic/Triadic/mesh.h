@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "vertex.h"
+#include "collision_solver.h"
 
 namespace Rendering
 {
@@ -24,6 +25,7 @@ namespace Rendering
 
 		const Vertex* getVertices() const;
 		const GLuint* getIndices() const;
+		const Physics::AABB* getBoundingBox() const;
 
 	private:
 		int vertexCount;
@@ -42,6 +44,8 @@ namespace Rendering
 				GLuint indexBuffer;
 			};
 		};
+
+		Physics::AABB boundingBox;
 
 		bool uploaded;
 	};

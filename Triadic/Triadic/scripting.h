@@ -13,6 +13,7 @@
 #include "lua_shapes.h"
 #include "lua_filesystem.h"
 #include "lua_physics.h"
+#include "lua_math.h"
 
 namespace Scripting
 {

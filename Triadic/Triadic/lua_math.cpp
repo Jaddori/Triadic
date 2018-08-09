@@ -9,6 +9,7 @@ namespace LuaMath
 		luaL_Reg vec2Regs[] =
 		{
 			{ "create", LuaVec2::create },
+			{ "copy", LuaVec2::copy },
 
 			{ "dot", LuaVec2::dot },
 			{ "normalize", LuaVec2::normalize },
@@ -33,6 +34,7 @@ namespace LuaMath
 		luaL_Reg vec3Regs[] =
 		{
 			{ "create", LuaVec3::create },
+			{ "copy", LuaVec3::copy },
 
 			{ "dot", LuaVec3::dot },
 			{ "normalize", LuaVec3::normalize },
@@ -57,6 +59,7 @@ namespace LuaMath
 		luaL_Reg vec4Regs[] =
 		{
 			{ "create", LuaVec4::create },
+			{ "copy", LuaVec4::copy },
 
 			{ "dot", LuaVec4::dot },
 			{ "normalize", LuaVec4::normalize },
@@ -98,6 +101,34 @@ namespace LuaMath
 			}
 
 			luaL_setmetatable( lua, "vec2Meta" );
+
+			return result;
+		}
+
+		LDEC( copy )
+		{
+			int result = 0;
+
+			int args = lua_gettop( lua );
+			if( args >= 1 )
+			{
+				if( LUA_EXPECT_TABLE( 1 ) )
+				{
+					glm::vec2 v;
+					lua_getvec2( lua, 1, v );
+
+					int tableIndex = 2;
+					if( args < 2 )
+					{
+						lua_newtable( lua );
+						tableIndex = -2;
+						result = 1;
+					}
+
+					lua_setvec2( lua, tableIndex, v );
+					luaL_setmetatable( lua, "vec2Meta" );
+				}
+			}
 
 			return result;
 		}
@@ -212,12 +243,13 @@ namespace LuaMath
 					if( args < 3 )
 					{
 						lua_newtable( lua );
-						tableIndex = -1;
+						tableIndex = -2;
 						result = 1;
 					}
 
 					glm::vec2 sum = a+b;
 					lua_setvec2( lua, tableIndex, sum );
+					luaL_setmetatable( lua, "vec2Meta" );
 				}
 			}
 
@@ -243,12 +275,13 @@ namespace LuaMath
 					if( args < 3 )
 					{
 						lua_newtable( lua );
-						tableIndex = -1;
+						tableIndex = -2;
 						result = 1;
 					}
 
 					glm::vec2 dif = a-b;
 					lua_setvec2( lua, tableIndex, dif );
+					luaL_setmetatable( lua, "vec2Meta" );
 				}
 			}
 
@@ -274,12 +307,13 @@ namespace LuaMath
 					if( args < 3 )
 					{
 						lua_newtable( lua );
-						tableIndex = -1;
+						tableIndex = -2;
 						result = 1;
 					}
 
 					glm::vec2 product = a*b;
 					lua_setvec2( lua, tableIndex, product );
+					luaL_setmetatable( lua, "vec2Meta" );
 				}
 				else if( lua_istable( lua, 1 ) &&
 						lua_isnumber( lua, 2 ) )
@@ -293,12 +327,13 @@ namespace LuaMath
 					if( args < 3 )
 					{
 						lua_newtable( lua );
-						tableIndex = -1;
+						tableIndex = -2;
 						result = 1;
 					}
 
 					glm::vec2 product = v*m;
 					lua_setvec2( lua, tableIndex, product );
+					luaL_setmetatable( lua, "vec2Meta" );
 				}
 			}
 
@@ -324,12 +359,13 @@ namespace LuaMath
 					if( args < 3 )
 					{
 						lua_newtable( lua );
-						tableIndex = -1;
+						tableIndex = -2;
 						result = 1;
 					}
 
 					glm::vec2 quot = a/b;
 					lua_setvec2( lua, tableIndex, quot );
+					luaL_setmetatable( lua, "vec2Meta" );
 				}
 				else if( lua_istable( lua, 1 ) &&
 					lua_isnumber( lua, 2 ) )
@@ -343,12 +379,13 @@ namespace LuaMath
 					if( args < 3 )
 					{
 						lua_newtable( lua );
-						tableIndex = -1;
+						tableIndex = -2;
 						result = 1;
 					}
 
 					glm::vec2 product = v/m;
 					lua_setvec2( lua, tableIndex, product );
+					luaL_setmetatable( lua, "vec2Meta" );
 				}
 			}
 
@@ -380,6 +417,44 @@ namespace LuaMath
 			}
 
 			luaL_setmetatable( lua, "vec3Meta" );
+
+			return result;
+		}
+
+		LDEC( copy )
+		{
+			int result = 0;
+
+			int args = lua_gettop( lua );
+			if( args >= 1 )
+			{
+				if( LUA_EXPECT_TABLE( 1 ) )
+				{
+					glm::vec3 v;
+					lua_getvec3( lua, 1, v );
+
+					if( args < 2 )
+					{
+						lua_newtable( lua );
+
+						lua_pushnumber( lua, v.x );
+						lua_rawseti( lua, -2, 1 );
+
+						lua_pushnumber( lua, v.y );
+						lua_rawseti( lua, -2, 2 );
+
+						lua_pushnumber( lua, v.z );
+						lua_rawseti( lua, -2, 3 );
+
+						luaL_setmetatable( lua, "vec3Meta" );
+
+						result = 1;
+					}
+
+					//lua_setvec3( lua, 2, v );
+					//luaL_setmetatable( lua, "vec3Meta" );
+				}
+			}
 
 			return result;
 		}
@@ -492,16 +567,18 @@ namespace LuaMath
 					lua_getvec3( lua, 1, a );
 					lua_getvec3( lua, 2, b );
 
+					glm::vec3 sum = a+b;
+
 					int tableIndex = 3;
 					if( args < 3 )
 					{
 						lua_newtable( lua );
-						tableIndex = -1;
+						tableIndex = -2;
 						result = 1;
 					}
 
-					glm::vec3 sum = a+b;
 					lua_setvec3( lua, tableIndex, sum );
+					luaL_setmetatable( lua, "vec3Meta" );
 				}
 			}
 
@@ -527,12 +604,13 @@ namespace LuaMath
 					if( args < 3 )
 					{
 						lua_newtable( lua );
-						tableIndex = -1;
+						tableIndex = -2;
 						result = 1;
 					}
 
 					glm::vec3 dif = a-b;
 					lua_setvec3( lua, tableIndex, dif );
+					luaL_setmetatable( lua, "vec3Meta" );
 				}
 			}
 
@@ -558,12 +636,13 @@ namespace LuaMath
 					if( args < 3 )
 					{
 						lua_newtable( lua );
-						tableIndex = -1;
+						tableIndex = -2;
 						result = 1;
 					}
 
 					glm::vec3 product = a*b;
 					lua_setvec3( lua, tableIndex, product );
+					luaL_setmetatable( lua, "vec3Meta" );
 				}
 				else if( lua_istable( lua, 1 ) &&
 					lua_isnumber( lua, 2 ) )
@@ -577,12 +656,13 @@ namespace LuaMath
 					if( args < 3 )
 					{
 						lua_newtable( lua );
-						tableIndex = -1;
+						tableIndex = -2;
 						result = 1;
 					}
 
 					glm::vec3 product = v*m;
 					lua_setvec3( lua, tableIndex, product );
+					luaL_setmetatable( lua, "vec3Meta" );
 				}
 			}
 
@@ -608,12 +688,13 @@ namespace LuaMath
 					if( args < 3 )
 					{
 						lua_newtable( lua );
-						tableIndex = -1;
+						tableIndex = -2;
 						result = 1;
 					}
 
 					glm::vec3 quot = a/b;
 					lua_setvec3( lua, tableIndex, quot );
+					luaL_setmetatable( lua, "vec3Meta" );
 				}
 				else if( lua_istable( lua, 1 ) &&
 					lua_isnumber( lua, 2 ) )
@@ -627,12 +708,13 @@ namespace LuaMath
 					if( args < 3 )
 					{
 						lua_newtable( lua );
-						tableIndex = -1;
+						tableIndex = -2;
 						result = 1;
 					}
 
 					glm::vec3 product = v/m;
 					lua_setvec3( lua, tableIndex, product );
+					luaL_setmetatable( lua, "vec3Meta" );
 				}
 			}
 
@@ -667,6 +749,34 @@ namespace LuaMath
 			}
 
 			luaL_setmetatable( lua, "vec4Meta" );
+
+			return result;
+		}
+
+		LDEC( copy )
+		{
+			int result = 0;
+
+			int args = lua_gettop( lua );
+			if( args >= 1 )
+			{
+				if( LUA_EXPECT_TABLE( 1 ) )
+				{
+					glm::vec4 v;
+					lua_getvec4( lua, 1, v );
+
+					int tableIndex = 2;
+					if( args < 2 )
+					{
+						lua_newtable( lua );
+						tableIndex = -2;
+						result = 1;
+					}
+
+					lua_setvec4( lua, tableIndex, v );
+					luaL_setmetatable( lua, "vec4Meta" );
+				}
+			}
 
 			return result;
 		}
@@ -785,12 +895,13 @@ namespace LuaMath
 					if( args < 3 )
 					{
 						lua_newtable( lua );
-						tableIndex = -1;
+						tableIndex = -2;
 						result = 1;
 					}
 
 					glm::vec4 sum = a+b;
 					lua_setvec4( lua, tableIndex, sum );
+					luaL_setmetatable( lua, "vec4Meta" );
 				}
 			}
 
@@ -816,12 +927,13 @@ namespace LuaMath
 					if( args < 3 )
 					{
 						lua_newtable( lua );
-						tableIndex = -1;
+						tableIndex = -2;
 						result = 1;
 					}
 
 					glm::vec4 dif = a-b;
 					lua_setvec4( lua, tableIndex, dif );
+					luaL_setmetatable( lua, "vec4Meta" );
 				}
 			}
 
@@ -847,12 +959,13 @@ namespace LuaMath
 					if( args < 3 )
 					{
 						lua_newtable( lua );
-						tableIndex = -1;
+						tableIndex = -2;
 						result = 1;
 					}
 
 					glm::vec4 product = a*b;
 					lua_setvec4( lua, tableIndex, product );
+					luaL_setmetatable( lua, "vec4Meta" );
 				}
 				else if( lua_istable( lua, 1 ) &&
 					lua_isnumber( lua, 2 ) )
@@ -866,12 +979,13 @@ namespace LuaMath
 					if( args < 3 )
 					{
 						lua_newtable( lua );
-						tableIndex = -1;
+						tableIndex = -2;
 						result = 1;
 					}
 
 					glm::vec4 product = v*m;
 					lua_setvec4( lua, tableIndex, product );
+					luaL_setmetatable( lua, "vec4Meta" );
 				}
 			}
 
@@ -897,12 +1011,13 @@ namespace LuaMath
 					if( args < 3 )
 					{
 						lua_newtable( lua );
-						tableIndex = -1;
+						tableIndex = -2;
 						result = 1;
 					}
 
 					glm::vec4 quot = a/b;
 					lua_setvec4( lua, tableIndex, quot );
+					luaL_setmetatable( lua, "vec4Meta" );
 				}
 				else if( lua_istable( lua, 1 ) &&
 					lua_isnumber( lua, 2 ) )
@@ -916,12 +1031,13 @@ namespace LuaMath
 					if( args < 3 )
 					{
 						lua_newtable( lua );
-						tableIndex = -1;
+						tableIndex = -2;
 						result = 1;
 					}
 
 					glm::vec4 product = v/m;
 					lua_setvec4( lua, tableIndex, product );
+					luaL_setmetatable( lua, "vec4Meta" );
 				}
 			}
 

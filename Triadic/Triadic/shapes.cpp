@@ -187,6 +187,9 @@ void DebugShapes::render( const glm::mat4& projectionMatrix, const glm::mat4& vi
 {
 	if( visible )
 	{
+		glEnable( GL_BLEND );
+		glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+
 		if( ignoreDepth )
 			glDisable( GL_DEPTH_TEST );
 
@@ -292,6 +295,7 @@ void DebugShapes::render( const glm::mat4& projectionMatrix, const glm::mat4& vi
 
 		if( ignoreDepth )
 			glEnable( GL_DEPTH_TEST );
+		glDisable( GL_BLEND );
 	}
 }
 

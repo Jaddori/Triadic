@@ -9,6 +9,10 @@ function StateEditor:load()
 	Editor:load()
 end
 
+function StateEditor:unload()
+	Editor:unload()
+end
+
 function StateEditor:update( deltaTime )
 	Editor:update( deltaTime )
 end

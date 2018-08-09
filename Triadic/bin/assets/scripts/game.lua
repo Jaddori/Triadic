@@ -17,6 +17,12 @@ function Game:load()
 	end
 end
 
+function Game:unload()
+	for _,v in pairs(self.states) do
+		v:unload()
+	end
+end
+
 function Game:update( deltaTime )
 	self.states[self.currentState]:update( deltaTime )
 end

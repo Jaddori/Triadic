@@ -43,6 +43,7 @@ bool Script::bind( CoreData* coreData )
 		LuaShapes::bind( lua, coreData );
 		LuaFilesystem::bind( lua );
 		LuaPhysics::bind( lua, coreData );
+		LuaMath::bind( lua );
 
 		// load main script
 		LOG_INFO( "Loading main script." );

@@ -161,6 +161,7 @@
     <ClCompile Include="lua_filesystem.cpp" />
     <ClCompile Include="lua_input.cpp" />
     <ClCompile Include="lua_log.cpp" />
+    <ClCompile Include="lua_math.cpp" />
     <ClCompile Include="lua_physics.cpp" />
     <ClCompile Include="lua_rendering.cpp" />
     <ClCompile Include="lua_shapes.cpp" />
@@ -231,6 +232,7 @@
     <ClInclude Include="lua_filesystem.h" />
     <ClInclude Include="lua_input.h" />
     <ClInclude Include="lua_log.h" />
+    <ClInclude Include="lua_math.h" />
     <ClInclude Include="lua_physics.h" />
     <ClInclude Include="lua_rendering.h" />
     <ClInclude Include="lua_shapes.h" />

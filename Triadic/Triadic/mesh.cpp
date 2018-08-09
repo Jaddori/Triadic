@@ -33,6 +33,29 @@ bool Mesh::load( const char* path )
 			fread( indices, sizeof(GLuint), indexCount, file );
 
 			result = true;
+
+			// calculate bounding box
+			glm::vec3 minPosition(9999.0f, 9999.0f, 9999.0f), maxPosition(-9999.0f, -9999.0f, -9999.0f);
+			for( int i=0; i<vertexCount; i++ )
+			{
+				const glm::vec3& position = vertices[i].position;
+				if( position.x < minPosition.x )
+					minPosition.x = position.x;
+				if( position.y < minPosition.y )
+					minPosition.y = position.y;
+				if( position.z < minPosition.z )
+					minPosition.z = position.z;
+
+				if( position.x > maxPosition.x )
+					maxPosition.x = position.x;
+				if( position.y > maxPosition.y )
+					maxPosition.y = position.y;
+				if( position.z > maxPosition.z )
+					maxPosition.z = position.z;
+			}
+
+			boundingBox.minPosition = minPosition;
+			boundingBox.maxPosition = maxPosition;
 		}
 	}
 	else
@@ -149,4 +172,9 @@ const Vertex* Mesh::getVertices() const
 const GLuint* Mesh::getIndices() const
 {
 	return indices;
+}
+
+const Physics::AABB* Mesh::getBoundingBox() const
+{
+	return &boundingBox;
 }

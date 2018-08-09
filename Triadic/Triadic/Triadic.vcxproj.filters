@@ -223,6 +223,9 @@
     <ClCompile Include="lua_physics.cpp">
       <Filter>Source Files\Scripting</Filter>
     </ClCompile>
+    <ClCompile Include="lua_math.cpp">
+      <Filter>Source Files\Scripting</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Lua\lapi.h">
@@ -430,6 +433,9 @@
       <Filter>Source Files\Physics</Filter>
     </ClInclude>
     <ClInclude Include="lua_physics.h">
+      <Filter>Source Files\Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="lua_math.h">
       <Filter>Source Files\Scripting</Filter>
     </ClInclude>
   </ItemGroup>

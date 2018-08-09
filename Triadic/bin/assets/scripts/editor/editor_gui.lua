@@ -7,6 +7,7 @@ local gui =
 		meshNames = {},
 		meshButtons = {},
 		meshIndices = {},
+		meshBoundingBoxes = {},
 		selectedButton = -1,
 		selectedMeshIndex = -1,
 	},
@@ -24,6 +25,9 @@ function gui:load()
 	for i=1, #self.meshList.meshNames do
 		-- load mesh
 		self.meshList.meshIndices[i] = Assets.loadMesh( "./assets/models/" .. self.meshList.meshNames[i] )
+		
+		local mesh = Assets.getMesh( self.meshList.meshIndices[i] )
+		self.meshList.meshBoundingBoxes[i] = mesh:getBoundingBox()
 	
 		-- create button
 		self.meshList.meshButtons[i] = EditorButton.create( {WINDOW_WIDTH-128-8, 8 + i*buttonHeight}, {128, buttonHeight}, self.meshList.meshNames[i] )

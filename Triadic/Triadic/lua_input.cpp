@@ -34,10 +34,10 @@ namespace LuaInput
 		lua_setnumber( lua, "Backspace", SDL_SCANCODE_BACKSPACE );
 		lua_setnumber( lua, "Escape",SDL_SCANCODE_ESCAPE );
 		lua_setnumber( lua, "Space", SDL_SCANCODE_SPACE );
-		lua_setnumber( lua, "LeftAlt",SDL_SCANCODE_LALT );
+		lua_setnumber( lua, "LeftAlt", SDL_SCANCODE_LALT );
 		lua_setnumber( lua, "LeftControl", SDL_SCANCODE_LCTRL );
 		lua_setnumber( lua, "LeftShift", SDL_SCANCODE_LSHIFT );
-		lua_setnumber( lua, "RightAlt",SDL_SCANCODE_RALT );
+		lua_setnumber( lua, "RightAlt", SDL_SCANCODE_RALT );
 		lua_setnumber( lua, "RightControl", SDL_SCANCODE_RCTRL );
 		lua_setnumber( lua, "RightShift", SDL_SCANCODE_RSHIFT );
 

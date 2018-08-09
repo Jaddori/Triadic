@@ -11,7 +11,11 @@ namespace LuaAssets
 	LDEC( loadMesh );
 	LDEC( loadFont );
 
+	LDEC( getMesh );
 	LDEC( getFont );
+
+	// MESH
+	LDEC( getBoundingBox );
 
 	// FONT
 	LDEC( measureText );

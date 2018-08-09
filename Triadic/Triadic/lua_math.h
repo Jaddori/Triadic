@@ -9,6 +9,7 @@ namespace LuaMath
 	namespace LuaVec2
 	{
 		LDEC( create );
+		LDEC( copy );
 
 		LDEC( dot );
 		LDEC( normalize );
@@ -24,6 +25,7 @@ namespace LuaMath
 	namespace LuaVec3
 	{
 		LDEC( create );
+		LDEC( copy );
 
 		LDEC( dot );
 		LDEC( normalize );
@@ -39,6 +41,7 @@ namespace LuaMath
 	namespace LuaVec4
 	{
 		LDEC( create );
+		LDEC( copy );
 
 		LDEC( dot );
 		LDEC( normalize );

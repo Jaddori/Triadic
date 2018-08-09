@@ -15,6 +15,7 @@ namespace LuaAssets
 			{ "loadMesh", loadMesh },
 			{ "loadFont", loadFont },
 
+			{ "getMesh", getMesh },
 			{ "getFont", getFont },
 
 			{ NULL, NULL }
@@ -24,6 +25,20 @@ namespace LuaAssets
 		lua_pushvalue( lua, -1 );
 		lua_setfield( lua, -2, "__index" );
 		lua_setglobal( lua, "Assets" );
+
+		// mesh metatable
+		luaL_newmetatable( lua, "meshMeta" );
+		luaL_Reg meshRegs[] =
+		{
+			{ "getBoundingBox", getBoundingBox },
+
+			{ NULL, NULL }
+		};
+
+		luaL_setfuncs( lua, meshRegs, 0 );
+		lua_pushvalue( lua, -1 );
+		lua_setfield( lua, -2, "__index" );
+		lua_setglobal( lua, "Mesh" );
 
 		// font metatable
 		luaL_newmetatable( lua, "fontMeta" );
@@ -112,6 +127,30 @@ namespace LuaAssets
 		return result;
 	}
 
+	LDEC( getMesh )
+	{
+		int result = 0;
+
+		LUA_EXPECT_ARGS( 1 )
+		{
+			if( LUA_EXPECT_NUMBER( 1 ) )
+			{
+				int index = lua_toint( lua, 1 );
+
+				const Mesh* mesh = g_coreData->assets->getMesh( index );
+
+				lua_newtable( lua );
+				lua_pushlightuserdata( lua, (void*)mesh );
+				lua_setfield( lua, -2, "__self" );
+				luaL_setmetatable( lua, "meshMeta" );
+
+				result = 1;
+			}
+		}
+
+		return result;
+	}
+
 	LDEC( getFont )
 	{
 		int result = 0;
@@ -128,6 +167,38 @@ namespace LuaAssets
 				lua_pushlightuserdata( lua, (void*)font );
 				lua_setfield( lua, -2, "__self" );
 				luaL_setmetatable( lua, "fontMeta" );
+
+				result = 1;
+			}
+		}
+
+		return result;
+	}
+
+	// MESH
+	LDEC( getBoundingBox )
+	{
+		int result = 0;
+
+		LUA_EXPECT_ARGS( 1 )
+		{
+			if( LUA_EXPECT_TABLE( 1 ) )
+			{
+				const Mesh* mesh = lua_getuserdata<Mesh>( lua, 1 );
+
+				const Physics::AABB* aabb = mesh->getBoundingBox();
+
+				lua_newtable( lua );
+
+				lua_newtable( lua );
+				lua_setvec3( lua, aabb->minPosition );
+				luaL_setmetatable( lua, "vec3Meta" );
+				lua_setfield( lua, -2, "minPosition" );
+
+				lua_newtable( lua );
+				lua_setvec3( lua, aabb->maxPosition );
+				luaL_setmetatable( lua, "vec3Meta" );
+				lua_setfield( lua, -2, "maxPosition" );
 
 				result = 1;
 			}
