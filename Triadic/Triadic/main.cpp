@@ -71,7 +71,7 @@ int update( void* args )
 
 int main( int argc, char* argv[] )
 {
-	LOG_START( "./log.txt" );
+	LOG_START( "./log.log" );
 	LOG_WARNINGS();
 	//LOG_INFORMATIONS();
 
