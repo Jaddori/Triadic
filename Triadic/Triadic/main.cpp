@@ -10,9 +10,11 @@
 #include "level.h"
 #include "shapes.h"
 #include "scripting.h"
+#include "collision_solver.h"
 
 using namespace System;
 using namespace Scripting;
+using namespace Physics;
 
 int update( void* args )
 {
@@ -133,6 +135,8 @@ int main( int argc, char* argv[] )
 			}
 			debugShapes.upload();
 
+			CollisionSolver collisionSolver;
+
 			CoreData coreData = {};
 			coreData.input = &input;
 			coreData.systemInfo = &systemInfo;
@@ -141,6 +145,7 @@ int main( int argc, char* argv[] )
 			coreData.graphics = &graphics;
 			coreData.debugShapes = &debugShapes;
 			coreData.transientMemory = (char*)malloc( CORE_DATA_TRANSIENT_MEMORY_SIZE );
+			coreData.collisionSolver = &collisionSolver;
 
 			LOG_INFO( "Initializing Entity." );
 			Entity::setCoreData( &coreData );

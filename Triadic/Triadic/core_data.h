@@ -7,6 +7,7 @@
 #include "assets.h"
 #include "graphics.h"
 #include "shapes.h"
+#include "collision_solver.h"
 
 #define CORE_DATA_TRANSIENT_MEMORY_SIZE 1024*1024*10 // 10Mb
 
@@ -19,4 +20,5 @@ struct CoreData
 	Rendering::Assets* assets;
 	Rendering::Graphics* graphics;
 	Rendering::DebugShapes* debugShapes;
+	Physics::CollisionSolver* collisionSolver;
 };

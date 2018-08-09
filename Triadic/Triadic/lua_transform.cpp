@@ -207,6 +207,7 @@ namespace LuaTransform
 
 				lua_newtable( lua );
 				lua_setvec3( lua, transform->getPosition() );
+				luaL_setmetatable( lua, "vec3Meta" );
 				result = 1;
 			}
 		}
@@ -245,6 +246,7 @@ namespace LuaTransform
 
 				lua_newtable( lua );
 				lua_setvec3( lua, transform->getScale() );
+				luaL_setmetatable( lua, "vec3Meta" );
 				result = 1;
 			}
 		}

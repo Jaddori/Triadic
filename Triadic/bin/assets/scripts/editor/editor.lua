@@ -6,6 +6,7 @@ Editor =
 	meshIndices = {},
 	
 	selectedTransform = -1,
+	lastRay = {},
 }
 
 function Editor:load()
@@ -43,6 +44,59 @@ function Editor:update( deltaTime )
 		
 				self:createMesh( self.gui.meshList.selectedMeshIndex, hit )
 				self.gui.meshList.selectedMeshIndex = -1
+			elseif #self.transforms > 0 then
+				local mousePosition = Input.getMousePosition()
+				local near = self.camera.camera:unproject( mousePosition, 0.0 )
+				local far = self.camera.camera:unproject( mousePosition, 1.0 )
+				
+				local dif = { far[1] - near[1], far[2] - near[2], far[3] - near[3] }
+				local length = math.sqrt( dif[1]*dif[1] + dif[2]*dif[2] + dif[3]*dif[3] )
+				
+				local ray = 
+				{
+					start = near,
+					direction =
+					{
+						dif[1] / length,
+						dif[2] / length,
+						dif[3] / length
+					},
+					length = length
+				}
+				
+				local sphere =
+				{
+					center = self.transforms[1]:getPosition(),
+					radius = 2
+				}
+				
+				local aabb =
+				{
+					minPosition =
+					{
+						sphere.center[1] - 1,
+						sphere.center[2] - 1,
+						sphere.center[3] - 1
+					},
+					maxPosition =
+					{
+						sphere.center[1] + 1,
+						sphere.center[2] + 1,
+						sphere.center[3] + 1
+					}
+				}
+				
+				--if Physics.raySphere( ray.start, ray.direction, ray.length, sphere.center, sphere.radius ) then
+				if Physics.rayAABB( ray.start, ray.direction, ray.length, aabb.minPosition, aabb.maxPosition ) then
+					self.gizmo.visible = true
+					Log.debug( "HIT" )
+				else
+					self.gizmo.visible = false
+					Log.debug( "NO HIT" )
+				end
+				
+				self.lastRay[1] = near
+				self.lastRay[2] = far
 			end
 		end
 	end
@@ -70,6 +124,29 @@ function Editor:render()
 	
 	for i=1, #self.transforms do
 		Graphics.queueMesh( self.meshIndices[i], self.transforms[i] )
+		--DebugShapes.addSphere( self.transforms[i]:getPosition(), 2.0, {0,1,0,1} )
+		
+		local position = self.transforms[i]:getPosition()
+		local aabb =
+		{
+			minPosition =
+			{
+				position[1] - 1,
+				position[2] - 1,
+				position[3] - 1
+			},
+			maxPosition =
+			{
+				position[1] + 1,
+				position[2] + 1,
+				position[3] + 1
+			}
+		}
+		DebugShapes.addAABB( aabb.minPosition, aabb.maxPosition, {0,1,0,1} )
+	end
+	
+	if #self.lastRay > 0 then
+		DebugShapes.addLine( self.lastRay[1], self.lastRay[2], {1,1,0,1} )
 	end
 end
 

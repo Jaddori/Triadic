@@ -23,6 +23,9 @@
     <Filter Include="Source Files\Scripting">
       <UniqueIdentifier>{63e8e028-6931-42db-9731-2eea2bf9658c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Physics">
+      <UniqueIdentifier>{55df2d40-6dce-40d4-812d-87f70e8d6a0c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -206,6 +209,18 @@
       <Filter>Source Files\System</Filter>
     </ClCompile>
     <ClCompile Include="lua_filesystem.cpp">
+      <Filter>Source Files\Scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="ray.cpp">
+      <Filter>Source Files\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="aabb.cpp">
+      <Filter>Source Files\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="collision_solver.cpp">
+      <Filter>Source Files\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="lua_physics.cpp">
       <Filter>Source Files\Scripting</Filter>
     </ClCompile>
   </ItemGroup>
@@ -403,6 +418,18 @@
       <Filter>Source Files\Utilities</Filter>
     </ClInclude>
     <ClInclude Include="lua_filesystem.h">
+      <Filter>Source Files\Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="ray.h">
+      <Filter>Source Files\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="aabb.h">
+      <Filter>Source Files\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="collision_solver.h">
+      <Filter>Source Files\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="lua_physics.h">
       <Filter>Source Files\Scripting</Filter>
     </ClInclude>
   </ItemGroup>

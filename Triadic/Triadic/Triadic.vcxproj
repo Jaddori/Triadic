@@ -145,8 +145,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="aabb.cpp" />
     <ClCompile Include="assets.cpp" />
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="collision_solver.cpp" />
     <ClCompile Include="entity.cpp" />
     <ClCompile Include="font.cpp" />
     <ClCompile Include="graphics.cpp" />
@@ -159,6 +161,7 @@
     <ClCompile Include="lua_filesystem.cpp" />
     <ClCompile Include="lua_input.cpp" />
     <ClCompile Include="lua_log.cpp" />
+    <ClCompile Include="lua_physics.cpp" />
     <ClCompile Include="lua_rendering.cpp" />
     <ClCompile Include="lua_shapes.cpp" />
     <ClCompile Include="lua_systeminfo.cpp" />
@@ -199,6 +202,7 @@
     <ClCompile Include="mesh.cpp" />
     <ClCompile Include="model.cpp" />
     <ClCompile Include="prop.cpp" />
+    <ClCompile Include="ray.cpp" />
     <ClCompile Include="scripting.cpp" />
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="shapes.cpp" />
@@ -208,9 +212,11 @@
     <ClCompile Include="transform.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="aabb.h" />
     <ClInclude Include="array.h" />
     <ClInclude Include="assets.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="collision_solver.h" />
     <ClInclude Include="common.h" />
     <ClInclude Include="core_data.h" />
     <ClInclude Include="entity.h" />
@@ -225,6 +231,7 @@
     <ClInclude Include="lua_filesystem.h" />
     <ClInclude Include="lua_input.h" />
     <ClInclude Include="lua_log.h" />
+    <ClInclude Include="lua_physics.h" />
     <ClInclude Include="lua_rendering.h" />
     <ClInclude Include="lua_shapes.h" />
     <ClInclude Include="lua_systeminfo.h" />
@@ -260,6 +267,7 @@
     <ClInclude Include="point.h" />
     <ClInclude Include="prop.h" />
     <ClInclude Include="queue.h" />
+    <ClInclude Include="ray.h" />
     <ClInclude Include="rendering.h" />
     <ClInclude Include="scripting.h" />
     <ClInclude Include="shader.h" />

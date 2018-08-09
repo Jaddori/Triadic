@@ -15,9 +15,11 @@ function gizmo:update( deltaTime )
 end
 
 function gizmo:render()
-	DebugShapes.addLine( self.position, addVec( self.position, self.x ), self.red )
-	DebugShapes.addLine( self.position, addVec( self.position, self.y ), self.green )
-	DebugShapes.addLine( self.position, addVec( self.position, self.z ), self.blue )
+	if self.visible then
+		DebugShapes.addLine( self.position, addVec( self.position, self.x ), self.red )
+		DebugShapes.addLine( self.position, addVec( self.position, self.y ), self.green )
+		DebugShapes.addLine( self.position, addVec( self.position, self.z ), self.blue )
+	end
 end
 
 return gizmo

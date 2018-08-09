@@ -92,6 +92,9 @@ namespace LuaCamera
 				lua_rawseti( lua, -2, 1 );
 				lua_pushnumber( lua, windowCoordinates.y );
 				lua_rawseti( lua, -2, 2 );
+
+				luaL_setmetatable( lua, "vec2Meta" );
+
 				result = 1;
 			}
 		}
@@ -124,6 +127,7 @@ namespace LuaCamera
 
 				lua_newtable( lua );
 				lua_setvec3( lua, worldCoordinates );
+				luaL_setmetatable( lua, "vec3Meta" );
 				result = 1;
 			}
 		}
@@ -273,6 +277,7 @@ namespace LuaCamera
 
 				lua_newtable( lua );
 				lua_setvec3( lua, position );
+				luaL_setmetatable( lua, "vec3Meta" );
 				result = 1;
 			}
 		}
@@ -294,6 +299,7 @@ namespace LuaCamera
 
 				lua_newtable( lua );
 				lua_setvec3( lua, direction );
+				luaL_setmetatable( lua, "vec3Meta" );
 				result = 1;
 			}
 		}
@@ -315,6 +321,7 @@ namespace LuaCamera
 
 				lua_newtable( lua );
 				lua_setvec3( lua, forward );
+				luaL_setmetatable( lua, "vec3Meta" );
 				result = 1;
 			}
 		}
@@ -336,6 +343,7 @@ namespace LuaCamera
 
 				lua_newtable( lua );
 				lua_setvec3( lua, right );
+				luaL_setmetatable( lua, "vec3Meta" );
 				result = 1;
 			}
 		}
@@ -357,6 +365,7 @@ namespace LuaCamera
 
 				lua_newtable( lua );
 				lua_setvec3( lua, up );
+				luaL_setmetatable( lua, "vec3Meta" );
 				result = 1;
 			}
 		}
