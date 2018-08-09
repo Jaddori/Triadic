@@ -14,6 +14,8 @@ function Editor:load()
 	
 	self.gui = doscript( "editor/editor_gui.lua" )
 	self.gui:load()
+	
+	self.gizmo = doscript( "editor/editor_gizmo.lua" )
 end
 
 function Editor:update( deltaTime )
@@ -56,11 +58,15 @@ function Editor:update( deltaTime )
 		for i=1, 3 do movement[i] = movement[i] * deltaTime end
 		
 		self.transforms[self.selectedTransform]:addPosition( movement )
+		
+		local newPosition = self.transforms[self.selectedTransform]:getPosition()
+		copyVec( newPosition, self.gizmo.position )
 	end
 end
 
 function Editor:render()
 	self.gui:render()
+	self.gizmo:render()
 	
 	for i=1, #self.transforms do
 		Graphics.queueMesh( self.meshIndices[i], self.transforms[i] )
