@@ -247,4 +247,7 @@ function Editor:createMesh( index, position )
 	self.meshBoundingBoxes[#self.meshBoundingBoxes+1] = self.gui.meshList.meshBoundingBoxes[self.gui.meshList.selectedButton]
 	
 	self.selectedTransform = #self.transforms
+	
+	-- add to entity list
+	self.gui:addEntity( self.gui.meshList.meshNames[index] )
 end

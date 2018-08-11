@@ -1,9 +1,10 @@
 local gui = 
 {
+	fontIndex = -1,
+	fontHeight = 0,
+	
 	meshList =
 	{
-		fontIndex = -1,
-		fontHeight = 0,
 		meshNames = {},
 		meshButtons = {},
 		meshIndices = {},
@@ -11,15 +12,20 @@ local gui =
 		selectedButton = -1,
 		selectedMeshIndex = -1,
 	},
+	entityList =
+	{
+		entities = {},
+		selectedEntitiy = -1,
+	}
 }
 
 function gui:load()
 	doscript( "editor/editor_button.lua" )
 	
-	self.meshList.fontIndex = Assets.loadFont( "./assets/fonts/verdana12.bin", "./assets/fonts/verdana12.dds" )
-	self.meshList.fontHeight = Assets.getFont( self.meshList.fontIndex ):getHeight()
+	self.fontIndex = Assets.loadFont( "./assets/fonts/verdana12.bin", "./assets/fonts/verdana12.dds" )
+	self.fontHeight = Assets.getFont( self.fontIndex ):getHeight()
 	
-	local buttonHeight = self.meshList.fontHeight + 4
+	local buttonHeight = self.fontHeight + 4
 	
 	self.meshList.meshNames = Filesystem.getFiles( "./assets/models/*" )
 	for i=1, #self.meshList.meshNames do
@@ -55,6 +61,12 @@ function gui:update( deltaTime )
 		end
 	end
 	
+	for _,v in pairs(self.entityList.entities) do
+		if v:update( deltaTime ) then
+			result = true
+		end
+	end
+		
 	return result
 end
 
@@ -62,6 +74,17 @@ function gui:render()
 	for _,v in pairs(self.meshList.meshButtons) do
 		v:render()
 	end
+	
+	for _,v in pairs(self.entityList.entities) do
+		v:render()
+	end
+end
+
+function gui:addEntity( name )
+	local buttonHeight = self.fontHeight + 4
+	
+	local count = #self.entityList.entities
+	self.entityList.entities[count+1] = EditorButton.create( {32, 8 + count*buttonHeight}, {128, buttonHeight}, name )
 end
 
 return gui
