@@ -87,6 +87,27 @@ bool CollisionSolver::ray( const Ray& ray, const AABB& aabb )
 	return true;
 }
 
+bool CollisionSolver::ray( const Ray& ray, const Plane& plane, Hit* hit )
+{
+	float denom = glm::dot( plane.normal, ray.direction ); 
+	if( fabs(denom) > EPSILON )
+	{
+		glm::vec3 center = plane.normal * plane.offset;
+		float t = glm::dot( center - ray.start, plane.normal ) / denom;
+		if (t >= EPSILON)
+		{
+			if( hit )
+			{
+				hit->length = t;
+				hit->position = ray.start + ray.direction * t;
+			}
+
+			return true;
+		}
+	}
+	return false;
+}
+
 bool CollisionSolver::sphere( const Sphere& a, const Sphere& b )
 {
 	float distance = glm::distance( a.center, b.center );

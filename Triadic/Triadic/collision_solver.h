@@ -21,9 +21,16 @@ namespace Physics
 		glm::vec3 minPosition, maxPosition;
 	};
 
+	struct Plane
+	{
+		glm::vec3 normal;
+		float offset;
+	};
+
 	struct Hit
 	{
 		glm::vec3 position;
+		float length;
 	};
 
 	class CollisionSolver
@@ -34,6 +41,7 @@ namespace Physics
 
 		bool ray( const Ray& ray, const Sphere& sphere );
 		bool ray( const Ray& ray, const AABB& aabb );
+		bool ray( const Ray& ray, const Plane& plane, Hit* hit = NULL );
 
 		bool sphere( const Sphere& a, const Sphere& b );
 

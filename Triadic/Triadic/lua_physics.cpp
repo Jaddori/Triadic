@@ -12,13 +12,16 @@ namespace LuaPhysics
 		luaL_Reg physicsRegs[] =
 		{
 			{ "createRay", createRay },
+			{ "createRayFromPoints", createRayFromPoints },
 			{ "createSphere", createSphere },
 			{ "createAABB", createAABB },
+			{ "createPlane", createPlane },
 
 			{ "getAABBCenter", getAABBCenter },
 
 			{ "raySphere", raySphere },
 			{ "rayAABB", rayAABB },
+			{ "rayPlane", rayPlane },
 			{ "sphereSphere", sphereSphere },
 			{ "aabbAABB", aabbAABB },
 
@@ -62,6 +65,32 @@ namespace LuaPhysics
 
 				lua_setnumber( lua, "length", length );
 
+				result = 1;
+			}
+		}
+
+		return result;
+	}
+
+	LDEC( createRayFromPoints )
+	{
+		int result = 0;
+
+		LUA_EXPECT_ARGS( 2 )
+		{
+			if( LUA_EXPECT_TABLE( 1 ) &&
+				LUA_EXPECT_TABLE( 2 ) )
+			{
+				glm::vec3 start, end;
+
+				lua_getvec3( lua, 1, start );
+				lua_getvec3( lua, 2, end );
+
+				glm::vec3 direction = end - start;
+				float length = glm::length( direction );
+				direction = glm::normalize( direction );
+
+				writeRay( lua, { start, direction, length } );
 				result = 1;
 			}
 		}
@@ -122,6 +151,28 @@ namespace LuaPhysics
 				lua_setvec3( lua, maxPosition );
 				lua_setfield( lua, -2, "maxPosition" );
 
+				result = 1;
+			}
+		}
+
+		return result;
+	}
+
+	LDEC( createPlane )
+	{
+		int result = 0;
+
+		LUA_EXPECT_ARGS( 2 )
+		{
+			if( LUA_EXPECT_TABLE( 1 ) &&
+				LUA_EXPECT_NUMBER( 2 ) )
+			{
+				glm::vec3 normal;
+				lua_getvec3( lua, 1, normal );
+
+				float offset = lua_tofloat( lua, 2 );
+
+				writePlane( lua, { normal, offset } );
 				result = 1;
 			}
 		}
@@ -191,26 +242,66 @@ namespace LuaPhysics
 	{
 		int result = 0;
 
-		LUA_EXPECT_ARGS( 5 )
+		LUA_EXPECT_ARGS( 2 )
 		{
 			if( LUA_EXPECT_TABLE( 1 ) &&
-				LUA_EXPECT_TABLE( 2 ) &&
-				LUA_EXPECT_NUMBER( 3 ) &&
-				LUA_EXPECT_TABLE( 4 ) &&
-				LUA_EXPECT_TABLE( 5 ) )
+				LUA_EXPECT_TABLE( 2 ) )
 			{
-				Ray ray = {};
+				//Ray ray = {};
+				//
+				//lua_getvec3( lua, 1, ray.start );
+				//lua_getvec3( lua, 2, ray.direction );
+				//ray.length = lua_tofloat( lua, 3 );
+				//
+				//AABB aabb = {};
+				//
+				//lua_getvec3( lua, 4, aabb.minPosition );
+				//lua_getvec3( lua, 5, aabb.maxPosition );
 
-				lua_getvec3( lua, 1, ray.start );
-				lua_getvec3( lua, 2, ray.direction );
-				ray.length = lua_tofloat( lua, 3 );
-
-				AABB aabb = {};
-
-				lua_getvec3( lua, 4, aabb.minPosition );
-				lua_getvec3( lua, 5, aabb.maxPosition );
+				Ray ray = readRay( lua, 1 );
+				AABB aabb = readAABB( lua, 2 );
 
 				bool collision = g_coreData->collisionSolver->ray( ray, aabb );
+				lua_pushboolean( lua, collision );
+				result = 1;
+			}
+		}
+
+		return result;
+	}
+
+	LDEC( rayPlane )
+	{
+		int result = 0;
+
+		int args = lua_gettop( lua );
+		if( args >= 2 )
+		{
+			if( LUA_EXPECT_TABLE( 1 ) &&
+				LUA_EXPECT_TABLE( 2 ) )
+			{
+				Ray ray = readRay( lua, 1 );
+				Plane plane = readPlane( lua, 2 );
+
+				Hit hit = {};
+				Hit* hitp = NULL;
+				if( args == 3 && LUA_EXPECT_TABLE( 3 ) )
+				{
+					hitp = &hit;
+				}
+
+				bool collision = g_coreData->collisionSolver->ray( ray, plane, hitp );
+
+				if( hitp )
+				{
+					lua_newtable( lua );
+					lua_setvec3( lua, hit.position );
+					lua_setfield( lua, 3, "position" );
+
+					lua_pushnumber( lua, hit.length );
+					lua_setfield( lua, 3, "length" );
+				}
+
 				lua_pushboolean( lua, collision );
 				result = 1;
 			}

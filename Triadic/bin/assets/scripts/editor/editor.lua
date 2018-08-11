@@ -11,9 +11,11 @@ Editor =
 	
 	xplane = 0,
 	xcaptured = false,
+	xoffset = 0,
 	
 	zplane = 0,
 	zcaptured = false,
+	zoffset = 0,
 	
 	aabb = nil,
 	sphere = nil,
@@ -47,52 +49,34 @@ function Editor:update( deltaTime )
 			local near = self.camera.camera:unproject( mousePosition, 0.0 )
 			local far = self.camera.camera:unproject( mousePosition, 1.0 )
 			
-			local dif = far:sub( near )
-			local length = dif:length()
-			local ray = Physics.createRay( near, dif:normalize(), length )
+			local ray = Physics.createRayFromPoints( near, far )
 		
 			if self.xcaptured then
-				local zlength = math.abs( far[3] - near[3] )
-				local sublength = math.abs( self.xplane - near[3] )
-				local div = sublength / zlength
-				
-				local hit =
-				{
-					near[1] + (far[1]-near[1]) * div,
-					near[2] + (far[2]-near[2]) * div,
-					self.xplane
-				}
-				
-				self.sphere = Physics.createSphere( hit, 1.0 )
-				
-				local position = self.transforms[self.selectedTransform]:getPosition()
-				position[1] = hit[1]
-				self.transforms[self.selectedTransform]:setPosition( position )
-				
-				position = position:add( self.gizmoOffset )
-				self.gizmo:setPosition( position )
-				self.gizmo.selectedAxis = 1
+				local hit = {}
+				if Physics.rayPlane( ray, self.xplane, hit ) then
+					self.sphere = Physics.createSphere( hit.position, 1.0 )
+					
+					local position = self.transforms[self.selectedTransform]:getPosition()
+					position[1] = hit.position[1] - self.xoffset
+					self.transforms[self.selectedTransform]:setPosition( position )
+					
+					position = position:add( self.gizmoOffset )
+					self.gizmo:setPosition( position )
+					self.gizmo.selectedAxis = 1
+				end
 			elseif self.zcaptured then
-				local xlength = math.abs( far[1] - near[1] )
-				local sublength = math.abs( self.zplane - near[1] )
-				local div = sublength / xlength
-				
-				local hit =
-				{
-					self.zplane,
-					near[2] + (far[2]-near[2]) * div,
-					near[3] + (far[3]-near[3]) * div
-				}
-				
-				self.sphere = Physics.createSphere( hit, 1.0 )
-				
-				local position = self.transforms[self.selectedTransform]:getPosition()
-				position[3] = hit[3]
-				self.transforms[self.selectedTransform]:setPosition( position )
-				
-				position = position:add( self.gizmoOffset )
-				self.gizmo:setPosition( position )
-				self.gizmo.selectedAxis = 3
+				local hit = {}
+				if Physics.rayPlane( ray, self.zplane, hit ) then
+					self.sphere = Physics.createSphere( hit.position, 1.0 )
+					
+					local position = self.transforms[self.selectedTransform]:getPosition()
+					position[3] = hit.position[3] - self.zoffset
+					self.transforms[self.selectedTransform]:setPosition( position )
+					
+					position = position:add( self.gizmoOffset )
+					self.gizmo:setPosition( position )
+					self.gizmo.selectedAxis = 3
+				end
 			else
 				local center = self.gizmo.position
 				
@@ -102,10 +86,16 @@ function Editor:update( deltaTime )
 				
 				--self.aabb = x
 				
-				if Physics.rayAABB( ray.start, ray.direction, ray.length, x.minPosition, x.maxPosition ) then
+				if Physics.rayAABB( ray, x ) then
 					mouseCaptured = true
-					self.xplane = center[3]
+					--self.xplane = center[3]
+					self.xplane = Physics.createPlane( {0,0,1}, center[3] )
 					self.xcaptured = true
+					
+					local hit = {}
+					if Physics.rayPlane( ray, self.xplane, hit ) then
+						self.xoffset = hit.position[1] - center[1]
+					end
 				else
 					self.xcaptured = false
 				end
@@ -117,10 +107,16 @@ function Editor:update( deltaTime )
 					
 					--self.aabb = z
 					
-					if Physics.rayAABB( ray.start, ray.direction, ray.length, z.minPosition, z.maxPosition ) then
+					if Physics.rayAABB( ray, z ) then
 						mouseCaptured = true
-						self.zplane = center[1]
+						--self.zplane = center[1]
+						self.zplane = Physics.createPlane( {1,0,0}, center[1] )
 						self.zcaptured = true
+						
+						local hit = {}
+						if Physics.rayPlane( ray, self.zplane, hit ) then
+							self.zoffset = hit.position[3] - center[3]
+						end
 					else
 						self.zcaptured = false
 					end
@@ -141,21 +137,18 @@ function Editor:update( deltaTime )
 				local near = self.camera.camera:unproject( mousePosition, 0.0 )
 				local far = self.camera.camera:unproject( mousePosition, 1.0 )
 				
-				local length = math.max( near[2], far[2] ) - math.min( near[2], far[2] )
-				local subLength = math.abs( near[2] )
-				local div = subLength / length
+				local plane = Physics.createPlane( {0,1,0}, 0 )
+				local ray = Physics.createRayFromPoints( near, far )
 				
-				local hit =
-				{
-					near[1] + (far[1]-near[1]) * div,
-					0,
-					near[3] + (far[3]-near[3]) * div,
-				}
-		
-				self:createMesh( self.gui.meshList.selectedMeshIndex, hit )
+				local hit = {}
+				if Physics.rayPlane( ray, plane, hit ) then
+					hit.position[2] = 0
 				
-				if not Input.keyDown( Keys.C ) then
-					self.gui.meshList.selectedMeshIndex = -1
+					self:createMesh( self.gui.meshList.selectedMeshIndex, hit.position )
+					
+					if not Input.keyDown( Keys.C ) then
+						self.gui.meshList.selectedMeshIndex = -1
+					end
 				end
 			elseif #self.transforms > 0 then
 				self.selectedTransform = -1
@@ -166,9 +159,7 @@ function Editor:update( deltaTime )
 					local near = self.camera.camera:unproject( mousePosition, 0.0 )
 					local far = self.camera.camera:unproject( mousePosition, 1.0 )
 					
-					local dif = far:sub( near )
-					local length = dif:length()
-					local ray = Physics.createRay( near, dif:normalize(), length )
+					local ray = Physics.createRayFromPoints( near, far )
 					
 					local position = self.transforms[i]:getPosition()
 					local aabbLocal = self.meshBoundingBoxes[i]
@@ -178,7 +169,7 @@ function Editor:update( deltaTime )
 						maxPosition = aabbLocal.maxPosition:add( position )
 					}
 					
-					if Physics.rayAABB( ray.start, ray.direction, ray.length, aabb.minPosition, aabb.maxPosition ) then
+					if Physics.rayAABB( ray, aabb ) then
 						self.gizmo.visible = true
 						self.gizmoOffset = Physics.getAABBCenter( aabbLocal )
 						local position = self.transforms[i]:getPosition()
