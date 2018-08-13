@@ -126,12 +126,20 @@ function gui.panel.tabBar:onClick( index )
 		self.items[self.curItem].color = nil
 	end
 	
+	local prevItem = self.curItem
+	
 	self.curItem = index
 	self.items[self.curItem].color = { 0.75, 0.75, 0.0, 1.0 }
 	
 	if index == 1 then self.curTab = "info"
 	elseif index == 2 then self.curTab = "entities"
 	else self.curTab = "prefabs" end
+	
+	if prevItem ~= self.curItem then
+		if gui.panel.tabs[self.curTab].onShow then
+			gui.panel.tabs[self.curTab]:onShow()
+		end
+	end
 end
 
 function gui.panel.tabBar:load()
@@ -260,9 +268,44 @@ function gui.panel.tabs.info:setEntity( entity )
 	end
 end
 
+-- entities
 function gui.panel.tabs.entities:load() end
-function gui.panel.tabs.entities:update( deltaTime ) end
-function gui.panel.tabs.entities:render() end
+
+function gui.panel.tabs.entities:update( deltaTime )
+	local result = false
+	
+	for _,v in pairs(self.items) do
+		if v:update( deltaTime ) then
+			result = true
+		end
+	end
+	
+	return result
+end
+
+function gui.panel.tabs.entities:render()
+	for _,v in pairs(self.items) do
+		v:render()
+	end
+end
+
+function gui.panel.tabs.entities:onShow()
+	for _,v in pairs(self.items) do
+		v.text = v.tag.name
+	end
+end
+
+function gui.panel.tabs.entities:addEntity( entity )
+	local pos = gui.panel.contentPosition
+	local size = gui.panel.contentSize
+	local padding = 4
+	local yoffset = 0
+
+	local button = EditorButton.create( {pos[1] + padding, pos[2] + padding}, {size[1] - padding*2, 24}, entity.name )
+	button.tag = entity
+	
+	self.items[#self.items+1] = button
+end
 
 function gui.panel.tabs.prefabs:load() end
 function gui.panel.tabs.prefabs:update( deltaTime ) end
@@ -330,6 +373,11 @@ function gui:update( deltaTime )
 		if self.contextMenu:update( deltaTime ) then
 			result = true
 		end
+	end
+	
+	if not result then
+		local mousePosition = Input.getMousePosition()
+		result = insideRect( self.panel.position, self.panel.size, mousePosition ) 
 	end
 	
 	return result

@@ -225,4 +225,6 @@ function Editor:createEntity( position )
 	
 	self.gui.panel.tabs.info:setEntity( entity )
 	self.selectedEntity = entity
+	
+	self.gui.panel.tabs.entities:addEntity( entity )
 end
