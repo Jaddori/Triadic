@@ -4,7 +4,8 @@ Editor =
 	
 	gui = nil,	
 	entities = {},
-	selectedEntity = -1,
+	selectedEntity = nil,
+	selectedEntityIndex = -1,
 }
 
 function Editor:load()
@@ -44,6 +45,25 @@ function Editor:load()
 			end
 		end
 	end
+	
+	-- gui info panel
+	self.gui.panel.tabs.info.nameTextbox.onFinish = function( self )
+		if self.text:len() > 0 then
+			Editor.selectedEntity.name = self.text
+		end
+	end
+	
+	self.gui.panel.tabs.info.positionTextbox.onFinish = function( self )
+		if self.text:len() > 0 then
+			local components = split( self.text, "," )
+			
+			local x = tonumber( components[1] )
+			local y = tonumber( components[2] )
+			local z = tonumber( components[3] )
+			
+			Editor.selectedEntity.position = {x,y,z}
+		end
+	end
 end
 
 function Editor:unload()
@@ -58,6 +78,22 @@ function Editor:update( deltaTime )
 		if Input.buttonReleased( Buttons.Right ) then
 			local mousePosition = Input.getMousePosition()
 			self.gui.contextMenu:show( mousePosition )
+		end
+		
+		if Input.buttonReleased( Buttons.Left ) then
+			local ray = self.camera.camera:createRay()
+		
+			self.selectedEntity = nil
+			for _,v in pairs(self.entities) do
+				if v:select( ray ) then
+					self.selectedEntity = v
+					v.selected = true
+				else
+					v.selected = false
+				end
+			end
+			
+			self.gui.panel.tabs.info:setEntity( self.selectedEntity )
 		end
 	end
 	
@@ -77,12 +113,14 @@ function Editor:render()
 end
 
 function Editor:createEntity( position )
-	local entity = Entity.create( position )
+	local entity = Entity.create( position, "New Entity" )
 	--entity:addComponent( ComponentMesh.create( position ) )
-	local meshComponent = ComponentMesh.create( position )
-	meshComponent.meshIndex = 3
+	local meshComponent = ComponentMesh.create( entity, position )
+	--meshComponent.meshIndex = 3
+	meshComponent:loadMesh( "./assets/models/pillar.mesh" )
 	entity:addComponent( meshComponent )
 	self.entities[#self.entities+1] = entity
 	
 	self.gui.panel.tabs.info:setEntity( entity )
+	self.selectedEntity = entity
 end

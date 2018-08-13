@@ -1,12 +1,16 @@
 Entity = 
 {
+	name = "",
 	components = {},
+	selected = false,
 }
 
-function Entity.create( position )
+function Entity.create( position, name )
 	local result =
 	{
-		position = position
+		position = position,
+		name = name,
+		selected = false,
 	}
 	
 	setmetatable( result, { __index = Entity } )
@@ -24,6 +28,23 @@ end
 
 function Entity:removeComponent( name )
 	self.components[name] = nil
+end
+
+function Entity:select( ray )
+	local result = false
+	
+	for _,v in pairs(self.components) do
+		if v:select( ray ) then
+			result = true
+		end
+	end
+	
+	if not result then
+		local sphere = Physics.createSphere( self.position, 1.0 )
+		result = Physics.raySphere( ray, sphere )
+	end
+	
+	return result
 end
 
 function Entity:update( deltaTime )

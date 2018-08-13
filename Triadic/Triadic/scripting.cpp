@@ -137,7 +137,7 @@ void Script::update( float deltaTime )
 		}
 	}
 
-	if( _coreData->input->keyReleased( SDL_SCANCODE_P ) )
+	if( _coreData->input->keyReleased( SDL_SCANCODE_F1 ) )
 		reload();
 }
 

@@ -39,6 +39,19 @@ namespace LuaPhysics
 		return result;
 	}
 
+	inline Physics::Sphere readSphere( lua_State* lua, int tableIndex )
+	{
+		Physics::Sphere result;
+
+		lua_getfield( lua, tableIndex, "center" );
+		lua_getvec3( lua, -1, result.center );
+
+		lua_getfield( lua, tableIndex, "radius" );
+		result.radius = lua_tofloat( lua, -1 );
+
+		return result;
+	}
+
 	inline Physics::AABB readAABB( lua_State* lua, int tableIndex )
 	{
 		Physics::AABB result;

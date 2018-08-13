@@ -2,7 +2,11 @@ local DEFAULT_TEXTURE = "./assets/textures/white.dds"
 
 ComponentMesh =
 {
-	name = "Mesh"
+	name = "Mesh",
+	transform = nil,
+	meshIndex = -1,
+	parent = nil,
+	boundingBox = nil,
 }
 
 ComponentMeshInfo =
@@ -17,11 +21,13 @@ ComponentMeshInfo =
 	items = {},
 }
 
-function ComponentMesh.create( position )
+function ComponentMesh.create( parent, position )
 	local result =
 	{
+		parent = parent,
 		transform = Transform.create(),
 		meshIndex = -1,
+		boundingBox = nil,
 	}
 	
 	if position then result.transform:setPosition( position ) end
@@ -31,12 +37,48 @@ function ComponentMesh.create( position )
 	return result
 end
 
+function ComponentMesh:loadMesh( path )
+	self.meshIndex = Assets.loadMesh( path )
+	if self.meshIndex then
+		local mesh = Assets.getMesh( self.meshIndex )
+		self.boundingBox = mesh:getBoundingBox()
+	else
+		self.boundingBox = nil
+	end
+end
+
+function ComponentMesh:select( ray )
+	local result = false
+
+	if self.boundingBox then
+		local worldBox =
+		{
+			minPosition = self.boundingBox.minPosition:add( self.parent.position ),
+			maxPosition = self.boundingBox.maxPosition:add( self.parent.position )
+		}
+		
+		result = Physics.rayAABB( ray, worldBox )
+	end
+	
+	return result
+end
+
 function ComponentMesh:update( deltaTime )
+	self.transform:setPosition( self.parent.position )
 end
 
 function ComponentMesh:render()
 	if self.meshIndex >= 0 then
 		Graphics.queueMesh( self.meshIndex, self.transform )
+		
+		if self.boundingBox and self.parent.selected then
+			local worldBox =
+			{
+				minPosition = self.boundingBox.minPosition:add( self.parent.position ),
+				maxPosition = self.boundingBox.maxPosition:add( self.parent.position )
+			}
+			DebugShapes.addAABB( worldBox.minPosition, worldBox.maxPosition, {0.0, 1.0, 0.0, 1.0} )
+		end
 	end
 	
 	return true

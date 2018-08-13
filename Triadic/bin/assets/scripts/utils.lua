@@ -21,3 +21,19 @@ function copyVec( src, dst )
 		dst[i] = src[i]
 	end
 end
+
+function split( str, delimiter )
+	local result = {}
+	
+	local req = string.format("([^%s]+)", delimiter)
+	for word in str:gmatch(req) do
+		result[#result+1] = word
+	end
+	
+	return result
+end
+
+function roundTo(num, numDecimalPlaces)
+	local mult = 10^(numDecimalPlaces or 0)
+	return math.floor(num * mult + 0.5) / mult
+end

@@ -7,6 +7,7 @@ EditorTextbox =
 {
 	fontIndex = -1,
 	fontHeight = -1,
+	font = nil,
 	textureIndex = -1,
 	position = {0,0},
 	size = {0,0},
@@ -24,6 +25,7 @@ EditorTextbox =
 	
 	caretVisible = false,
 	caretElapsed = 0.0,
+	caretIndex = 0,
 }
 
 function EditorTextbox.create( position, size )
@@ -33,7 +35,8 @@ function EditorTextbox.create( position, size )
 	
 	if EditorTextbox.fontIndex < 0 then
 		EditorTextbox.fontIndex = Assets.loadFont( DEFAULT_FONT_INFO, DEFAULT_FONT_TEXTURE )
-		EditorTextbox.fontHeight = Assets.getFont( EditorTextbox.fontIndex ):getHeight()
+		EditorTextbox.font = Assets.getFont( EditorTextbox.fontIndex )
+		EditorTextbox.fontHeight = EditorTextbox.font:getHeight()
 	end
 	
 	local textbox = {}
@@ -62,6 +65,7 @@ function EditorTextbox:update( deltaTime )
 		else
 			if self.pressed then
 				self.focus = true
+				self.caretIndex = self.text:len()
 			end
 			
 			self.pressed = False
@@ -73,6 +77,10 @@ function EditorTextbox:update( deltaTime )
 		self.pressed = False
 		
 		if Input.buttonReleased( Buttons.Left ) then
+			if self.focus then
+				self:onFinish()
+			end
+			
 			self.focus = false
 			self.caretVisible = false
 		end
@@ -83,8 +91,45 @@ function EditorTextbox:update( deltaTime )
 		local textInput = Input.getTextInput()
 		
 		if textInput:len() > 0 then
-			self.text = self.text .. textInput
+			--self.text = self.text .. textInput
+			if self.caretIndex <= 0 then
+				self.text = textInput .. self.text
+			elseif self.caretIndex >= self.text:len() then
+				self.text = self.text .. textInput
+			else
+				local first = self.text:sub(1, self.caretIndex)
+				local second = self.text:sub(self.caretIndex+1, self.text:len())
+				
+				self.text = first .. textInput .. second
+			end
 			result = true
+			
+			self.caretIndex = self.caretIndex + textInput:len()
+		end
+		
+		-- delete input if Backspace is pressed
+		local textLength = self.text:len()
+		if Input.keyRepeated( Keys.Backspace ) and textLength > 0 and self.caretIndex > 0 then
+			--self.text = self.text:sub( 1, textLength-1 )
+			if self.caretIndex >= textLength then
+				self.text = self.text:sub( 1, textLength-1 )
+			else
+				local first = self.text:sub(1, self.caretIndex-1)
+				local second = self.text:sub(self.caretIndex+1, textLength)
+				
+				self.text = first .. second
+			end
+			
+			self.caretIndex = self.caretIndex - 1
+		end
+		
+		-- move the caret with arrow keys
+		if Input.keyRepeated( Keys.Left ) and self.caretIndex > 0 then
+			self.caretIndex = self.caretIndex - 1
+		end
+		
+		if Input.keyRepeated( Keys.Right ) and self.caretIndex < textLength then
+			self.caretIndex = self.caretIndex + 1
 		end
 		
 		-- blink the caret
@@ -99,6 +144,8 @@ function EditorTextbox:update( deltaTime )
 		if Input.keyReleased( Keys.Return) then
 			self.focus = false
 			self.caretVisible = false
+			
+			self:onFinish()
 		end
 	end
 	
@@ -118,9 +165,25 @@ function EditorTextbox:render()
 	Graphics.queueQuad( self.textureIndex, self.position, self.size, color )
 	
 	local textPosition = {self.position[1] + 8, self.position[2]}
-	local text = self.text
+	--local text = self.text
+	--if self.caretVisible then
+	--	if self.caretIndex <= 0 then
+	--		text = "|" .. text
+	--	elseif self.caretIndex >= text:len() then
+	--		text = text .. "|"
+	--	else
+	--		local first = text:sub(1, self.caretIndex)
+	--		local second = text:sub(self.caretIndex+1, text:len())
+	--		text = first .. "|" .. second
+	--	end
+	--end
+	--Graphics.queueText( self.fontIndex, text, textPosition, self.textColor )
+	Graphics.queueText( self.fontIndex, self.text, textPosition, self.textColor )
 	if self.caretVisible then
-		text = text .. "|"
+		local xoffset = self.font:measureText( self.text:sub(1, self.caretIndex) )[1] - 2
+		Graphics.queueText( self.fontIndex, "|", {textPosition[1]+xoffset, textPosition[2]}, self.textColor )
 	end
-	Graphics.queueText( self.fontIndex, text, textPosition, self.textColor )
+end
+
+function EditorTextbox:onFinish()
 end

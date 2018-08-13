@@ -40,6 +40,9 @@ local gui =
 				items = {},
 				entity = nil,
 				nameLabel = {},
+				nameTextbox = {},
+				positionLabel = {},
+				positionTextbox = {},
 				componentsLabel = {},
 			},
 			entities =
@@ -96,13 +99,19 @@ function gui.contextMenu:show( position )
 end
 
 function gui.contextMenu:update( deltaTime )
+	local result = false
+
 	for _,v in pairs(self.items) do
-		v:update( deltaTime )
+		if v:update( deltaTime ) then
+			result = true
+		end
 	end
 	
 	if Input.buttonReleased( Buttons.Left ) then
 		self.visible = false
 	end
+	
+	return result
 end
 
 function gui.contextMenu:render()
@@ -181,24 +190,40 @@ function gui.panel.tabs.info:load()
 	self.nameTextbox = EditorTextbox.create( {pos[1] + padding, pos[2] + padding + yoffset}, {size[1]-padding*2, 24} )
 	yoffset = yoffset + 24 + padding
 	
+	self.positionLabel = EditorLabel.create( {pos[1] + padding, pos[2] + padding + yoffset }, "Position:" )
+	yoffset = yoffset + self.nameLabel:getHeight() + padding
+	
+	self.positionTextbox = EditorTextbox.create( {pos[1] + padding, pos[2] + padding + yoffset }, {size[1]-padding*2, 24} )
+	yoffset = yoffset + 24 + padding
+	
 	self.componentsLabel = EditorLabel.create( {pos[1] + padding, pos[2] + padding + yoffset}, "Components:" )
 	yoffset = yoffset + self.componentsLabel:getHeight() + padding
 end
 
 function gui.panel.tabs.info:update( deltaTime )
-	self.nameLabel:update( deltaTime )
-	self.nameTextbox:update( deltaTime )
-	self.componentsLabel:update( deltaTime )
+	local result = false
+
+	if self.nameLabel:update( deltaTime ) then result = true end
+	if self.nameTextbox:update( deltaTime ) then result = true end
+	if self.positionLabel:update( deltaTime ) then result = true end
+	if self.positionTextbox:update( deltaTime ) then result = true end
+	if self.componentsLabel:update( deltaTime ) then result = true end
 
 	for _,v in pairs(self.items) do
-		v:update( deltaTime )
+		if v:update( deltaTime ) then
+			result = true
+		end
 	end
+	
+	return result
 end
 
 function gui.panel.tabs.info:render()
 	-- render title
 	self.nameLabel:render()
 	self.nameTextbox:render()
+	self.positionLabel:render()
+	self.positionTextbox:render()
 	self.componentsLabel:render()
 
 	-- render items
@@ -211,16 +236,27 @@ function gui.panel.tabs.info:setEntity( entity )
 	-- clear items
 	count = #self.items
 	for i=0, count do self.items[i]=nil end
-
-	-- create new items
-	self.entity = entity
 	
-	local position = gui.panel.contentPosition
-	local size = gui.panel.contentSize
-	local yoffset = self.componentsLabel.position[2] + self.componentsLabel:getHeight()
-	for _,v in pairs(self.entity.components) do
-		local allocatedSpace = v:addInfo({position[1], yoffset}, size, self.items)
-		yoffset = yoffset + allocatedSpace
+	if entity then
+		-- set name and position
+		self.nameTextbox.text = entity.name
+		self.positionTextbox.text = tostring( roundTo( entity.position[1], 2 ) ) .. "," ..
+									tostring( roundTo( entity.position[2], 2 ) ) .. "," ..
+									tostring( roundTo( entity.position[3], 2 ) )
+
+		-- create new items
+		self.entity = entity
+		
+		local position = gui.panel.contentPosition
+		local size = gui.panel.contentSize
+		local yoffset = self.componentsLabel.position[2] + self.componentsLabel:getHeight()
+		for _,v in pairs(self.entity.components) do
+			local allocatedSpace = v:addInfo({position[1], yoffset}, size, self.items)
+			yoffset = yoffset + allocatedSpace
+		end
+	else
+		self.nameTextbox.text = ""
+		self.positionTextbox.text = ""
 	end
 end
 
@@ -268,23 +304,35 @@ function gui:load()
 end
 
 function gui:update( deltaTime )
+	local result = false
+
 	-- menu
 	for _,v in pairs(self.menu.items) do
-		v:update( deltaTime )
+		if v:update( deltaTime ) then
+			result = true
+		end
 	end
 	
 	-- panel
 	for _,v in pairs(self.panel.tabBar.items) do
-		v:update( deltaTime )
+		if v:update( deltaTime ) then
+			result = true
+		end
 	end
 	
 	-- tabs
-	self.panel.tabs[self.panel.tabBar.curTab]:update( deltaTime )
+	if self.panel.tabs[self.panel.tabBar.curTab]:update( deltaTime ) then
+		result = true
+	end
 	
 	-- context menu
 	if self.contextMenu.visible then
-		self.contextMenu:update( deltaTime )
+		if self.contextMenu:update( deltaTime ) then
+			result = true
+		end
 	end
+	
+	return result
 end
 
 function gui:render()

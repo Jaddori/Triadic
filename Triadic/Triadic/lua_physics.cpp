@@ -210,24 +210,13 @@ namespace LuaPhysics
 	{
 		int result = 0;
 
-		LUA_EXPECT_ARGS( 5 )
+		LUA_EXPECT_ARGS( 2 )
 		{
 			if( LUA_EXPECT_TABLE( 1 ) && 
-				LUA_EXPECT_TABLE( 2 ) &&
-				LUA_EXPECT_NUMBER( 3 ) &&
-				LUA_EXPECT_TABLE( 4 ) &&
-				LUA_EXPECT_NUMBER( 5 ) )
+				LUA_EXPECT_TABLE( 2 ) )
 			{
-				Ray ray = {};
-				
-				lua_getvec3( lua, 1, ray.start );
-				lua_getvec3( lua, 2, ray.direction );
-				ray.length = lua_tofloat( lua, 3 );
-
-				Sphere sphere = {};
-
-				lua_getvec3( lua, 4, sphere.center );
-				sphere.radius = lua_tofloat( lua, 5 );
+				Ray ray = readRay( lua, 1 );
+				Sphere sphere = readSphere( lua, 2 );
 
 				bool collision = g_coreData->collisionSolver->ray( ray, sphere );
 				lua_pushboolean( lua, collision );
