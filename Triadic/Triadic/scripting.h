@@ -32,11 +32,14 @@ namespace Scripting
 
 	private:
 		void run( int functionReference, const char* debugName );
+		void reload();
 
 		lua_State* lua;
 
 		int loadFunctionReference, unloadFunctionReference;
 		int updateFunctionReference, renderFunctionReference;
 		bool valid;
+
+		CoreData* _coreData;
 	};
 }

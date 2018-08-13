@@ -29,4 +29,6 @@ namespace LuaCamera
 	LDEC( getForward );
 	LDEC( getRight );
 	LDEC( getUp );
+
+	LDEC( createRay );
 }

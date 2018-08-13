@@ -1,4 +1,5 @@
 #include "lua_camera.h"
+#include "lua_physics.h"
 
 namespace LuaCamera
 {
@@ -30,6 +31,8 @@ namespace LuaCamera
 			{ "getForward", getForward },
 			{ "getRight", getRight },
 			{ "getUp", getUp },
+
+			{ "createRay", createRay },
 
 			{ NULL, NULL }
 		};
@@ -366,6 +369,34 @@ namespace LuaCamera
 				lua_newtable( lua );
 				lua_setvec3( lua, up );
 				luaL_setmetatable( lua, "vec3Meta" );
+				result = 1;
+			}
+		}
+
+		return result;
+	}
+
+	LDEC( createRay )
+	{
+		int result = 0;
+
+		LUA_EXPECT_ARGS( 1 )
+		{
+			if( LUA_EXPECT_TABLE( 1 ) )
+			{
+				Camera* camera = lua_getuserdata<Camera>( lua, 1 );
+
+				Point mousePosition = g_coreData->input->getMousePosition();
+
+				glm::vec3 nearPoint, farPoint;
+				camera->unproject( mousePosition, 0.0f, nearPoint );
+				camera->unproject( mousePosition, 1.0f, farPoint );
+
+				glm::vec3 direction = glm::normalize( farPoint - nearPoint );
+				float length = glm::distance( nearPoint, farPoint );
+
+				Physics::Ray ray = { nearPoint, direction, length };
+				LuaPhysics::writeRay( lua, ray );
 				result = 1;
 			}
 		}

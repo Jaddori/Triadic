@@ -18,6 +18,8 @@ Script::~Script()
 
 bool Script::bind( CoreData* coreData )
 {
+	_coreData = coreData;
+
 	valid = true;
 	LOG_INFO( "Initializing script backend." );
 
@@ -134,6 +136,9 @@ void Script::update( float deltaTime )
 			valid = false;
 		}
 	}
+
+	if( _coreData->input->keyReleased( SDL_SCANCODE_P ) )
+		reload();
 }
 
 void Script::run( int functionReference, const char* debugName )
@@ -148,4 +153,14 @@ void Script::run( int functionReference, const char* debugName )
 			valid = false;
 		}
 	}
+}
+
+void Script::reload()
+{
+	LOG_DEBUG( "RELOADING" );
+
+	if( lua )
+		lua_close( lua );
+	bind( _coreData );
+	load();
 }

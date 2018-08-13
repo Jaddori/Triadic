@@ -25,7 +25,14 @@ inline bool isbool( lua_State* lua, int index )
 	bool result = ( lua_isboolean( lua, index ) != 0 );
 	if( !result )
 	{
-		LOG_ERROR( "Expected bool as argument #%d.", index );
+		if( lua_isnil( lua, index ) )
+		{
+			LOG_ERROR( "Expected bool as argument #%d, but it was nil.", index );
+		}
+		else
+		{
+			LOG_ERROR( "Expected bool as argument #%d.", index );
+		}
 	}
 	return result;
 }
@@ -35,7 +42,14 @@ inline bool isnumber( lua_State* lua, int index )
 	bool result = ( lua_isnumber( lua, index ) != 0 );
 	if( !result )
 	{
-		LOG_ERROR( "Expected number as argument #%d.", index );
+		if( lua_isnil( lua, index ) )
+		{
+			LOG_ERROR( "Expected number as argument #%d, but it was nil.", index );
+		}
+		else
+		{
+			LOG_ERROR( "Expected number as argument #%d.", index );
+		}
 	}
 	return result;
 }
@@ -45,7 +59,14 @@ inline bool isstring( lua_State* lua, int index )
 	bool result = ( lua_isstring( lua, index ) != 0 );
 	if( !result )
 	{
-		LOG_ERROR( "Expected string as argument #%d.", index );
+		if( lua_isnil( lua, index ) )
+		{
+			LOG_ERROR( "Expected string as argument #%d, but it was nil.", index );
+		}
+		else
+		{
+			LOG_ERROR( "Expected string as argument #%d.", index );
+		}
 	}
 	return result;
 }
@@ -55,7 +76,14 @@ inline bool isuserdata( lua_State* lua, int index )
 	bool result = ( lua_isuserdata( lua, index ) != 0 );
 	if( !result )
 	{
-		LOG_ERROR( "Expected userdata as argument #%d.", index );
+		if( lua_isnil( lua, index ) )
+		{
+			LOG_ERROR( "Expected userdata as argument #%d, but it was nil.", index );
+		}
+		else
+		{
+			LOG_ERROR( "Expected userdata as argument #%d.", index );
+		}
 	}
 	return result;
 }
@@ -65,7 +93,14 @@ inline bool istable( lua_State* lua, int index )
 	bool result = ( lua_istable( lua, index ) != 0 );
 	if( !result )
 	{
-		LOG_ERROR( "Expected table as argument #%d.", index );
+		if( lua_isnil( lua, index ) )
+		{
+			LOG_ERROR( "Expected table as argument #%d, but it was nil.", index );
+		}
+		else
+		{
+			LOG_ERROR( "Expected table as argument #%d.", index );
+		}
 	}
 	return result;
 }

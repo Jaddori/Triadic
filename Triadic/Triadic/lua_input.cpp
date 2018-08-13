@@ -31,6 +31,8 @@ namespace LuaInput
 		lua_setnumber( lua, "KeypadEight", SDL_SCANCODE_KP_8 );
 		lua_setnumber( lua, "KeypadNine", SDL_SCANCODE_KP_9 );
 		
+		lua_setnumber( lua, "Return", SDL_SCANCODE_RETURN );
+		lua_setnumber( lua, "Enter", SDL_SCANCODE_RETURN );
 		lua_setnumber( lua, "Backspace", SDL_SCANCODE_BACKSPACE );
 		lua_setnumber( lua, "Escape",SDL_SCANCODE_ESCAPE );
 		lua_setnumber( lua, "Space", SDL_SCANCODE_SPACE );
