@@ -6,6 +6,8 @@ Editor =
 	entities = {},
 	selectedEntity = nil,
 	selectedEntityIndex = -1,
+	
+	gizmo = nil
 }
 
 function Editor:load()
@@ -16,6 +18,10 @@ function Editor:load()
 	
 	self.gui = doscript( "editor/editor_gui.lua" )
 	self.gui:load()
+	
+	self.gizmo = doscript( "editor/editor_gizmo.lua" )
+	self.gizmo:load()
+	self.gizmo:setPosition( Vec3.create() )
 	
 	-- gui meshes
 	local meshNames = Filesystem.getFiles( "./assets/models/*" )
@@ -62,6 +68,7 @@ function Editor:load()
 			local z = tonumber( components[3] )
 			
 			Editor.selectedEntity.position = {x,y,z}
+			Editor.gizmo:setPosition( Editor.selectedEntity.position )
 		end
 	end
 end
@@ -71,29 +78,123 @@ end
 
 function Editor:update( deltaTime )
 	self.camera:update( deltaTime )
+	self.gizmo:update( deltaTime )
 	
 	local mouseCaptured = self.gui:update( deltaTime )
 	
 	if not mouseCaptured then
+		-- context menu
 		if Input.buttonReleased( Buttons.Right ) then
 			local mousePosition = Input.getMousePosition()
 			self.gui.contextMenu:show( mousePosition )
 		end
 		
+		-- selecting entities
+		local ray = self.camera.camera:createRay()
 		if Input.buttonReleased( Buttons.Left ) then
-			local ray = self.camera.camera:createRay()
-		
-			self.selectedEntity = nil
-			for _,v in pairs(self.entities) do
-				if v:select( ray ) then
-					self.selectedEntity = v
-					v.selected = true
+			if not self.xcaptured and not self.ycaptured and not self.zcaptured then
+				self.selectedEntity = nil
+				for _,v in pairs(self.entities) do
+					if v:select( ray ) then
+						self.selectedEntity = v
+						v.selected = true
+					else
+						v.selected = false
+					end
+				end
+				
+				self.gui.panel.tabs.info:setEntity( self.selectedEntity )
+				if self.selectedEntity then
+					self.gizmo:setPosition( self.selectedEntity.position )
+					self.gizmo.visible = true
+					self.gizmo.selectedAxis = -1
 				else
-					v.selected = false
+					self.gizmo.visible = false
 				end
 			end
+		end
+		
+		if self.selectedEntity then
+			local entityMoved = false
 			
-			self.gui.panel.tabs.info:setEntity( self.selectedEntity )
+			if Input.buttonPressed( Buttons.Left ) then
+				self.xcaptured = false
+				self.ycaptured = false
+				self.zcaptured = false
+			
+				-- translation in x-axis
+				if Physics.rayAABB( ray, self.gizmo.xbounds ) then
+					self.xcaptured = true
+					
+					self.xplane = Physics.createPlane( {0,0,1}, self.selectedEntity.position[3] )
+					
+					local hit = {}
+					if Physics.rayPlane( ray, self.xplane, hit ) then
+						self.xoffset = hit.position[1] - self.selectedEntity.position[1]
+						self.gizmo.selectedAxis = 1
+					end
+				-- translation in y-axis
+				elseif Physics.rayAABB( ray, self.gizmo.ybounds ) then
+					self.ycaptured = true
+					
+					local forward = self.camera.camera:getForward()
+					local xnormal = {1,0,0}
+					local znormal = {0,0,1}
+					
+					local xdot = Vec3.dot( xnormal, forward )
+					local zdot = Vec3.dot( znormal, forward )
+					
+					if xdot < zdot then
+						self.yplane = Physics.createPlane( xnormal, self.selectedEntity.position[1] )
+					else
+						self.yplane = Physics.createPlane( znormal, self.selectedEntity.position[3] )
+					end
+					
+					local hit = {}
+					if Physics.rayPlane( ray, self.yplane, hit ) then
+						self.yoffset = hit.position[2] - self.selectedEntity.position[2]
+						self.gizmo.selectedAxis = 2
+					end
+				-- translation in z-axis
+				elseif Physics.rayAABB( ray, self.gizmo.zbounds ) then
+					self.zcaptured = true
+					
+					self.zplane = Physics.createPlane( {1,0,0}, self.selectedEntity.position[1] )
+					
+					local hit = {}
+					if Physics.rayPlane( ray, self.zplane, hit ) then
+						self.zoffset = hit.position[3] - self.selectedEntity.position[3]
+						self.gizmo.selectedAxis = 3
+					end
+				end
+			elseif Input.buttonDown( Buttons.Left ) then
+				if self.xcaptured and self.xplane then
+					local hit = {}
+					if Physics.rayPlane( ray, self.xplane, hit ) then
+						self.selectedEntity.position[1] = hit.position[1] - self.xoffset
+						entityMoved = true
+					end
+				elseif self.ycaptured and self.yplane then
+					local hit = {}
+					if Physics.rayPlane( ray, self.yplane, hit ) then
+						self.selectedEntity.position[2] = hit.position[2] - self.yoffset
+						entityMoved = true
+					end
+				elseif self.zcaptured and self.zplane then
+					local hit = {}
+					if Physics.rayPlane( ray, self.zplane, hit ) then
+						self.selectedEntity.position[3] = hit.position[3] - self.zoffset
+						entityMoved = true
+					end
+				end
+			else
+				self.gizmo.selectedAxis = -1
+			end
+			
+			-- update gizmo if entity was moved
+			if entityMoved then
+				self.gizmo:setPosition( self.selectedEntity.position )
+			end
 		end
 	end
 	
@@ -105,6 +206,7 @@ end
 
 function Editor:render()
 	self.gui:render()
+	self.gizmo:render()
 	
 	-- entities
 	for _,v in pairs(self.entities) do

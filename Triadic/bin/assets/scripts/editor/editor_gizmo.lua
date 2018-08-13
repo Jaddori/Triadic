@@ -6,6 +6,10 @@ local gizmo =
 	y = {0,10,0},
 	z = {0,0,10},
 	
+	xbounds = nil,
+	ybounds = nil,
+	zbounds = nil,
+	
 	red = {1,0,0,1},
 	green = {0,1,0,1},
 	blue = {0,0,1,1},
@@ -47,6 +51,17 @@ end
 
 function gizmo:setPosition( position )
 	self.position = Vec3.copy( position )
+	if self.position[2] > -0.1 and self.position[2] < 0.1 then
+		self.position[2] = 0.1
+	end
+	
+	local x = position[1]
+	local y = position[2]
+	local z = position[3]
+	
+	self.xbounds = Physics.createAABB( {x+1,y-1,z-1}, {x+10,y+1,z+1} )
+	self.ybounds = Physics.createAABB( {x-1,y+1,z-1}, {x+1,y+10,z+1} )
+	self.zbounds = Physics.createAABB( {x-1,y-1,z+1}, {x+1,y+1,z+10} )
 end
 
 return gizmo
