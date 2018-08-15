@@ -33,7 +33,9 @@ namespace LuaShapes
 
 	LDEC( addLine )
 	{
-		LUA_EXPECT_ARGS( 3 )
+		//LUA_EXPECT_ARGS( 3 )
+		int args = lua_gettop( lua );
+		if( args >= 3 )
 		{
 			if( LUA_EXPECT_TABLE( 1 ) &&
 				LUA_EXPECT_TABLE( 2 ) &&
@@ -41,13 +43,21 @@ namespace LuaShapes
 			{
 				glm::vec3 start, end;
 				glm::vec4 color;
+				bool ignoreDepth = false;
 
 				lua_getvec3( lua, 1, start );
 				lua_getvec3( lua, 2, end );
 				lua_getvec4( lua, 3, color );
 
-				g_coreData->debugShapes->addLine( { start, end, color } );
+				if( args == 4 && LUA_EXPECT_BOOL( 4 ) )
+					ignoreDepth = lua_tobool( lua, 4 );
+
+				g_coreData->debugShapes->addLine( { start, end, color }, ignoreDepth );
 			}
+		}
+		else
+		{
+			LOG_ERROR( "Expected 3 or 4 arguments. Got %d.", args );
 		}
 
 		return 0;
@@ -55,7 +65,9 @@ namespace LuaShapes
 
 	LDEC( addSphere )
 	{
-		LUA_EXPECT_ARGS( 3 )
+		//LUA_EXPECT_ARGS( 3 )
+		int args = lua_gettop( lua );
+		if( args >= 3 )
 		{
 			if( LUA_EXPECT_TABLE( 1 ) &&
 				LUA_EXPECT_NUMBER( 2 ) &&
@@ -63,13 +75,21 @@ namespace LuaShapes
 			{
 				glm::vec3 position;
 				glm::vec4 color;
+				bool ignoreDepth = false;
 
 				lua_getvec3( lua, 1, position );
 				float radius = lua_tofloat( lua, 2 );
 				lua_getvec4( lua, 3, color );
 
-				g_coreData->debugShapes->addSphere( { position, radius, color } );
+				if( args == 4 && LUA_EXPECT_BOOL( 4 ) )
+					ignoreDepth = lua_tobool( lua, 4 );
+
+				g_coreData->debugShapes->addSphere( { position, radius, color }, ignoreDepth );
 			}
+		}
+		else
+		{
+			LOG_ERROR( "Expected 3 or 4 arguments. Got %d.", args );
 		}
 
 		return 0;
@@ -77,7 +97,9 @@ namespace LuaShapes
 
 	LDEC( addAABB )
 	{
-		LUA_EXPECT_ARGS( 3 )
+		//LUA_EXPECT_ARGS( 3 )
+		int args = lua_gettop( lua );
+		if( args >= 3 )
 		{
 			if( LUA_EXPECT_TABLE( 1 ) &&
 				LUA_EXPECT_TABLE( 2 ) &&
@@ -85,13 +107,21 @@ namespace LuaShapes
 			{
 				glm::vec3 minPosition, maxPosition;
 				glm::vec4 color;
+				bool ignoreDepth = false;
 
 				lua_getvec3( lua, 1, minPosition );
 				lua_getvec3( lua, 2, maxPosition );
 				lua_getvec4( lua, 3, color );
 
-				g_coreData->debugShapes->addAABB( { minPosition, maxPosition, color } );
+				if( args == 4 && LUA_EXPECT_BOOL( 4 ) )
+					ignoreDepth = lua_tobool( lua, 4 );
+
+				g_coreData->debugShapes->addAABB( { minPosition, maxPosition, color }, ignoreDepth );
 			}
+		}
+		else
+		{
+			LOG_ERROR( "Expected 3 or 4 arguments. Got %d.", args );
 		}
 
 		return 0;
@@ -99,7 +129,9 @@ namespace LuaShapes
 
 	LDEC( addOBB )
 	{
-		LUA_EXPECT_ARGS( 6 )
+		//LUA_EXPECT_ARGS( 6 )
+		int args = lua_gettop( lua );
+		if( args >= 6 )
 		{
 			if( LUA_EXPECT_TABLE( 1 ) &&
 				LUA_EXPECT_TABLE( 2 ) &&
@@ -110,6 +142,7 @@ namespace LuaShapes
 			{
 				glm::vec3 position, x, y, z, extents;
 				glm::vec4 color;
+				bool ignoreDepth = false;
 
 				lua_getvec3( lua, 1, position );
 				lua_getvec3( lua, 2, x );
@@ -118,8 +151,15 @@ namespace LuaShapes
 				lua_getvec3( lua, 2, extents );
 				lua_getvec4( lua, 3, color );
 
-				g_coreData->debugShapes->addOBB( { position, x, y, z, extents, color } );
+				if( args == 7 && LUA_EXPECT_BOOL( 7 ) )
+					ignoreDepth = lua_tobool( lua, 7 );
+
+				g_coreData->debugShapes->addOBB( { position, x, y, z, extents, color }, ignoreDepth );
 			}
+		}
+		else
+		{
+			LOG_ERROR( "Expected 6 or 7 arguments. Got %d.", args );
 		}
 
 		return 0;

@@ -183,7 +183,7 @@ void DebugShapes::upload()
 	}
 }
 
-void DebugShapes::render( const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix )
+void DebugShapes::renderShapes( const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix, SwapArray<DebugLine>& lines, SwapArray<DebugSphere>& sphers, SwapArray<DebugAABB>& aabbs, SwapArray<DebugOBB>& obbs )
 {
 	if( visible )
 	{
@@ -306,30 +306,52 @@ void DebugShapes::finalize()
 	aabbs.swap();
 	obbs.swap();
 
+	omniLines.swap();
+	omniSpheres.swap();
+	omniAABBs.swap();
+	omniOBBs.swap();
+
 	lines.getWrite().clear();
 	spheres.getWrite().clear();
 	aabbs.getWrite().clear();
 	obbs.getWrite().clear();
+
+	omniLines.getWrite().clear();
+	omniSpheres.getWrite().clear();
+	omniAABBs.getWrite().clear();
+	omniOBBs.getWrite().clear();
 }
 
-void DebugShapes::addLine( const DebugLine& line )
+void DebugShapes::addLine( const DebugLine& line, bool ignoreDepth )
 {
-	lines.getWrite().add( line );
+	if( ignoreDepth )
+		omniLines.getWrite().add( line );
+	else
+		lines.getWrite().add( line );
 }
 
-void DebugShapes::addSphere( const DebugSphere& sphere )
+void DebugShapes::addSphere( const DebugSphere& sphere, bool ignoreDepth )
 {
-	spheres.getWrite().add( sphere );
+	if( ignoreDepth )
+		omniSpheres.getWrite().add( sphere );
+	else
+		spheres.getWrite().add( sphere );
 }
 
-void DebugShapes::addAABB( const DebugAABB& aabb )
+void DebugShapes::addAABB( const DebugAABB& aabb, bool ignoreDepth )
 {
-	aabbs.getWrite().add( aabb );
+	if( ignoreDepth )
+		omniAABBs.getWrite().add( aabb );
+	else
+		aabbs.getWrite().add( aabb );
 }
 
-void DebugShapes::addOBB( const DebugOBB& obb )
+void DebugShapes::addOBB( const DebugOBB& obb, bool ignoreDepth )
 {
-	obbs.getWrite().add( obb );
+	if( ignoreDepth )
+		omniOBBs.getWrite().add( obb );
+	else
+		obbs.getWrite().add( obb );
 }
 
 void DebugShapes::setIgnoreDepth( bool ignore )

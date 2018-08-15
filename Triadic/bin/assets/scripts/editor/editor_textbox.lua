@@ -16,6 +16,7 @@ EditorTextbox =
 	pressColor = {0.35, 0.35, 0.35, 1},
 	focusColor = { 0.65, 0.65, 0.15, 1},
 	textColor = {1.0, 1.0, 1.0, 1.0},
+	selectionColor = { 0.35, 0.35, 0.35, 1.0 },
 	text = "",
 	readOnly = false,
 	
@@ -26,6 +27,9 @@ EditorTextbox =
 	caretVisible = false,
 	caretElapsed = 0.0,
 	caretIndex = 0,
+	
+	selectionStart = 0,
+	selectionEnd = 0,
 }
 
 function EditorTextbox.create( position, size )
@@ -83,6 +87,8 @@ function EditorTextbox:update( deltaTime )
 			
 			self.focus = false
 			self.caretVisible = false
+			self.selectionStart = self.caretIndex
+			self.selectionEnd = self.caretIndex
 		end
 	end
 	
@@ -91,7 +97,21 @@ function EditorTextbox:update( deltaTime )
 		local textInput = Input.getTextInput()
 		
 		if textInput:len() > 0 then
-			--self.text = self.text .. textInput
+			-- if there was a selection, replace the selected text
+			if self.selectionStart ~= self.selectionEnd then
+				local first = math.min( self.selectionStart, self.selectionEnd )
+				local last = math.max( self.selectionStart, self.selectionEnd )
+				
+				local preText = self.text:sub( 1, first )
+				local postText = self.text:sub( last+1, self.text:len() )
+				
+				self.text = preText .. postText
+				self.caretIndex = first
+				self.selectionStart = first
+				self.selectionEnd = first
+			end
+		
+			-- add the new text at the caret position
 			if self.caretIndex <= 0 then
 				self.text = textInput .. self.text
 			elseif self.caretIndex >= self.text:len() then
@@ -105,31 +125,97 @@ function EditorTextbox:update( deltaTime )
 			result = true
 			
 			self.caretIndex = self.caretIndex + textInput:len()
+			
+			self.selectionStart = self.caretIndex
+			self.selectionEnd = self.caretIndex
 		end
 		
 		-- delete input if Backspace is pressed
 		local textLength = self.text:len()
-		if Input.keyRepeated( Keys.Backspace ) and textLength > 0 and self.caretIndex > 0 then
-			--self.text = self.text:sub( 1, textLength-1 )
-			if self.caretIndex >= textLength then
-				self.text = self.text:sub( 1, textLength-1 )
-			else
-				local first = self.text:sub(1, self.caretIndex-1)
-				local second = self.text:sub(self.caretIndex+1, textLength)
+		if Input.keyRepeated( Keys.Backspace ) and textLength > 0 then
+			-- delete selection
+			if self.selectionStart ~= self.selectionEnd then
+				local first = math.min( self.selectionStart, self.selectionEnd )
+				local last = math.max( self.selectionStart, self.selectionEnd )
 				
-				self.text = first .. second
+				local preSelectionText = ""
+				if first > 0 then preSelectionText = self.text:sub( 1, first ) end
+				
+				local postSelectionText = ""
+				if last < #self.text then postSelectionText = self.text:sub( last+1, textLength ) end
+				
+				self.text = preSelectionText .. postSelectionText
+				
+				self.caretIndex = first
+				self.selectionStart = first
+				self.selectionEnd = first
+			
+			-- delete from caret index
+			elseif self.caretIndex > 0 then
+				if self.caretIndex >= textLength then
+					self.text = self.text:sub( 1, textLength-1 )
+				else
+					local first = self.text:sub(1, self.caretIndex-1)
+					local second = self.text:sub(self.caretIndex+1, textLength)
+					
+					self.text = first .. second
+				end
+				
+				self.caretIndex = self.caretIndex - 1
 			end
 			
-			self.caretIndex = self.caretIndex - 1
+			textLength = self.text:len()
+		end
+		
+		-- delete input if Delete is pressed
+		if Input.keyRepeated( Keys.Delete ) then
+			-- delete selection
+			if self.selectionStart ~= self.selectionEnd then
+				local first = math.min( self.selectionStart, self.selectionEnd )
+				local last = math.max( self.selectionStart, self.selectionEnd )
+				
+				local preSelectionText = ""
+				if first > 0 then preSelectionText = self.text:sub( 1, first ) end
+				
+				local postSelectionText = ""
+				if last < #self.text then postSelectionText = self.text:sub( last+1, textLength ) end
+				
+				self.text = preSelectionText .. postSelectionText
+				
+				self.caretIndex = first
+				self.selectionStart = first
+				self.selectionEnd = first
+			
+			-- delete from caret index
+			elseif self.caretIndex < textLength then
+				local preText = self.text:sub( 1, self.caretIndex )
+				local postText = self.text:sub( self.caretIndex+2 )
+				
+				self.text = preText .. postText
+			end
 		end
 		
 		-- move the caret with arrow keys
 		if Input.keyRepeated( Keys.Left ) and self.caretIndex > 0 then
 			self.caretIndex = self.caretIndex - 1
+			
+			if Input.keyDown( Keys.LeftShift ) or Input.keyDown( Keys.RightShift ) then
+				self.selectionEnd = self.caretIndex
+			else
+				self.selectionStart = self.caretIndex
+				self.selectionEnd = self.selectionStart
+			end
 		end
 		
 		if Input.keyRepeated( Keys.Right ) and self.caretIndex < textLength then
 			self.caretIndex = self.caretIndex + 1
+			
+			if Input.keyDown( Keys.LeftShift ) or Input.keyDown( Keys.RightShift ) then
+				self.selectionEnd = self.caretIndex
+			else
+				self.selectionStart = self.caretIndex
+				self.selectionEnd = self.selectionStart
+			end
 		end
 		
 		-- blink the caret
@@ -147,6 +233,14 @@ function EditorTextbox:update( deltaTime )
 			
 			self:onFinish()
 		end
+		
+		-- select all text
+		if Input.keyDown( Keys.LeftControl ) or Input.keyDown( Keys.RightControl ) then
+			if Input.keyPressed( Keys.A ) then
+				self.selectionStart = 0
+				self.selectionEnd = #self.text
+			end
+		end
 	end
 	
 	return result
@@ -162,26 +256,42 @@ function EditorTextbox:render()
 		color = self.focusColor
 	end
 	
+	local textPadding = 8
+	
+	-- draw background
 	Graphics.queueQuad( self.textureIndex, self.position, self.size, color )
 	
-	local textPosition = {self.position[1] + 8, self.position[2]}
-	--local text = self.text
-	--if self.caretVisible then
-	--	if self.caretIndex <= 0 then
-	--		text = "|" .. text
-	--	elseif self.caretIndex >= text:len() then
-	--		text = text .. "|"
-	--	else
-	--		local first = text:sub(1, self.caretIndex)
-	--		local second = text:sub(self.caretIndex+1, text:len())
-	--		text = first .. "|" .. second
-	--	end
-	--end
-	--Graphics.queueText( self.fontIndex, text, textPosition, self.textColor )
+	-- draw text
+	local textPosition = {self.position[1] + textPadding, self.position[2]}
 	Graphics.queueText( self.fontIndex, self.text, textPosition, self.textColor )
 	if self.caretVisible then
 		local xoffset = self.font:measureText( self.text:sub(1, self.caretIndex) )[1] - 2
 		Graphics.queueText( self.fontIndex, "|", {textPosition[1]+xoffset, textPosition[2]}, self.textColor )
+	end
+	
+	-- draw selection
+	if self.selectionStart ~= self.selectionEnd then
+		local preSelectionWidth = 0
+		--local postSelectionWidth = 0
+		
+		local first = self.selectionStart
+		local last = self.selectionEnd
+		
+		-- make sure first is actually the first
+		if last < first then last, first = first, last end
+		
+		if first > 0 then
+			local preSelectionText = self.text:sub( 1, first )
+			preSelectionWidth = self.font:measureText( preSelectionText )[1]
+		end
+		
+		local selectionText = self.text:sub( first+1, last )
+		local selectionWidth = self.font:measureText( selectionText )[1]
+		
+		local position = { self.position[1] + preSelectionWidth + textPadding, self.position[2]+2 }
+		local size = { selectionWidth, self.size[2]-4 }
+		
+		Graphics.queueQuad( self.textureIndex, position, size, self.selectionColor )
 	end
 end
 

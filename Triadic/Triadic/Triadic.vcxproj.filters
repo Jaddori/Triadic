@@ -163,9 +163,6 @@
     <ClCompile Include="font.cpp">
       <Filter>Source Files\Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="level.cpp">
-      <Filter>Source Files\Game</Filter>
-    </ClCompile>
     <ClCompile Include="prop.cpp">
       <Filter>Source Files\Game</Filter>
     </ClCompile>
@@ -224,6 +221,9 @@
       <Filter>Source Files\Scripting</Filter>
     </ClCompile>
     <ClCompile Include="lua_math.cpp">
+      <Filter>Source Files\Scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="lua_core.cpp">
       <Filter>Source Files\Scripting</Filter>
     </ClCompile>
   </ItemGroup>
@@ -360,9 +360,6 @@
     <ClInclude Include="font.h">
       <Filter>Source Files\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="level.h">
-      <Filter>Source Files\Game</Filter>
-    </ClInclude>
     <ClInclude Include="prop.h">
       <Filter>Source Files\Game</Filter>
     </ClInclude>
@@ -436,6 +433,9 @@
       <Filter>Source Files\Scripting</Filter>
     </ClInclude>
     <ClInclude Include="lua_math.h">
+      <Filter>Source Files\Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="lua_core.h">
       <Filter>Source Files\Scripting</Filter>
     </ClInclude>
   </ItemGroup>

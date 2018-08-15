@@ -7,7 +7,6 @@
 #include "core_data.h"
 #include "rendering.h"
 #include "entity.h"
-#include "level.h"
 #include "shapes.h"
 #include "scripting.h"
 #include "collision_solver.h"
@@ -150,13 +149,6 @@ int main( int argc, char* argv[] )
 			LOG_INFO( "Initializing Entity." );
 			Entity::setCoreData( &coreData );
 
-			Level level;
-			if( !level.load( "./assets/levels/level01.txt" ) )
-			{
-				LOG_ERROR( "Failed to load level." );
-				return -1;
-			}
-
 			Script script;
 			script.bind( &coreData );
 			script.load();
@@ -203,11 +195,16 @@ int main( int argc, char* argv[] )
 				glClearColor( 0.1f, 0.1f, 0.1f, 0.0f );
 				glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-				level.render();
+				const glm::mat4& projectionMatrix = graphics.getPerspectiveCamera()->getProjectionMatrix();
+				const glm::mat4& viewMatrix = graphics.getPerspectiveCamera()->getViewMatrix();
+
+				debugShapes.render( projectionMatrix, viewMatrix );
 
 				graphics.render();
 
-				debugShapes.render( graphics.getPerspectiveCamera()->getProjectionMatrix(), graphics.getPerspectiveCamera()->getViewMatrix() );
+				glClear( GL_DEPTH_BUFFER_BIT );
+
+				debugShapes.renderOmnipresent( projectionMatrix, viewMatrix );
 
 				SDL_GL_SwapWindow( window );
 

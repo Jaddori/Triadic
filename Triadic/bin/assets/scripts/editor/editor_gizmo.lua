@@ -43,9 +43,9 @@ function gizmo:render()
 			self.green[4] = 0.1
 		end
 	
-		DebugShapes.addLine( self.position, addVec( self.position, self.x ), self.red )
-		DebugShapes.addLine( self.position, addVec( self.position, self.y ), self.green )
-		DebugShapes.addLine( self.position, addVec( self.position, self.z ), self.blue )
+		DebugShapes.addLine( self.position, addVec( self.position, self.x ), self.red, true )
+		DebugShapes.addLine( self.position, addVec( self.position, self.y ), self.green, true )
+		DebugShapes.addLine( self.position, addVec( self.position, self.z ), self.blue, true )
 	end
 end
 

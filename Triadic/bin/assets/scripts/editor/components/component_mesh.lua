@@ -1,4 +1,5 @@
 local DEFAULT_TEXTURE = "./assets/textures/white.dds"
+local MESH_LIST_PANEL_WIDTH = 128
 
 ComponentMesh =
 {
@@ -18,10 +19,24 @@ ComponentMeshInfo =
 	textureIndex = -1,
 	color = { 0.35, 0.35, 0.35, 1.0 },
 	titleButton = nil,
+	entity = nil,
+	meshComponent = nil,
+	curInfo = nil,
 	items = {},
+	
+	meshNames = {},
+	meshIndices = {},
+	meshBoundingBoxes = {},
+	meshList =
+	{
+		visible = false,
+		position = {0,0},
+		size = {0,0},
+		items = {},
+	}
 }
 
-function ComponentMesh.create( parent, position )
+function ComponentMesh.create( parent )
 	local result =
 	{
 		parent = parent,
@@ -30,9 +45,18 @@ function ComponentMesh.create( parent, position )
 		boundingBox = nil,
 	}
 	
-	if position then result.transform:setPosition( position ) end
+	result.transform:setPosition( parent.position )
 	
 	setmetatable( result, { __index = ComponentMesh } )
+	
+	return result
+end
+
+function ComponentMesh:copy( parent )
+	local result = self.create( parent )
+	
+	result.meshIndex = self.meshIndex
+	result.boundingBox = self.boundingBox
 	
 	return result
 end
@@ -45,6 +69,10 @@ function ComponentMesh:loadMesh( path )
 	else
 		self.boundingBox = nil
 	end
+end
+
+function ComponentMesh:parentMoved()
+	self.transform:setPosition( self.parent.position )
 end
 
 function ComponentMesh:select( ray )
@@ -64,7 +92,6 @@ function ComponentMesh:select( ray )
 end
 
 function ComponentMesh:update( deltaTime )
-	self.transform:setPosition( self.parent.position )
 end
 
 function ComponentMesh:render()
@@ -77,7 +104,7 @@ function ComponentMesh:render()
 				minPosition = self.boundingBox.minPosition:add( self.parent.position ),
 				maxPosition = self.boundingBox.maxPosition:add( self.parent.position )
 			}
-			DebugShapes.addAABB( worldBox.minPosition, worldBox.maxPosition, {0.0, 1.0, 0.0, 1.0} )
+			DebugShapes.addAABB( worldBox.minPosition, worldBox.maxPosition, {0.0, 1.0, 0.0, 1.0}, false )
 		end
 	end
 	
@@ -85,11 +112,13 @@ function ComponentMesh:render()
 end
 
 function ComponentMesh:addInfo( position, size, items )
-	if ComponentMeshInfo.textureIndex < 0 then
-		ComponentMeshInfo.textureIndex = Assets.loadTexture( DEFAULT_TEXTURE )
-	end
-
-	local info = {}
+	local info =
+	{
+		name = "Mesh",
+		position = {0,0},
+		size = {0,0},
+		items = {},
+	}
 	setmetatable( info, { __index = ComponentMeshInfo } )
 		
 	local padding = 4
@@ -115,16 +144,30 @@ function ComponentMesh:addInfo( position, size, items )
 	local meshNameLabel = EditorLabel.create( {xoffset+padding, yoffset}, "Mesh name:" )
 	yoffset = yoffset + meshNameLabel:getHeight()
 	
-	local meshNameTextbox = EditorTextbox.create( {xoffset+padding, yoffset}, {info.size[1]-padding*2, 24} )
-	meshNameTextbox.readOnly = true
-	meshNameTextbox.text = "pillar.mesh"
-	yoffset = yoffset + meshNameTextbox.size[2]
+	local meshName = "N/A"
+	if self.meshIndex >= 0 then
+		for i=1, #info.meshIndices do
+			if info.meshIndices[i] == self.meshIndex then
+				meshName = info.meshNames[i]
+				break
+			end
+		end
+	end
+	
+	local meshNameButton = EditorButton.create( {xoffset+padding, yoffset}, {info.size[1]-padding*2, GUI_BUTTON_HEIGHT}, meshName )
+	meshNameButton.onClick = function( self )
+		ComponentMeshInfo.meshList.visible = true
+	end
+	--yoffset = yoffset + GUI_BUTTON_HEIGHT
 	
 	info.items[#info.items+1] = meshNameLabel
-	info.items[#info.items+1] = meshNameTextbox
+	info.items[#info.items+1] = meshNameButton
 	
 	-- set size	
 	info.size[2] = yoffset - position[2]
+	ComponentMeshInfo.entity = self.parent
+	ComponentMeshInfo.meshComponent = self
+	ComponentMeshInfo.curInfo = info
 	
 	-- add to callers list of items
 	items[#items+1] = info
@@ -132,10 +175,64 @@ function ComponentMesh:addInfo( position, size, items )
 	return info.size[2]
 end
 
-function ComponentMeshInfo:update( deltatTime )
+-- INFO
+function ComponentMeshInfo:meshSelected( index )
+	self.meshComponent.meshIndex = self.meshIndices[index]
+	self.meshComponent.boundingBox = self.meshBoundingBoxes[index]
+	
+	self.curInfo.items[2].text = self.meshNames[index]
+end
+
+function ComponentMeshInfo:load()
+	ComponentMeshInfo.textureIndex = Assets.loadTexture( DEFAULT_TEXTURE )
+
+	-- create mesh-selection-panel
+	self.meshList.position = { WINDOW_WIDTH - GUI_PANEL_WIDTH - MESH_LIST_PANEL_WIDTH, GUI_MENU_HEIGHT }
+	self.meshList.size = { MESH_LIST_PANEL_WIDTH, WINDOW_HEIGHT - GUI_MENU_HEIGHT }
+	
+	-- load meshes
+	self.meshNames = Filesystem.getFiles( "./assets/models/*" )
+	for i=1, #self.meshNames do
+		self.meshIndices[i] = Assets.loadMesh( "./assets/models/" .. self.meshNames[i] )
+		self.meshBoundingBoxes[i] = Assets.getMesh( self.meshIndices[i] ):getBoundingBox()
+		
+		-- create button for mesh index
+		local padding = 4
+		local position = { self.meshList.position[1]+padding, i*(GUI_BUTTON_HEIGHT + padding) }
+		local size = { MESH_LIST_PANEL_WIDTH - padding*2, GUI_BUTTON_HEIGHT }
+		local button = EditorButton.create( position, size, self.meshNames[i] )
+		button.onClick = function( self )
+			ComponentMeshInfo.meshList.visible = false
+			ComponentMeshInfo:meshSelected( i )
+		end
+		
+		self.meshList.items[i] = button
+	end
+end
+
+function ComponentMeshInfo:update( deltaTime )
 	local result = self.titleButton:update( deltaTime )
 
 	if self.expanded then
+		-- update mesh list
+		if self.meshList.visible then
+			for _,v in pairs(self.meshList.items) do
+				if v:update( deltaTime ) then
+					result = true
+				end
+			end
+			
+			if Input.buttonReleased( Buttons.Left ) then
+				local mousePosition = Input.getMousePosition()
+				if insideRect( self.meshList.position, self.meshList.size, mousePosition ) then
+					result = true
+				else
+					self.meshList.visible = false
+				end
+			end
+		end
+		
+		-- update items
 		for _,v in pairs(self.items) do
 			if v:update( deltaTime ) then
 				result = true
@@ -157,5 +254,16 @@ function ComponentMeshInfo:render()
 		for _,v in pairs(self.items) do
 			v:render()
 		end
+		
+		-- render mesh list
+		if self.meshList.visible then
+			Graphics.queueQuad( self.textureIndex, self.meshList.position, self.meshList.size, self.color )
+		
+			for _,v in pairs(self.meshList.items) do
+				v:render()
+			end
+		end
 	end
 end
+
+ComponentMeshInfo:load()

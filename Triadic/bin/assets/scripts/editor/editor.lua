@@ -7,35 +7,42 @@ Editor =
 	selectedEntity = nil,
 	selectedEntityIndex = -1,
 	
-	gizmo = nil
+	gizmo = nil,
+	grid = nil,
 }
 
 function Editor:load()
-	doscript( "editor/entity.lua" )
-
 	self.camera = doscript( "editor/editor_camera.lua" )
 	self.camera:load()
 	
 	self.gui = doscript( "editor/editor_gui.lua" )
 	self.gui:load()
+	self.gui.menu.file.onExit = function() Core.exit() end
+	self.gui.menu.settings.onShowGrid = function() self.grid.showGrid = not self.grid.showGrid end
+	self.gui.menu.settings.onShowOrigo = function() self.grid.showOrigo = not self.grid.showOrigo end
 	
 	self.gizmo = doscript( "editor/editor_gizmo.lua" )
 	self.gizmo:load()
 	self.gizmo:setPosition( Vec3.create() )
 	
+	self.grid = doscript( "editor/editor_grid.lua" )
+	
+	doscript( "editor/entity.lua" )
+
+	
 	-- gui meshes
-	local meshNames = Filesystem.getFiles( "./assets/models/*" )
-	for i=1, #meshNames do
-		-- load mesh
-		local meshIndex = Assets.loadMesh( "./assets/models/" .. meshNames[i] )
-		
-		--local mesh = Assets.getMesh( meshIndex )
-		--local boundingBox = mesh:getBoundingBox()
-		
-		-- create button
-		--local tag = { index = i, meshName = meshNames[i], meshIndex = meshIndex, boundingBox = boundingBox }
-		--self.gui.panel.tabs.meshes:addMesh( meshNames[i], tag )
-	end
+	--local meshNames = Filesystem.getFiles( "./assets/models/*" )
+	--for i=1, #meshNames do
+	--	-- load mesh
+	--	local meshIndex = Assets.loadMesh( "./assets/models/" .. meshNames[i] )
+	--	
+	--	--local mesh = Assets.getMesh( meshIndex )
+	--	--local boundingBox = mesh:getBoundingBox()
+	--	
+	--	-- create button
+	--	--local tag = { index = i, meshName = meshNames[i], meshIndex = meshIndex, boundingBox = boundingBox }
+	--	--self.gui.panel.tabs.meshes:addMesh( meshNames[i], tag )
+	--end
 	
 	-- gui context menu
 	self.gui.contextMenu:addItem( "New Entity", { index = 1 } )
@@ -168,22 +175,39 @@ function Editor:update( deltaTime )
 					end
 				end
 			elseif Input.buttonDown( Buttons.Left ) then
+				local snapMove = Input.keyDown( Keys.LeftControl )
+				
 				if self.xcaptured and self.xplane then
 					local hit = {}
 					if Physics.rayPlane( ray, self.xplane, hit ) then
 						self.selectedEntity.position[1] = hit.position[1] - self.xoffset
+						
+						if snapMove then
+							self.selectedEntity.position[1] = math.floor( self.selectedEntity.position[1] + 0.5 )
+						end
+						
 						entityMoved = true
 					end
 				elseif self.ycaptured and self.yplane then
 					local hit = {}
 					if Physics.rayPlane( ray, self.yplane, hit ) then
 						self.selectedEntity.position[2] = hit.position[2] - self.yoffset
+						
+						if snapMove then
+							self.selectedEntity.position[2] = math.floor( self.selectedEntity.position[2] + 0.5 )
+						end
+						
 						entityMoved = true
 					end
 				elseif self.zcaptured and self.zplane then
 					local hit = {}
 					if Physics.rayPlane( ray, self.zplane, hit ) then
 						self.selectedEntity.position[3] = hit.position[3] - self.zoffset
+						
+						if snapMove then
+							self.selectedEntity.position[3] = math.floor( self.selectedEntity.position[3] + 0.5 )
+						end
+						
 						entityMoved = true
 					end
 				end
@@ -194,7 +218,15 @@ function Editor:update( deltaTime )
 			-- update gizmo if entity was moved
 			if entityMoved then
 				self.gizmo:setPosition( self.selectedEntity.position )
+				self.gui.panel.tabs.info:refresh()
 			end
+		end
+	end
+	
+	-- copy current entity
+	if self.selectedEntity then
+		if Input.keyReleased( Keys.D ) and Input.keyDown( Keys.LeftControl ) then
+			self:copyEntity()
 		end
 	end
 	
@@ -207,6 +239,7 @@ end
 function Editor:render()
 	self.gui:render()
 	self.gizmo:render()
+	self.grid:render()
 	
 	-- entities
 	for _,v in pairs(self.entities) do
@@ -214,7 +247,51 @@ function Editor:render()
 	end
 end
 
+function Editor.onEntitySelected( button )
+	local entity = button.tag
+	
+	if Editor.selectedEntity ~= entity then
+		if Editor.selectedEntity then
+			Editor.selectedEntity.selected = false
+		end
+
+		Editor.gui.panel.tabs.info:setEntity( entity )
+		Editor.selectedEntity = entity
+		Editor.gizmo:setPosition( Editor.selectedEntity.position )
+		Editor.gizmo.visible = true
+		Editor.gizmo.selectedAxis = -1
+		entity.selected = true
+	end
+end
+
+function Editor:copyEntity()
+	local position = self.selectedEntity.position
+	local entity = Entity.create( {position[1]+1, position[2], position[3]+1}, "New Entity" )
+	
+	for _,v in pairs(self.selectedEntity.components) do
+		local component = v:copy( entity )
+		entity:addComponent( component )
+	end
+	
+	self.entities[#self.entities+1] = entity
+	
+	self.gui.panel.tabs.info:setEntity( entity )
+	self.selectedEntity.selected = false
+	self.selectedEntity = entity
+	entity.selected = true
+	
+	self.gizmo:setPosition( Editor.selectedEntity.position )
+	self.gizmo.visible = true
+	self.gizmo.selectedAxis = -1
+	
+	self.gui.panel.tabs.entities:addEntity( entity, self.onEntitySelected )
+end
+
 function Editor:createEntity( position )
+	if self.selectedEntity then
+		self.selectedEntity.selected = false
+	end
+
 	local entity = Entity.create( position, "New Entity" )
 	--entity:addComponent( ComponentMesh.create( position ) )
 	local meshComponent = ComponentMesh.create( entity, position )
@@ -225,6 +302,11 @@ function Editor:createEntity( position )
 	
 	self.gui.panel.tabs.info:setEntity( entity )
 	self.selectedEntity = entity
+	entity.selected = true
 	
-	self.gui.panel.tabs.entities:addEntity( entity )
+	self.gizmo:setPosition( Editor.selectedEntity.position )
+	self.gizmo.visible = true
+	self.gizmo.selectedAxis = -1
+	
+	self.gui.panel.tabs.entities:addEntity( entity, self.onEntitySelected )
 end

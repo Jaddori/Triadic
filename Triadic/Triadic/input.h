@@ -2,7 +2,7 @@
 
 #include "common.h"
 
-#define INPUT_MAX_KEYS 128
+#define INPUT_MAX_KEYS 256
 #define INPUT_MAX_BUTTONS 5
 #define INPUT_MAX_TEXT_INPUT 32
 

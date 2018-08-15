@@ -49,13 +49,20 @@ namespace Rendering
 		void unload();
 		void upload();
 
-		void render( const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix );
+		inline void render( const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix )
+		{
+			renderShapes( projectionMatrix, viewMatrix, lines, spheres, aabbs, obbs );
+		}
+		inline void renderOmnipresent( const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix )
+		{
+			renderShapes( projectionMatrix, viewMatrix, omniLines, omniSpheres, omniAABBs, omniOBBs );
+		}
 		void finalize();
 
-		void addLine( const DebugLine& line );
-		void addSphere( const DebugSphere& sphere );
-		void addAABB( const DebugAABB& aabb );
-		void addOBB( const DebugOBB& obb );
+		void addLine( const DebugLine& line, bool ignoreDepth );
+		void addSphere( const DebugSphere& sphere, bool ignoreDepth );
+		void addAABB( const DebugAABB& aabb, bool ignoreDepth );
+		void addOBB( const DebugOBB& obb, bool ignoreDepth );
 
 		void setIgnoreDepth( bool ignore );
 		void setVisible( bool visible );
@@ -65,11 +72,17 @@ namespace Rendering
 
 	private:
 		SwapArray<DebugLine> lines;
+		SwapArray<DebugLine> omniLines;
 		SwapArray<DebugSphere> spheres;
+		SwapArray<DebugSphere> omniSpheres;
 		SwapArray<DebugAABB> aabbs;
+		SwapArray<DebugAABB> omniAABBs;
 		SwapArray<DebugOBB> obbs;
+		SwapArray<DebugOBB> omniOBBs;
 		bool ignoreDepth;
 		bool visible;
+
+		void renderShapes( const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix, SwapArray<DebugLine>& lines, SwapArray<DebugSphere>& spheres, SwapArray<DebugAABB>& aabbs, SwapArray<DebugOBB>& obbs );
 
 		// line
 		Rendering::Shader lineShader;

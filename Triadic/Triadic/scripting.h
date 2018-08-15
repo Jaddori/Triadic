@@ -14,6 +14,7 @@
 #include "lua_filesystem.h"
 #include "lua_physics.h"
 #include "lua_math.h"
+#include "lua_core.h"
 
 namespace Scripting
 {

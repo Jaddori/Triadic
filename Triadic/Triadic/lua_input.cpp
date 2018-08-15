@@ -42,6 +42,7 @@ namespace LuaInput
 		lua_setnumber( lua, "RightAlt", SDL_SCANCODE_RALT );
 		lua_setnumber( lua, "RightControl", SDL_SCANCODE_RCTRL );
 		lua_setnumber( lua, "RightShift", SDL_SCANCODE_RSHIFT );
+		lua_setnumber( lua, "Delete", SDL_SCANCODE_DELETE );
 
 		lua_setnumber( lua, "Left", SDL_SCANCODE_LEFT );
 		lua_setnumber( lua, "Right", SDL_SCANCODE_RIGHT );

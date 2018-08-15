@@ -3,14 +3,18 @@ Entity =
 	name = "",
 	components = {},
 	selected = false,
+	position = {0,0,0},
+	prevPosition = {0,0,0},
 }
 
 function Entity.create( position, name )
 	local result =
 	{
 		position = position,
+		prevPosition = {0,0,0},
 		name = name,
 		selected = false,
+		components = {},
 	}
 	
 	setmetatable( result, { __index = Entity } )
@@ -48,6 +52,23 @@ function Entity:select( ray )
 end
 
 function Entity:update( deltaTime )
+	-- check if position has changed
+	if self.position[1] ~= self.prevPosition[1] or
+		self.position[2] ~=self.prevPosition[2] or
+		self.position[3] ~= self.prevPosition[3] then
+		
+		for _,v in pairs(self.components) do
+			if v.parentMoved then
+				v:parentMoved()
+			end
+		end
+		
+		self.prevPosition[1] = self.position[1]
+		self.prevPosition[2] = self.position[2]
+		self.prevPosition[3] = self.position[3]
+	end
+
+	-- update components
 	for _,v in pairs(self.components) do
 		v:update( deltaTime )
 	end

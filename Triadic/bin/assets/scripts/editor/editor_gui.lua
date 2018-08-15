@@ -1,6 +1,8 @@
-local MENU_HEIGHT = 0
-local PANEL_WIDTH = 256
-local BUTTON_HEIGHT = 0
+GUI_MENU_HEIGHT = 0
+GUI_PANEL_WIDTH = 256
+GUI_BUTTON_HEIGHT = 0
+local MENU_SETTINGS_BUTTON_WIDTH = 128
+local MENU_FILE_BUTTON_WIDTH = 128
 
 local gui =
 {
@@ -13,7 +15,26 @@ local gui =
 		items = {},
 		position = {0,0},
 		size = {0,0},
-		color = {0.5,0.5,0.5,0.75}
+		color = {0.5,0.5,0.5,0.75},
+		
+		file =
+		{
+			visible = false,
+			items = {},
+			exitButton = nil,
+			
+			onExit = nil,
+		},
+		settings =
+		{
+			visible = false,
+			items = {},
+			showGridButton = nil,
+			showOrigoButton = nil,
+			
+			onShowGrid = nil,
+			onShowOrigo = nil,
+		},
 	},
 	
 	panel =
@@ -65,15 +86,150 @@ local gui =
 		visible = false,
 		onClick = nil,
 		
-		items = {}
+		items = {},
 	},
 }
+
+-- menu
+function gui.menu:load()
+	self.textureIndex = Assets.loadTexture( "./assets/textures/white.dds" )
+	self.size = {WINDOW_WIDTH,GUI_MENU_HEIGHT}
+
+	local xoffset = 0
+	xoffset = xoffset + gui.menu.file:load( xoffset )
+	xoffset = xoffset + gui.menu.settings:load( xoffset )
+end
+
+function gui.menu:update( deltaTime )
+	self.file:update( deltaTime )
+	self.settings:update( deltaTime )
+	
+	for _,v in pairs(self.items) do
+		v:update( deltaTime )
+	end
+end
+
+function gui.menu:render()
+	Graphics.queueQuad( self.textureIndex, self.position, self.size, self.color )
+
+	for _,v in pairs(self.items) do
+		v:render()
+	end
+	
+	self.file:render()
+	self.settings:render()
+end
+
+-- (menu) file
+function gui.menu.file:load( xoffset )
+	local width = 64
+	
+	local fileButton = EditorButton.create( {xoffset, 0}, {width, GUI_MENU_HEIGHT}, "File" )
+	fileButton.onClick = function( self )
+		gui.menu.file.visible = true
+	end
+	gui.menu.items[#gui.menu.items+1] = fileButton
+	
+	local yoffset = GUI_MENU_HEIGHT
+	self.exitButton = EditorButton.create( {xoffset, yoffset}, {MENU_FILE_BUTTON_WIDTH, GUI_BUTTON_HEIGHT}, "Exit" )
+	self.exitButton.onClick = function( self )
+		gui.menu.file.visible = false
+		
+		if gui.menu.file.onExit then
+			gui.menu.file.onExit()
+		end
+	end
+	yoffset = yoffset + GUI_BUTTON_HEIGHT
+	
+	self.items[#self.items+1] = self.exitButton
+	
+	return width
+end
+
+function gui.menu.file:update( deltaTime )
+	if self.visible then
+		for _,v in pairs(self.items) do
+			v:update( deltaTime )
+		end
+		
+		if Input.buttonReleased( Buttons.Left ) then
+			self.visible = false
+		end
+	end
+end
+
+function gui.menu.file:render()
+	if self.visible then
+		for _,v in pairs(self.items) do
+			v:render()
+		end
+	end
+end
+
+-- (menu) settings
+function gui.menu.settings:load( xoffset )
+	local width = 64
+	
+	local settingsButton = EditorButton.create( {xoffset, 0}, {width, GUI_MENU_HEIGHT}, "Settings" )
+	settingsButton.onClick = function( self )
+		gui.menu.settings.visible = true
+	end
+	gui.menu.items[#gui.menu.items+1] = settingsButton
+
+	local pos = {xoffset, 0}
+	local yoffset = GUI_MENU_HEIGHT
+	
+	self.showGridButton = EditorButton.create( {pos[1], pos[2]+yoffset}, {MENU_SETTINGS_BUTTON_WIDTH, GUI_BUTTON_HEIGHT}, "Show grid" )
+	self.showGridButton.onClick = function( self )
+		gui.menu.settings.visible = false
+		
+		if gui.menu.settings.onShowGrid then
+			gui.menu.settings.onShowGrid()
+		end
+	end
+	yoffset = yoffset + GUI_BUTTON_HEIGHT
+	
+	self.showOrigoButton = EditorButton.create( {pos[1], pos[2]+yoffset}, {MENU_SETTINGS_BUTTON_WIDTH, GUI_BUTTON_HEIGHT}, "Show origo" )
+	self.showOrigoButton.onClick = function( self )
+		gui.menu.settings.visible = false
+		
+		if gui.menu.settings.onShowOrigo then
+			gui.menu.settings.onShowOrigo()
+		end
+	end
+	yoffset = yoffset + GUI_BUTTON_HEIGHT
+	
+	self.items[#self.items+1] = self.showGridButton
+	self.items[#self.items+1] = self.showOrigoButton
+	
+	return width
+end
+
+function gui.menu.settings:update( deltaTime )
+	if self.visible then
+		for _,v in pairs(self.items) do
+			v:update( deltaTime )
+		end
+		
+		if Input.buttonReleased( Buttons.Left ) then
+			self.visible = false
+		end
+	end
+end
+
+function gui.menu.settings:render()
+	if self.visible then
+		for _,v in pairs(self.items) do
+			v:render()
+		end
+	end
+end
 
 -- context menu
 function gui.contextMenu:addItem( text, tag )
 	local count = #self.items
 	
-	local button = EditorButton.create( {0, count*BUTTON_HEIGHT}, {self.size[1], BUTTON_HEIGHT}, text )
+	local button = EditorButton.create( {0, count*GUI_BUTTON_HEIGHT}, {self.size[1], GUI_BUTTON_HEIGHT}, text )
 	button.tag = tag
 	button.onClick = function( self )
 		if gui.contextMenu.onClick then
@@ -82,7 +238,7 @@ function gui.contextMenu:addItem( text, tag )
 	end
 	
 	self.items[count+1] = button
-	self.size[2] = #self.items * BUTTON_HEIGHT
+	self.size[2] = #self.items * GUI_BUTTON_HEIGHT
 	
 	return button
 end
@@ -94,7 +250,7 @@ function gui.contextMenu:show( position )
 	
 	for i=1, #self.items do
 		self.items[i].position[1] = self.position[1]
-		self.items[i].position[2] = self.position[2] + (i-1) * BUTTON_HEIGHT
+		self.items[i].position[2] = self.position[2] + (i-1) * GUI_BUTTON_HEIGHT
 	end
 end
 
@@ -268,6 +424,12 @@ function gui.panel.tabs.info:setEntity( entity )
 	end
 end
 
+function gui.panel.tabs.info:refresh()
+	self.positionTextbox.text = tostring( roundTo( self.entity.position[1], 2 ) ) .. "," ..
+								tostring( roundTo( self.entity.position[2], 2 ) ) .. "," ..
+								tostring( roundTo( self.entity.position[3], 2 ) )
+end
+
 -- entities
 function gui.panel.tabs.entities:load() end
 
@@ -295,14 +457,15 @@ function gui.panel.tabs.entities:onShow()
 	end
 end
 
-function gui.panel.tabs.entities:addEntity( entity )
+function gui.panel.tabs.entities:addEntity( entity, onSelect )
 	local pos = gui.panel.contentPosition
 	local size = gui.panel.contentSize
 	local padding = 4
-	local yoffset = 0
+	local yoffset = #self.items * (GUI_BUTTON_HEIGHT + padding)
 
-	local button = EditorButton.create( {pos[1] + padding, pos[2] + padding}, {size[1] - padding*2, 24}, entity.name )
+	local button = EditorButton.create( {pos[1] + padding, pos[2] + padding + yoffset}, {size[1] - padding*2, GUI_BUTTON_HEIGHT}, entity.name )
 	button.tag = entity
+	button.onClick = onSelect
 	
 	self.items[#self.items+1] = button
 end
@@ -320,24 +483,19 @@ function gui:load()
 	local font = Assets.getFont( self.fontIndex )
 	self.fontHeight = font:getHeight()
 	
-	BUTTON_HEIGHT = self.fontHeight + 4 -- 2 pixels of padding at top and bottom
-	MENU_HEIGHT = BUTTON_HEIGHT
+	GUI_BUTTON_HEIGHT = self.fontHeight + 4 -- 2 pixels of padding at top and bottom
+	GUI_MENU_HEIGHT = GUI_BUTTON_HEIGHT
 	
 	-- create menu
-	self.menu.textureIndex = Assets.loadTexture( "./assets/textures/white.dds" )
-	self.menu.size = {WINDOW_WIDTH,BUTTON_HEIGHT}
-	
-	self.menu.items[1] = EditorButton.create( {0,0}, {64, BUTTON_HEIGHT}, "File" )
-	self.menu.items[2] = EditorButton.create( {64,0}, {64, BUTTON_HEIGHT}, "Etc" )
-	self.menu.items[3] = EditorButton.create( {128,0}, {64, BUTTON_HEIGHT}, "..." )
+	self.menu:load()
 	
 	-- create panel
 	self.panel.textureIndex = Assets.loadTexture( "./assets/textures/white.dds" )
-	self.panel.position = { WINDOW_WIDTH - PANEL_WIDTH, MENU_HEIGHT }
-	self.panel.size = { PANEL_WIDTH, WINDOW_HEIGHT - MENU_HEIGHT }
+	self.panel.position = { WINDOW_WIDTH - GUI_PANEL_WIDTH, GUI_MENU_HEIGHT }
+	self.panel.size = { GUI_PANEL_WIDTH, WINDOW_HEIGHT - GUI_MENU_HEIGHT }
 	
-	self.panel.contentPosition = { self.panel.position[1], self.panel.position[2] + BUTTON_HEIGHT }
-	self.panel.contentSize = { self.panel.size[1], self.panel.size[2] - BUTTON_HEIGHT }
+	self.panel.contentPosition = { self.panel.position[1], self.panel.position[2] + GUI_BUTTON_HEIGHT }
+	self.panel.contentSize = { self.panel.size[1], self.panel.size[2] - GUI_BUTTON_HEIGHT }
 	
 	self.panel.tabBar:load()
 	
@@ -350,11 +508,7 @@ function gui:update( deltaTime )
 	local result = false
 
 	-- menu
-	for _,v in pairs(self.menu.items) do
-		if v:update( deltaTime ) then
-			result = true
-		end
-	end
+	self.menu:update( deltaTime )
 	
 	-- panel
 	for _,v in pairs(self.panel.tabBar.items) do
@@ -385,11 +539,7 @@ end
 
 function gui:render()
 	-- menu
-	Graphics.queueQuad( self.menu.textureIndex, self.menu.position, self.menu.size, self.menu.color )
-	
-	for _,v in pairs(self.menu.items) do
-		v:render()
-	end
+	self.menu:render()
 	
 	-- panel
 	Graphics.queueQuad( self.panel.textureIndex, self.panel.position, self.panel.size, self.panel.color )

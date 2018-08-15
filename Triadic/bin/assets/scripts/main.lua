@@ -11,7 +11,6 @@ end
 function mainLoad()
 	doscript( "utils.lua" )
 	doscript( "debug/info.lua" )
-	doscript( "debug/axis_gizmo.lua" )
 	doscript( "game.lua" )
 	
 	run( "load" )
