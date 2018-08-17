@@ -21,8 +21,16 @@ local gui =
 		{
 			visible = false,
 			items = {},
+			newButton = nil,
+			openButton = nil,
+			saveButton = nil,
+			saveAsButton = nil,
 			exitButton = nil,
 			
+			onNew = nil,
+			onOpen = nil,
+			onSave = nil,
+			onSaveAs = nil,
 			onExit = nil,
 		},
 		settings =
@@ -134,7 +142,40 @@ function gui.menu.file:load( xoffset )
 	end
 	gui.menu.items[#gui.menu.items+1] = fileButton
 	
+	-- drop down menu
 	local yoffset = GUI_MENU_HEIGHT
+	self.newButton = EditorButton.create( {xoffset, yoffset}, {MENU_FILE_BUTTON_WIDTH, GUI_BUTTON_HEIGHT}, "New" )
+	self.newButton.onClick = function( button )
+		if self.onNew then
+			self.onNew()
+		end
+	end
+	yoffset = yoffset + GUI_BUTTON_HEIGHT
+	
+	self.openButton = EditorButton.create( {xoffset, yoffset}, {MENU_FILE_BUTTON_WIDTH, GUI_BUTTON_HEIGHT}, "Open" )
+	self.openButton.onClick = function( button )
+		if self.onOpen then
+			self.onOpen()
+		end
+	end
+	yoffset = yoffset + GUI_BUTTON_HEIGHT
+	
+	self.saveButton = EditorButton.create( {xoffset, yoffset}, {MENU_FILE_BUTTON_WIDTH, GUI_BUTTON_HEIGHT}, "Save" )
+	self.saveButton.onClick = function( button )
+		if self.onSave then
+			self.onSave()
+		end
+	end
+	yoffset = yoffset + GUI_BUTTON_HEIGHT
+	
+	self.saveAsButton = EditorButton.create( {xoffset, yoffset}, {MENU_FILE_BUTTON_WIDTH, GUI_BUTTON_HEIGHT}, "Save As" )
+	self.saveAsButton.onClick = function( button )
+		if self.onSaveAs then
+			self.onSaveAs()
+		end
+	end
+	yoffset = yoffset + GUI_BUTTON_HEIGHT
+	
 	self.exitButton = EditorButton.create( {xoffset, yoffset}, {MENU_FILE_BUTTON_WIDTH, GUI_BUTTON_HEIGHT}, "Exit" )
 	self.exitButton.onClick = function( self )
 		gui.menu.file.visible = false
@@ -145,6 +186,10 @@ function gui.menu.file:load( xoffset )
 	end
 	yoffset = yoffset + GUI_BUTTON_HEIGHT
 	
+	self.items[#self.items+1] = self.newButton
+	self.items[#self.items+1] = self.openButton
+	self.items[#self.items+1] = self.saveButton
+	self.items[#self.items+1] = self.saveAsButton
 	self.items[#self.items+1] = self.exitButton
 	
 	return width
@@ -503,6 +548,12 @@ function gui.panel.tabs.entities:addEntity( entity, onSelect )
 	self.items[#self.items+1] = button
 end
 
+function gui.panel.tabs.entities:clear()
+	local count = #self.items
+	for i=1, count do self.items[i] = nil end
+end
+
+-- prefabs
 function gui.panel.tabs.prefabs:load() end
 function gui.panel.tabs.prefabs:update( deltaTime ) end
 function gui.panel.tabs.prefabs:render() end

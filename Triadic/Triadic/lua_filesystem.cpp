@@ -76,33 +76,34 @@ namespace LuaFilesystem
 	{
 		int result = false;
 
-		LUA_EXPECT_ARGS( 2 )
+		int args = lua_gettop( lua );
+
+		const char* filter = "Lua files (*.lua)\0*.lua\0All Fiels (*.*)\0*.*\0";
+		const char* extension = "lua";
+
+		if( args == 2 )
 		{
-			if( LUA_EXPECT_STRING( 1 ) &&
-				LUA_EXPECT_STRING( 2 ) )
-			{
-				const char* title = lua_tostring( lua, 1 );
-				const char* extension = lua_tostring( lua, 2 );
+			filter = lua_tostring( lua, 1 );
+			extension = lua_tostring( lua, 2 );
+		}
 
-				OPENFILENAME ofn;
-				char filename[MAX_PATH] = "";
+		OPENFILENAME ofn;
+		char filename[MAX_PATH] = "";
 
-				ZeroMemory(&ofn, sizeof(ofn));
+		ZeroMemory(&ofn, sizeof(ofn));
 
-				ofn.lStructSize = sizeof(ofn);
-				//ofn.hwndOwner = NULL;
-				ofn.lpstrFilter = "Text Files (*.txt)\0*.txt\0All Files (*.*)\0*.*\0";
-				ofn.lpstrFile = filename;
-				ofn.nMaxFile = MAX_PATH;
-				ofn.Flags = OFN_EXPLORER | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
-				ofn.lpstrDefExt = "txt";
+		ofn.lStructSize = sizeof(ofn);
+		//ofn.hwndOwner = NULL;
+		ofn.lpstrFilter = filter;
+		ofn.lpstrFile = filename;
+		ofn.nMaxFile = MAX_PATH;
+		ofn.Flags = OFN_EXPLORER | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR;
+		ofn.lpstrDefExt = extension;
 
-				if(GetSaveFileName(&ofn))
-				{
-					lua_pushstring( lua, filename );
-					result = 1;
-				}
-			}
+		if(GetSaveFileName(&ofn))
+		{
+			lua_pushstring( lua, filename );
+			result = 1;
 		}
 
 		return result;
@@ -112,33 +113,34 @@ namespace LuaFilesystem
 	{
 		int result = false;
 
-		LUA_EXPECT_ARGS( 2 )
+		int args = lua_gettop( lua );
+
+		const char* filter = "Lua files (*.lua)\0*.lua\0All Fiels (*.*)\0*.*\0";
+		const char* extension = "lua";
+
+		if( args == 2 )
 		{
-			if( LUA_EXPECT_STRING( 1 ) &&
-				LUA_EXPECT_STRING( 2 ) )
-			{
-				const char* title = lua_tostring( lua, 1 );
-				const char* extension = lua_tostring( lua, 2 );
+			filter = lua_tostring( lua, 1 );
+			extension = lua_tostring( lua, 2 );
+		}
 
-				OPENFILENAME ofn;
-				char filename[MAX_PATH] = "";
+		OPENFILENAME ofn;
+		char filename[MAX_PATH] = "";
 
-				ZeroMemory(&ofn, sizeof(ofn));
+		ZeroMemory(&ofn, sizeof(ofn));
 
-				ofn.lStructSize = sizeof(ofn);
-				//ofn.hwndOwner = NULL;
-				ofn.lpstrFilter = "Text Files (*.txt)\0*.txt\0All Files (*.*)\0*.*\0";
-				ofn.lpstrFile = filename;
-				ofn.nMaxFile = MAX_PATH;
-				ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
-				ofn.lpstrDefExt = "txt";
+		ofn.lStructSize = sizeof(ofn);
+		//ofn.hwndOwner = NULL;
+		ofn.lpstrFilter = filter;
+		ofn.lpstrFile = filename;
+		ofn.nMaxFile = MAX_PATH;
+		ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_NOCHANGEDIR;
+		ofn.lpstrDefExt = extension;
 
-				if(GetOpenFileName(&ofn))
-				{
-					lua_pushstring( lua, filename );
-					result = 1;
-				}
-			}
+		if(GetOpenFileName(&ofn))
+		{
+			lua_pushstring( lua, filename );
+			result = 1;
 		}
 
 		return result;

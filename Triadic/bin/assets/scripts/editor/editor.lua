@@ -18,6 +18,10 @@ function Editor:load()
 	
 	self.gui = doscript( "editor/editor_gui.lua" )
 	self.gui:load()
+	self.gui.menu.file.onNew = function() self:reset() end
+	self.gui.menu.file.onOpen = function() self:openLevel() end
+	self.gui.menu.file.onSave = function() self:saveLevel() end
+	self.gui.menu.file.onSaveAs = function() self:saveAsLevel() end
 	self.gui.menu.file.onExit = function() Core.exit() end
 	self.gui.menu.settings.onShowGrid = function() self.grid.showGrid = not self.grid.showGrid end
 	self.gui.menu.settings.onShowOrigo = function() self.grid.showOrigo = not self.grid.showOrigo end
@@ -32,21 +36,6 @@ function Editor:load()
 	self.grid = doscript( "editor/editor_grid.lua" )
 	
 	doscript( "editor/entity.lua" )
-
-	
-	-- gui meshes
-	--local meshNames = Filesystem.getFiles( "./assets/models/*" )
-	--for i=1, #meshNames do
-	--	-- load mesh
-	--	local meshIndex = Assets.loadMesh( "./assets/models/" .. meshNames[i] )
-	--	
-	--	--local mesh = Assets.getMesh( meshIndex )
-	--	--local boundingBox = mesh:getBoundingBox()
-	--	
-	--	-- create button
-	--	--local tag = { index = i, meshName = meshNames[i], meshIndex = meshIndex, boundingBox = boundingBox }
-	--	--self.gui.panel.tabs.meshes:addMesh( meshNames[i], tag )
-	--end
 	
 	-- gui context menu
 	self.gui.contextMenu:addItem( "New Entity", { index = 1 } )
@@ -315,4 +304,47 @@ function Editor:createEntity( position )
 	self.gizmo.selectedAxis = -1
 	
 	self.gui.panel.tabs.entities:addEntity( entity, self.onEntitySelected )
+end
+
+function Editor:reset()
+	local count = #self.entities
+	for i=1, count do self.entities[i] = nil end
+
+	self.selectedEntity = nil
+	self.gizmo.visible = false
+
+	self.gui.panel.tabs.entities:clear()
+end
+
+function Editor:openLevel()
+	self:reset()
+
+	local filepath = Filesystem.openFileDialog()
+	if filepath and filepath:len() > 0 then
+		Log.debug( "TODO: Open level." )
+	end
+end
+
+function Editor:saveLevel()
+	if self.currentLevelPath then
+		local file = io.open( self.currentLevelPath, "w" )
+		if file then
+			for _,v in pairs(self.entities) do
+				v:write( file )
+			end
+
+			file:close()
+		end
+	else
+		self:saveAsLevel()
+	end
+end
+
+function Editor:saveAsLevel()
+	local filepath = Filesystem.saveFileDialog()
+	if filepath and filepath:len() > 0 then
+		self.currentLevelPath = filepath
+
+		self:saveLevel()
+	end
 end

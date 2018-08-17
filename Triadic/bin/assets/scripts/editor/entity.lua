@@ -48,6 +48,36 @@ function Entity:removeComponent( name )
 	self.components[name] = nil
 end
 
+function Entity:write( file, level )
+	level = level or 0
+
+	--writeIndent( file, level, self.name .. " =\n" )
+	writeIndent( file, level, "{\n")
+	level = level + 1
+
+	writeIndent( file, level, "position = {" .. stringVec(self.position) .. "},\n" )
+	writeIndent( file, level, "orientation = {" .. stringVec(self.orientation) .. "},\n" )
+	writeIndent( file, level, "scale = {" .. stringVec(self.scale) .. "},\n" )
+
+	writeIndent( file, level, "components =\n" )
+	writeIndent( file, level, "{\n" )
+	level = level + 1
+
+	for _,v in pairs(self.components) do
+		v:write( file, level )
+	end
+
+	level = level - 1
+	writeIndent( file, level, "}\n" )
+	
+	level = level - 1
+	writeIndent( file, level, "}\n" )
+end
+
+function Entity:read( file )
+	
+end
+
 function Entity:select( ray )
 	local result = false
 	
@@ -74,22 +104,6 @@ function Entity:executeOnComponents( functionName )
 end
 
 function Entity:update( deltaTime )
-	-- check if position has changed
-	--if self.position[1] ~= self.prevPosition[1] or
-	--	self.position[2] ~=self.prevPosition[2] or
-	--	self.position[3] ~= self.prevPosition[3] then
-	--	
-	--	for _,v in pairs(self.components) do
-	--		if v.parentMoved then
-	--			v:parentMoved()
-	--		end
-	--	end
-	--	
-	--	self.prevPosition[1] = self.position[1]
-	--	self.prevPosition[2] = self.position[2]
-	--	self.prevPosition[3] = self.position[3]
-	--end
-	
 	-- check if position has changed
 	if not equalsVec( self.position, self.prevPosition ) then
 		self:executeOnComponents( "parentMoved" )

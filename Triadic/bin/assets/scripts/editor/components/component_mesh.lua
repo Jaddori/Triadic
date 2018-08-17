@@ -52,6 +52,22 @@ function ComponentMesh.create( parent )
 	return result
 end
 
+function ComponentMesh:write( file, level )
+	writeIndent( file, level, "Mesh =\n" )
+	writeIndent( file, level, "{\n" )
+	level = level + 1
+
+	writeIndent( file, level, "parent = " .. self.parent.name .. ",\n" )
+	writeIndent( file, level, "transform = Transform.create(),\n" )
+	writeIndent( file, level, "meshIndex = " .. tostring( self.meshIndex ) .. ",\n" )
+
+	level = level - 1
+	writeIndent( file, level, "},\n" )
+end
+
+function ComponentMesh:read( file )
+end
+
 function ComponentMesh:copy( parent )
 	local result = self.create( parent )
 	
