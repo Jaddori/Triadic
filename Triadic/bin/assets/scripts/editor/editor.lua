@@ -298,7 +298,7 @@ function Editor:createEntity( position )
 		self.selectedEntity.selected = false
 	end
 
-	local entity = Entity.create( position, "New Entity" )
+	local entity = Entity.create( "New Entity", position )
 	--entity:addComponent( ComponentMesh.create( position ) )
 	local meshComponent = ComponentMesh.create( entity, position )
 	--meshComponent.meshIndex = 3

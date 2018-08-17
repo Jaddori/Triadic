@@ -22,6 +22,32 @@ function copyVec( src, dst )
 	end
 end
 
+function stringVec( vec )
+	local result = tostring( roundTo( vec[1], 2 ) )
+	
+	for i=2, #vec do
+		result = result .. "," .. tostring( roundTo( vec[i], 2 ) )
+	end
+	
+	return result
+end
+
+function equalsVec( a, b )
+	local result = true
+	
+	if #a == #b then
+		for i=1, #a do
+			if a[i] ~= b[i] then
+				result = false
+			end
+		end
+	else
+		result = false
+	end
+	
+	return result
+end
+
 function split( str, delimiter )
 	local result = {}
 	

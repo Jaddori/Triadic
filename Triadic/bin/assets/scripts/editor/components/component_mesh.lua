@@ -159,6 +159,7 @@ function ComponentMesh:addInfo( position, size, items )
 		ComponentMeshInfo.meshList.visible = true
 	end
 	--yoffset = yoffset + GUI_BUTTON_HEIGHT
+	yoffset = yoffset + padding
 	
 	info.items[#info.items+1] = meshNameLabel
 	info.items[#info.items+1] = meshNameButton
