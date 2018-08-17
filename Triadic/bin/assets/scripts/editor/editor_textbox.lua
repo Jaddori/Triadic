@@ -297,3 +297,10 @@ end
 
 function EditorTextbox:onFinish()
 end
+
+function EditorTextbox:setText( text )
+	self.text = text
+	self.caretIndex = self.text:len()
+	self.selectionStart = self.caretIndex
+	self.selectionEnd = self.caretIndex
+end

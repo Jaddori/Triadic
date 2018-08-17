@@ -8,4 +8,6 @@ namespace LuaFilesystem
 
 	LDEC( getFiles );
 	LDEC( messageBox );
+	LDEC( saveFileDialog );
+	LDEC( openFileDialog );
 }

@@ -10,6 +10,9 @@ namespace LuaFilesystem
 			{ "getFiles", getFiles },
 			{ "messageBox", messageBox },
 
+			{ "saveFileDialog", saveFileDialog },
+			{ "openFileDialog", openFileDialog },
+
 			{ NULL, NULL }
 		};
 
@@ -67,5 +70,77 @@ namespace LuaFilesystem
 		}
 
 		return 0;
+	}
+
+	LDEC( saveFileDialog )
+	{
+		int result = false;
+
+		LUA_EXPECT_ARGS( 2 )
+		{
+			if( LUA_EXPECT_STRING( 1 ) &&
+				LUA_EXPECT_STRING( 2 ) )
+			{
+				const char* title = lua_tostring( lua, 1 );
+				const char* extension = lua_tostring( lua, 2 );
+
+				OPENFILENAME ofn;
+				char filename[MAX_PATH] = "";
+
+				ZeroMemory(&ofn, sizeof(ofn));
+
+				ofn.lStructSize = sizeof(ofn);
+				//ofn.hwndOwner = NULL;
+				ofn.lpstrFilter = "Text Files (*.txt)\0*.txt\0All Files (*.*)\0*.*\0";
+				ofn.lpstrFile = filename;
+				ofn.nMaxFile = MAX_PATH;
+				ofn.Flags = OFN_EXPLORER | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
+				ofn.lpstrDefExt = "txt";
+
+				if(GetSaveFileName(&ofn))
+				{
+					lua_pushstring( lua, filename );
+					result = 1;
+				}
+			}
+		}
+
+		return result;
+	}
+
+	LDEC( openFileDialog )
+	{
+		int result = false;
+
+		LUA_EXPECT_ARGS( 2 )
+		{
+			if( LUA_EXPECT_STRING( 1 ) &&
+				LUA_EXPECT_STRING( 2 ) )
+			{
+				const char* title = lua_tostring( lua, 1 );
+				const char* extension = lua_tostring( lua, 2 );
+
+				OPENFILENAME ofn;
+				char filename[MAX_PATH] = "";
+
+				ZeroMemory(&ofn, sizeof(ofn));
+
+				ofn.lStructSize = sizeof(ofn);
+				//ofn.hwndOwner = NULL;
+				ofn.lpstrFilter = "Text Files (*.txt)\0*.txt\0All Files (*.*)\0*.*\0";
+				ofn.lpstrFile = filename;
+				ofn.nMaxFile = MAX_PATH;
+				ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
+				ofn.lpstrDefExt = "txt";
+
+				if(GetOpenFileName(&ofn))
+				{
+					lua_pushstring( lua, filename );
+					result = 1;
+				}
+			}
+		}
+
+		return result;
 	}
 }

@@ -8,6 +8,7 @@ Editor =
 	selectedEntityIndex = -1,
 	
 	gizmo = nil,
+	console = nil,
 	grid = nil,
 }
 
@@ -24,6 +25,9 @@ function Editor:load()
 	self.gizmo = doscript( "editor/editor_gizmo.lua" )
 	self.gizmo:load()
 	self.gizmo:setPosition( Vec3.create() )
+	
+	self.console = doscript( "editor/editor_console.lua" )
+	self.console:load()
 	
 	self.grid = doscript( "editor/editor_grid.lua" )
 	
@@ -86,6 +90,7 @@ end
 function Editor:update( deltaTime )
 	self.camera:update( deltaTime )
 	self.gizmo:update( deltaTime )
+	self.console:update( deltaTime )
 	
 	local mouseCaptured = self.gui:update( deltaTime )
 	
@@ -239,6 +244,7 @@ end
 function Editor:render()
 	self.gui:render()
 	self.gizmo:render()
+	self.console:render()
 	self.grid:render()
 	
 	-- entities
