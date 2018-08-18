@@ -1,6 +1,8 @@
 local gizmo = 
 {
 	position = Vec3.create(),
+	orientation = {0,0,1,0},
+	scale = {1,1,1},
 	visible = false,
 	x = {10,0,0},
 	y = {0,10,0},
@@ -13,7 +15,8 @@ local gizmo =
 	red = {1,0,0,1},
 	green = {0,1,0,1},
 	blue = {0,0,1,1},
-	
+	cyan = {0,1,1,1},
+
 	selectedAxis = -1,
 }
 
@@ -51,9 +54,6 @@ end
 
 function gizmo:setPosition( position )
 	self.position = Vec3.copy( position )
-	if self.position[2] > -0.1 and self.position[2] < 0.1 then
-		self.position[2] = 0.1
-	end
 	
 	local x = position[1]
 	local y = position[2]
@@ -62,6 +62,18 @@ function gizmo:setPosition( position )
 	self.xbounds = Physics.createAABB( {x+1,y-1,z-1}, {x+10,y+1,z+1} )
 	self.ybounds = Physics.createAABB( {x-1,y+1,z-1}, {x+1,y+10,z+1} )
 	self.zbounds = Physics.createAABB( {x-1,y-1,z+1}, {x+1,y+1,z+10} )
+end
+
+function gizmo:setOrientation( orientation )
+	copyVec( orientation, self.orientation )
+end
+
+function gizmo:setScale( scale )
+	copyVec( scale, self.scale )
+end
+
+function gizmo:setMode( mode )
+	self.mode = mode
 end
 
 return gizmo

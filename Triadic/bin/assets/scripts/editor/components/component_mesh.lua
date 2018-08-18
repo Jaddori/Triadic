@@ -91,6 +91,14 @@ function ComponentMesh:parentMoved()
 	self.transform:setPosition( self.parent.position )
 end
 
+function ComponentMesh:parentOriented()
+	self.transform:setOrientation( self.parent.orientation )
+end
+
+function ComponentMesh:parentScaled()
+	self.transform:setScale( self.parent.scale )
+end
+
 function ComponentMesh:select( ray )
 	local result = false
 

@@ -3,7 +3,7 @@ using namespace Rendering;
 
 Transform::Transform()
 	: position( 0.0f, 0.0f, 0.0f ),
-	orientation( 0.0f, 0.0f, 0.0f, 1.0f ),
+	orientation( 1.0f, 0.0f, 0.0f, 0.0f ),
 	scale( 1.0f, 1.0f, 1.0f ),
 	dirty( true )
 {
@@ -80,8 +80,8 @@ const glm::mat4& Transform::getWorldMatrix()
 {
 	if( dirty )
 	{
-		//worldMatrix = glm::scale( glm::translate( IDENT, position ) * glm::toMat4( orientation ), scale );
-		worldMatrix = glm::translate( IDENT, position );
+		worldMatrix = glm::scale( glm::translate( IDENT, position ) * glm::toMat4( orientation ), scale );
+		//worldMatrix = glm::translate( IDENT, position );
 		dirty = false;
 	}
 

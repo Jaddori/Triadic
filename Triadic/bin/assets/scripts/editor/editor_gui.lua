@@ -401,24 +401,36 @@ function gui.panel.tabs.info:load()
 	yoffset = yoffset + self.nameLabel:getHeight() + padding
 	
 	self.nameTextbox = EditorTextbox.create( {pos[1] + padding, pos[2] + padding + yoffset}, {size[1]-padding*2, 24} )
+	self.nameTextbox.onFocus = function( textbox )
+		textbox:selectAll()
+	end
 	yoffset = yoffset + 24 + padding
 	
 	self.positionLabel = EditorLabel.create( {pos[1] + padding, pos[2] + padding + yoffset}, "Position:" )
 	yoffset = yoffset + self.nameLabel:getHeight() + padding
 	
 	self.positionTextbox = EditorTextbox.create( {pos[1] + padding, pos[2] + padding + yoffset}, {size[1]-padding*2, 24} )
+	self.positionTextbox.onFocus = function( textbox )
+		textbox:selectAll()
+	end
 	yoffset = yoffset + 24 + padding
 	
 	self.orientationLabel = EditorLabel.create( {pos[1] + padding, pos[2] + padding + yoffset}, "Orientation:" )
 	yoffset = yoffset + self.orientationLabel:getHeight() + padding
 	
 	self.orientationTextbox = EditorTextbox.create( {pos[1] + padding, pos[2] + padding + yoffset}, {size[1]-padding*2, 24} )
+	self.orientationTextbox.onFocus = function( textbox )
+		textbox:selectAll()
+	end
 	yoffset = yoffset + 24 + padding
 	
 	self.scaleLabel = EditorLabel.create( {pos[1] + padding, pos[2] + padding + yoffset}, "Scale:" )
 	yoffset = yoffset + self.scaleLabel:getHeight() + padding
 	
 	self.scaleTextbox = EditorTextbox.create( {pos[1] + padding, pos[2] + padding + yoffset}, {size[1]-padding*2, 24} )
+	self.scaleTextbox.onFocus = function( textbox )
+		textbox:selectAll()
+	end
 	yoffset = yoffset + 24 + padding
 	
 	self.componentsLabel = EditorLabel.create( {pos[1] + padding, pos[2] + padding + yoffset}, "Components:" )
@@ -473,9 +485,6 @@ function gui.panel.tabs.info:setEntity( entity )
 	if entity then
 		-- set name and position
 		self.nameTextbox.text = entity.name
-		--self.positionTextbox.text = tostring( roundTo( entity.position[1], 2 ) ) .. "," ..
-		--							tostring( roundTo( entity.position[2], 2 ) ) .. "," ..
-		--							tostring( roundTo( entity.position[3], 2 ) )
 		self.positionTextbox:setText( stringVec( entity.position ) )
 		self.orientationTextbox:setText( stringVec( entity.orientation ) )
 		self.scaleTextbox:setText( stringVec( entity.scale ) )
@@ -499,10 +508,6 @@ function gui.panel.tabs.info:setEntity( entity )
 end
 
 function gui.panel.tabs.info:refresh()
-	--self.positionTextbox.text = tostring( roundTo( self.entity.position[1], 2 ) ) .. "," ..
-	--							tostring( roundTo( self.entity.position[2], 2 ) ) .. "," ..
-	--							tostring( roundTo( self.entity.position[3], 2 ) )
-	
 	self.positionTextbox:setText( stringVec( self.entity.position ) )
 	self.orientationTextbox:setText( stringVec( self.entity.orientation ) )
 	self.scaleTextbox:setText( stringVec( self.entity.scale ) )

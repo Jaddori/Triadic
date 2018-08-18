@@ -7,8 +7,8 @@ Entity =
 	position = {0,0,0},
 	prevPosition = {0,0,0},
 	
-	orientation = {0,0,1,0},
-	prevOrientation = {0,0,1,0},
+	orientation = {0,0,0,1},
+	prevOrientation = {0,0,0,1},
 	
 	scale = {1,1,1},
 	prevScale = {1,1,1},
@@ -20,8 +20,8 @@ function Entity.create( name, position, orientation, scale)
 		position = position or {0,0,0},
 		prevPosition = {0,0,0},
 		
-		orientation = orientation or {0,0,1,0},
-		prevOrientation = {0,0,1,0},
+		orientation = orientation or {0,0,0,1},
+		prevOrientation = {0,0,0,1},
 		
 		scale = scale or {1,1,1},
 		prevScale = {1,1,1},

@@ -30,6 +30,9 @@ EditorTextbox =
 	
 	selectionStart = 0,
 	selectionEnd = 0,
+
+	onFocus = nil,
+	onFinish = nil,
 }
 
 function EditorTextbox.create( position, size )
@@ -70,6 +73,10 @@ function EditorTextbox:update( deltaTime )
 			if self.pressed then
 				self.focus = true
 				self.caretIndex = self.text:len()
+
+				if self.onFocus then
+					self:onFocus()
+				end
 			end
 			
 			self.pressed = False
@@ -237,8 +244,7 @@ function EditorTextbox:update( deltaTime )
 		-- select all text
 		if Input.keyDown( Keys.LeftControl ) or Input.keyDown( Keys.RightControl ) then
 			if Input.keyPressed( Keys.A ) then
-				self.selectionStart = 0
-				self.selectionEnd = #self.text
+				self:selectAll()
 			end
 		end
 	end
@@ -303,4 +309,22 @@ function EditorTextbox:setText( text )
 	self.caretIndex = self.text:len()
 	self.selectionStart = self.caretIndex
 	self.selectionEnd = self.caretIndex
+end
+
+function EditorTextbox:selectText( first, last )
+	self.selectionStart = first
+	if self.selectionStart < 0 then
+		self.selectionStart = 0
+	end
+
+	self.selectionEnd = last
+	if self.selectionEnd > self.text:len() then
+		self.selectionEnd = self.text:len()
+	end
+
+	self.caretIndex = self.selectionStart
+end
+
+function EditorTextbox:selectAll()
+	self:selectText( 0, self.text:len() )
 end

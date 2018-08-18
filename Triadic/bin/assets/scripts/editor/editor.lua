@@ -1,3 +1,7 @@
+MODE_TRANSLATE = 1
+MODE_SCALE = 2
+MODE_ROTATE = 3
+
 Editor =
 {
 	name = "Editor",
@@ -10,6 +14,8 @@ Editor =
 	gizmo = nil,
 	console = nil,
 	grid = nil,
+
+	mode = MODE_TRANSLATE,
 }
 
 function Editor:load()
@@ -59,16 +65,43 @@ function Editor:load()
 		end
 	end
 	
-	self.gui.panel.tabs.info.positionTextbox.onFinish = function( self )
-		if self.text:len() > 0 then
-			local components = split( self.text, "," )
+	self.gui.panel.tabs.info.positionTextbox.onFinish = function( textbox )
+		if textbox.text:len() > 0 then
+			local components = split( textbox.text, "," )
 			
 			local x = tonumber( components[1] )
 			local y = tonumber( components[2] )
 			local z = tonumber( components[3] )
 			
-			Editor.selectedEntity.position = {x,y,z}
-			Editor.gizmo:setPosition( Editor.selectedEntity.position )
+			self.selectedEntity.position = {x,y,z}
+			self.gizmo:setPosition( self.selectedEntity.position )
+		end
+	end
+
+	self.gui.panel.tabs.info.orientationTextbox.onFinish = function( textbox )
+		if textbox.text:len() > 0 then
+			local components = split( textbox.text, "," )
+
+			local x = tonumber( components[1] )
+			local y = tonumber( components[2] )
+			local z = tonumber( components[3] )
+			local w = tonumber( components[4] )
+
+			self.selectedEntity.orientation = {x,y,z,w}
+			self.gizmo:setOrientation( self.selectedEntity.orientation )
+		end
+	end
+
+	self.gui.panel.tabs.info.scaleTextbox.onFinish = function( textbox )
+		if textbox.text:len() > 0 then
+			local components = split( textbox.text, "," )
+
+			local x = tonumber( components[1] )
+			local y = tonumber( components[2] )
+			local z = tonumber( components[3] )
+
+			self.selectedEntity.scale = {x,y,z}
+			self.gizmo:setScale( self.selectedEntity.scale )
 		end
 	end
 end
@@ -117,6 +150,8 @@ function Editor:update( deltaTime )
 		
 		if self.selectedEntity then
 			local entityMoved = false
+			local entityOriented = false
+			local entityScaled = false
 			
 			if Input.buttonPressed( Buttons.Left ) then
 				self.xcaptured = false
@@ -132,6 +167,7 @@ function Editor:update( deltaTime )
 					local hit = {}
 					if Physics.rayPlane( ray, self.xplane, hit ) then
 						self.xoffset = hit.position[1] - self.selectedEntity.position[1]
+						self.xscale = hit.position[1] - self.selectedEntity.scale[1]
 						self.gizmo.selectedAxis = 1
 					end
 				-- translation in y-axis
@@ -154,6 +190,7 @@ function Editor:update( deltaTime )
 					local hit = {}
 					if Physics.rayPlane( ray, self.yplane, hit ) then
 						self.yoffset = hit.position[2] - self.selectedEntity.position[2]
+						self.yscale = hit.position[2] - self.selectedEntity.scale[2]
 						self.gizmo.selectedAxis = 2
 					end
 				-- translation in z-axis
@@ -165,44 +202,78 @@ function Editor:update( deltaTime )
 					local hit = {}
 					if Physics.rayPlane( ray, self.zplane, hit ) then
 						self.zoffset = hit.position[3] - self.selectedEntity.position[3]
+						self.zscale = hit.position[3] - self.selectedEntity.scale[3]
 						self.gizmo.selectedAxis = 3
 					end
 				end
 			elseif Input.buttonDown( Buttons.Left ) then
-				local snapMove = Input.keyDown( Keys.LeftControl )
+				local snap = Input.keyDown( Keys.LeftControl )
 				
 				if self.xcaptured and self.xplane then
 					local hit = {}
 					if Physics.rayPlane( ray, self.xplane, hit ) then
-						self.selectedEntity.position[1] = hit.position[1] - self.xoffset
-						
-						if snapMove then
-							self.selectedEntity.position[1] = math.floor( self.selectedEntity.position[1] + 0.5 )
+						if self.mode == MODE_TRANSLATE then
+							self.selectedEntity.position[1] = hit.position[1] - self.xoffset
+							
+							if snap then
+								self.selectedEntity.position[1] = math.floor( self.selectedEntity.position[1] + 0.5 )
+							end
+							
+							entityMoved = true
+						elseif self.mode == MODE_ROTATE then
+						elseif self.mode == MODE_SCALE then
+							self.selectedEntity.scale[1] = hit.position[1] - self.xscale
+
+							if snap then
+								self.selectedEntity.scale[1] = math.floor( self.selectedEntity.scale[1] + 0.5 )
+							end
+
+							entityScaled = true
 						end
-						
-						entityMoved = true
 					end
 				elseif self.ycaptured and self.yplane then
 					local hit = {}
 					if Physics.rayPlane( ray, self.yplane, hit ) then
-						self.selectedEntity.position[2] = hit.position[2] - self.yoffset
-						
-						if snapMove then
-							self.selectedEntity.position[2] = math.floor( self.selectedEntity.position[2] + 0.5 )
+						if self.mode == MODE_TRANSLATE then
+							self.selectedEntity.position[2] = hit.position[2] - self.yoffset
+							
+							if snapMove then
+								self.selectedEntity.position[2] = math.floor( self.selectedEntity.position[2] + 0.5 )
+							end
+							
+							entityMoved = true
+						elseif self.mode == MODE_ROTATE then
+						elseif self.mode == MODE_SCALE then
+							self.selectedEntity.scale[2] = hit.position[2] - self.yscale
+
+							if snap then
+								self.selectedEntity.scale[2] = math.floor( self.selectedEntity.scale[2] + 0.5 )
+							end
+
+							entityScaled = true
 						end
-						
-						entityMoved = true
 					end
 				elseif self.zcaptured and self.zplane then
 					local hit = {}
 					if Physics.rayPlane( ray, self.zplane, hit ) then
-						self.selectedEntity.position[3] = hit.position[3] - self.zoffset
-						
-						if snapMove then
-							self.selectedEntity.position[3] = math.floor( self.selectedEntity.position[3] + 0.5 )
+						if self.mode == MODE_TRANSLATE then
+							self.selectedEntity.position[3] = hit.position[3] - self.zoffset
+							
+							if snapMove then
+								self.selectedEntity.position[3] = math.floor( self.selectedEntity.position[3] + 0.5 )
+							end
+							
+							entityMoved = true
+						elseif self.mode == MODE_ROTATE then
+						elseif self.mode == MODE_SCALE then
+							self.selectedEntity.scale[3] = hit.position[3] - self.zscale
+
+							if snap then
+								self.selectedEntity.scale[3] = math.floor( self.selectedEntity.scale[3] + 0.5 )
+							end
+
+							entityScaled = true
 						end
-						
-						entityMoved = true
 					end
 				end
 			else
@@ -213,6 +284,10 @@ function Editor:update( deltaTime )
 			if entityMoved then
 				self.gizmo:setPosition( self.selectedEntity.position )
 				self.gui.panel.tabs.info:refresh()
+			elseif entityOriented then
+			elseif entityScaled then
+				self.gizmo:setScale( self.selectedEntity.scale )
+				self.gui.panel.tabs.info:refresh()
 			end
 		end
 	end
@@ -222,6 +297,15 @@ function Editor:update( deltaTime )
 		if Input.keyReleased( Keys.D ) and Input.keyDown( Keys.LeftControl ) then
 			self:copyEntity()
 		end
+	end
+
+	-- select mode
+	if Input.keyPressed( Keys.W ) then
+		self.mode = MODE_TRANSLATE
+	elseif Input.keyPressed( Keys.E ) then
+		self.mode = MODE_SCALE
+	elseif Input.keyPressed( Keys.R ) then
+		self.mode = MODE_ROTATE
 	end
 	
 	-- entities
