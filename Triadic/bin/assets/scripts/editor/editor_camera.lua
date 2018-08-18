@@ -1,5 +1,6 @@
 local camera = 
 {
+	scrollSpeed = 5.0,
 }
 
 function camera:load()
@@ -35,6 +36,13 @@ function camera:update( deltaTime )
 		
 		capture.mouseCaptured = true
 		capture.keyboardCaptured = true
+	else
+		local mouseWheel = Input.getMouseWheel()
+
+		local movement = { 0, 0, mouseWheel * self.scrollSpeed }
+		self.camera:relativeMovement( movement )
+
+		capture.mouseCaptured = true
 	end
 	
 	return capture

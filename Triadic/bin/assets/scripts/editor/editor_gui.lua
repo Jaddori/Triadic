@@ -482,12 +482,6 @@ function gui.panel.tabs.info:load()
 	local padding = 4
 	local yoffset = 0
 
-	self.visibleLabel = EditorLabel.create( {pos[1] + padding, pos[2] + padding + yoffset}, "Visible:" )
-	yoffset = yoffset + self.visibleLabel:getHeight() + padding
-
-	self.visibleCheckbox = EditorCheckbox.create( {pos[1] + padding, pos[2] + padding + yoffset} )
-	yoffset = yoffset + self.visibleCheckbox.size[2] + padding
-	
 	self.nameLabel = EditorLabel.create( {pos[1] + padding, pos[2] + padding + yoffset}, "Name:" )
 	yoffset = yoffset + self.nameLabel:getHeight() + padding
 	
@@ -524,6 +518,12 @@ function gui.panel.tabs.info:load()
 	end
 	yoffset = yoffset + 24 + padding
 
+	self.visibleLabel = EditorLabel.create( {pos[1] + padding, pos[2] + padding + yoffset}, "Visible:" )
+	yoffset = yoffset + self.visibleLabel:getHeight() + padding
+
+	self.visibleCheckbox = EditorCheckbox.create( {pos[1] + padding, pos[2] + padding + yoffset} )
+	yoffset = yoffset + self.visibleCheckbox.size[2] + padding
+
 	self.componentsLabel = EditorLabel.create( {pos[1] + padding, pos[2] + padding + yoffset}, "Components:" )
 	yoffset = yoffset + self.componentsLabel:getHeight() + padding
 
@@ -534,8 +534,6 @@ function gui.panel.tabs.info:load()
 	yoffset = yoffset + GUI_BUTTON_HEIGHT + padding
 
 	-- add to items list
-	self.items[#self.items+1] = self.visibleLabel
-	self.items[#self.items+1] = self.visibleCheckbox
 	self.items[#self.items+1] = self.nameLabel
 	self.items[#self.items+1] = self.nameTextbox
 	self.items[#self.items+1] = self.positionLabel
@@ -544,25 +542,14 @@ function gui.panel.tabs.info:load()
 	self.items[#self.items+1] = self.orientationTextbox
 	self.items[#self.items+1] = self.scaleLabel
 	self.items[#self.items+1] = self.scaleTextbox
+	self.items[#self.items+1] = self.visibleLabel
+	self.items[#self.items+1] = self.visibleCheckbox
 	self.items[#self.items+1] = self.componentsLabel
 	self.items[#self.items+1] = self.addComponentButton
 end
 
 function gui.panel.tabs.info:update( deltaTime )
 	local capture = { mouseCaptured = false, keyboardCaptured = false }
-
-	--if self.visibleLabel:update( deltaTime ) then result = true end
-	--if self.visibleCheckbox:update( deltaTime ) then result = true end
-	--if self.nameLabel:update( deltaTime ) then result = true end
-	--if self.nameTextbox:update( deltaTime ) then result = true end
-	--if self.positionLabel:update( deltaTime ) then result = true end
-	--if self.positionTextbox:update( deltaTime ) then result = true end
-	--if self.orientationLabel:update( deltaTime ) then result = true end
-	--if self.orientationTextbox:update( deltaTime ) then result = true end
-	--if self.scaleLabel:update( deltaTime ) then result = true end
-	--if self.scaleTextbox:update( deltaTime ) then result = true end
-	--if self.componentsLabel:update( deltaTime ) then result = true end
-	--if self.addComponentButton:update( deltaTime ) then result = true end
 
 	for _,v in pairs(self.items) do
 		local result = v:update( deltaTime )
@@ -578,20 +565,6 @@ function gui.panel.tabs.info:update( deltaTime )
 end
 
 function gui.panel.tabs.info:render()
-	-- render title
-	--self.visibleLabel:render()
-	--self.visibleCheckbox:render()
-	--self.nameLabel:render()
-	--self.nameTextbox:render()
-	--self.positionLabel:render()
-	--self.positionTextbox:render()
-	--self.orientationLabel:render()
-	--self.orientationTextbox:render()
-	--self.scaleLabel:render()
-	--self.scaleTextbox:render()
-	--self.componentsLabel:render()
-	--self.addComponentButton:render()
-
 	-- render items
 	for _,v in pairs(self.items) do
 		v:render()
