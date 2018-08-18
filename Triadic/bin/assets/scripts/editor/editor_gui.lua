@@ -68,6 +68,7 @@ local gui =
 			info =
 			{
 				items = {},
+				subItems = {},
 				entity = nil,
 				visibleLabel = {},
 				visibleCheckbox = {},
@@ -563,7 +564,12 @@ function gui.panel.tabs.info:update( deltaTime )
 	--if self.componentsLabel:update( deltaTime ) then result = true end
 	--if self.addComponentButton:update( deltaTime ) then result = true end
 
-	for k,v in pairs(self.items) do
+	for _,v in pairs(self.items) do
+		local result = v:update( deltaTime )
+		setCapture( result, capture )
+	end
+
+	for _,v in pairs(self.subItems) do
 		local result = v:update( deltaTime )
 		setCapture( result, capture )
 	end
@@ -573,29 +579,33 @@ end
 
 function gui.panel.tabs.info:render()
 	-- render title
-	self.visibleLabel:render()
-	self.visibleCheckbox:render()
-	self.nameLabel:render()
-	self.nameTextbox:render()
-	self.positionLabel:render()
-	self.positionTextbox:render()
-	self.orientationLabel:render()
-	self.orientationTextbox:render()
-	self.scaleLabel:render()
-	self.scaleTextbox:render()
-	self.componentsLabel:render()
-	self.addComponentButton:render()
+	--self.visibleLabel:render()
+	--self.visibleCheckbox:render()
+	--self.nameLabel:render()
+	--self.nameTextbox:render()
+	--self.positionLabel:render()
+	--self.positionTextbox:render()
+	--self.orientationLabel:render()
+	--self.orientationTextbox:render()
+	--self.scaleLabel:render()
+	--self.scaleTextbox:render()
+	--self.componentsLabel:render()
+	--self.addComponentButton:render()
 
 	-- render items
 	for _,v in pairs(self.items) do
+		v:render()
+	end
+
+	for _,v in pairs(self.subItems) do
 		v:render()
 	end
 end
 
 function gui.panel.tabs.info:setEntity( entity )
 	-- clear items
-	count = #self.items
-	for i=0, count do self.items[i]=nil end
+	count = #self.subItems
+	for i=0, count do self.subItems[i]=nil end
 	
 	if entity then
 		-- set name and position
@@ -612,7 +622,7 @@ function gui.panel.tabs.info:setEntity( entity )
 		local size = gui.panel.contentSize
 		local yoffset = self.addComponentButton.position[2] + self.addComponentButton.size[2] + 8
 		for _,v in pairs(self.entity.components) do
-			local allocatedSpace = v:addInfo({position[1], yoffset}, size, self.items)
+			local allocatedSpace = v:addInfo({position[1], yoffset}, size, self.subItems)
 			yoffset = yoffset + allocatedSpace
 		end
 

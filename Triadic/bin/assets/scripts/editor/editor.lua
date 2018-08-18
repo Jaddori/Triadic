@@ -379,13 +379,21 @@ function Editor:update( deltaTime )
 		-- copy current entity
 		if self.selectedEntity then
 			if Input.keyReleased( Keys.D ) and Input.keyDown( Keys.LeftControl ) then
-				self:copyEntity()
+				local entity = self:copyEntity()
+
+				local command = CommandCopyEntity.create( self, entity )
+				self.commandHistory:addCommand( command )
 			end
 		end
 
 		-- remove current entity
 		if self.selectedEntity then
 			if Input.keyReleased( Keys.Delete ) then
+				--self:removeEntity( self.selectedEntity )
+
+				local command = CommandRemoveEntity.create( self, self.selectedEntity )
+				self.commandHistory:addCommand( command )
+
 				self:removeEntity( self.selectedEntity )
 			end
 		end
@@ -435,20 +443,25 @@ function Editor:render()
 	end
 end
 
+function Editor:selectEntity( entity )
+	if self.selectedEntity then
+		self.selectedEntity.selected = false
+	end
+
+	self.gui.panel.tabs.info:setEntity( entity )
+	self.selectedEntity = entity
+	entity.selected = true
+	
+	self.gizmo:setPosition( Editor.selectedEntity.position )
+	self.gizmo.visible = true
+	self.gizmo.selectedAxis = -1
+end
+
 function Editor.onEntitySelected( button )
 	local entity = button.tag
 	
 	if Editor.selectedEntity ~= entity then
-		if Editor.selectedEntity then
-			Editor.selectedEntity.selected = false
-		end
-
-		Editor.gui.panel.tabs.info:setEntity( entity )
-		Editor.selectedEntity = entity
-		Editor.gizmo:setPosition( Editor.selectedEntity.position )
-		Editor.gizmo.visible = true
-		Editor.gizmo.selectedAxis = -1
-		entity.selected = true
+		Editor:selectEntity( entity )
 	end
 end
 
@@ -463,38 +476,26 @@ function Editor:copyEntity()
 	
 	self.entities[#self.entities+1] = entity
 	
-	self.gui.panel.tabs.info:setEntity( entity )
-	self.selectedEntity.selected = false
-	self.selectedEntity = entity
-	entity.selected = true
-	
-	self.gizmo:setPosition( Editor.selectedEntity.position )
-	self.gizmo.visible = true
-	self.gizmo.selectedAxis = -1
-	
 	self.gui.panel.tabs.entities:addEntity( entity, self.onEntitySelected )
+
+	self:selectEntity( entity )
+
+	return entity
 end
 
 function Editor:createEntity( position )
-	if self.selectedEntity then
-		self.selectedEntity.selected = false
-	end
-
 	local entity = Entity.create( "New Entity", position )
-	--local meshComponent = ComponentMesh.create( entity, position )
-	--meshComponent:loadMesh( "./assets/models/pillar.mesh" )
-	--entity:addComponent( meshComponent )
 	self.entities[#self.entities+1] = entity
 	
-	self.gui.panel.tabs.info:setEntity( entity )
-	self.selectedEntity = entity
-	entity.selected = true
-	
-	self.gizmo:setPosition( Editor.selectedEntity.position )
-	self.gizmo.visible = true
-	self.gizmo.selectedAxis = -1
-	
 	self.gui.panel.tabs.entities:addEntity( entity, self.onEntitySelected )
+
+	self:selectEntity( entity )
+end
+
+function Editor:addEntity( entity )
+	self.entities[#self.entities+1] = entity
+
+	self:selectEntity( entity )
 end
 
 function Editor:removeEntity( entity )
