@@ -15,8 +15,8 @@ end
 
 function history:addCommand( command )
 	-- remove items after the current index
-	if self.index > 0 and self.index < #self.commands then
-		for i=self.index, #self.commands do
+	if self.index < #self.commands then
+		for i=self.index+1, #self.commands do
 			self.commands[i] = nil
 		end
 	end

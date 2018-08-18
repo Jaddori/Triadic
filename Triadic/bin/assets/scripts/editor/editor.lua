@@ -17,7 +17,7 @@ Editor =
 	commandHistory = nil,
 
 	mode = MODE_TRANSLATE,
-	moveCommand = { oldPosition = {0,0,0}, newPosition = {0,0,0} },
+	command = { old = {}, new = {} },
 }
 
 function Editor:load()
@@ -83,6 +83,12 @@ function Editor:load()
 			local x = tonumber( components[1] )
 			local y = tonumber( components[2] )
 			local z = tonumber( components[3] )
+
+			copyVec( self.selectedEntity.position, self.command.old)
+			copyVec( {x,y,z}, self.command.new )
+
+			local moveCommand = CommandMove.create( self.command.old, self.command.new, self.selectedEntity )
+			self.commandHistory:addCommand( moveCommand )
 			
 			self.selectedEntity.position = {x,y,z}
 			self.gizmo:setPosition( self.selectedEntity.position )
@@ -98,6 +104,12 @@ function Editor:load()
 			local z = tonumber( components[3] )
 			local w = tonumber( components[4] )
 
+			copyVec( self.selectedEntity.orientation, self.command.old )
+			copyVec( {x,y,z,w}, self.command.new )
+
+			local rotateCommand = CommandRotate.create( self.command.old, self.command.new, self.selectedEntity )
+			self.commandHistory:addCommand( rotateCommand )
+
 			self.selectedEntity.orientation = {x,y,z,w}
 			self.gizmo:setOrientation( self.selectedEntity.orientation )
 		end
@@ -110,6 +122,12 @@ function Editor:load()
 			local x = tonumber( components[1] )
 			local y = tonumber( components[2] )
 			local z = tonumber( components[3] )
+
+			copyVec( self.selectedEntity.scale, self.command.old )
+			copyVec( {x,y,z}, self.command.new )
+
+			local scaleCommand = CommandScale.create( self.command.old, self.command.new, self.selectedEntity )
+			self.commandHistory:addCommand( scaleCommand )
 
 			self.selectedEntity.scale = {x,y,z}
 			self.gizmo:setScale( self.selectedEntity.scale )
@@ -181,7 +199,12 @@ function Editor:update( deltaTime )
 						self.xscale = hit.position[1] - self.selectedEntity.scale[1]
 						self.gizmo.selectedAxis = 1
 
-						copyVec( self.selectedEntity.position, self.moveCommand.oldPosition )
+						if self.mode == MODE_TRANSLATE then
+							copyVec( self.selectedEntity.position, self.command.old )
+						elseif self.mode == MODE_ROTATE then
+						elseif self.mode == MODE_SCALE then
+							copyVec( self.selectedEntity.scale, self.command.old )
+						end
 					end
 				-- translation in y-axis
 				elseif Physics.rayAABB( ray, self.gizmo.ybounds ) then
@@ -206,7 +229,12 @@ function Editor:update( deltaTime )
 						self.yscale = hit.position[2] - self.selectedEntity.scale[2]
 						self.gizmo.selectedAxis = 2
 
-						copyVec( self.selectedEntity.position, self.moveCommand.oldPosition )
+						if self.mode == MODE_TRANSLATE then
+							copyVec( self.selectedEntity.position, self.command.old )
+						elseif self.mode == MODE_ROTATE then
+						elseif self.mode == MODE_SCALE then
+							copyVec( self.selectedEntity.scale, self.command.old )
+						end
 					end
 				-- translation in z-axis
 				elseif Physics.rayAABB( ray, self.gizmo.zbounds ) then
@@ -220,7 +248,12 @@ function Editor:update( deltaTime )
 						self.zscale = hit.position[3] - self.selectedEntity.scale[3]
 						self.gizmo.selectedAxis = 3
 
-						copyVec( self.selectedEntity.position, self.moveCommand.oldPosition )
+						if self.mode == MODE_TRANSLATE then
+							copyVec( self.selectedEntity.position, self.command.old )
+						elseif self.mode == MODE_ROTATE then
+						elseif self.mode == MODE_SCALE then
+							copyVec( self.selectedEntity.scale, self.command.old )
+						end
 					end
 				end
 			elseif Input.buttonDown( Buttons.Left ) then
@@ -295,10 +328,18 @@ function Editor:update( deltaTime )
 				end
 			elseif Input.buttonReleased( Buttons.Left ) then
 				if self.xcaptured or self.ycaptured or self.zcaptured then
-					copyVec( self.selectedEntity.position, self.moveCommand.newPosition )
+					if self.mode == MODE_TRANSLATE then
+						copyVec( self.selectedEntity.position, self.command.new )
 
-					local moveCommand = CommandMove.create( self.moveCommand.oldPosition, self.moveCommand.newPosition, self.selectedEntity )
-					self.commandHistory:addCommand( moveCommand )
+						local moveCommand = CommandMove.create( self.command.old, self.command.new, self.selectedEntity )
+						self.commandHistory:addCommand( moveCommand )
+					elseif self.mode == MODE_ROTATE then
+					elseif self.mode == MODE_SCALE then
+						copyVec( self.selectedEntity.scale, self.command.new )
+
+						local scaleCommand = CommandScale.create( self.command.old, self.command.new, self.selectedEntity )
+						self.commandHistory:addCommand( scaleCommand )
+					end
 				end
 			else
 				self.gizmo.selectedAxis = -1
@@ -325,13 +366,19 @@ function Editor:update( deltaTime )
 
 	-- undo/redo
 	if Input.keyDown( Keys.LeftControl ) then
+		local undoRedo = false
 		if Input.keyRepeated( Keys.Z ) then
 			self.commandHistory:undo()
+			undoRedo = true
 		elseif Input.keyRepeated( Keys.Y ) then
 			self.commandHistory:redo()
+			undoRedo = true
 		end
 
-		self.gizmo:setPosition( self.selectedEntity.position )
+		if self.selectedEntity and undoRedo then
+			self.gizmo:setPosition( self.selectedEntity.position )
+			self.gui.panel.tabs.info:refresh()
+		end
 	end
 
 	-- select mode
