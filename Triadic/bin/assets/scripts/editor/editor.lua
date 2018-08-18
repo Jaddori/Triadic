@@ -14,8 +14,10 @@ Editor =
 	gizmo = nil,
 	console = nil,
 	grid = nil,
+	commandHistory = nil,
 
 	mode = MODE_TRANSLATE,
+	moveCommand = { oldPosition = {0,0,0}, newPosition = {0,0,0} },
 }
 
 function Editor:load()
@@ -40,6 +42,9 @@ function Editor:load()
 	self.console:load()
 	
 	self.grid = doscript( "editor/editor_grid.lua" )
+
+	self.commandHistory = doscript( "editor/editor_command_history.lua" )
+	self.commandHistory:load()
 	
 	doscript( "editor/entity.lua" )
 	
@@ -175,6 +180,8 @@ function Editor:update( deltaTime )
 						self.xoffset = hit.position[1] - self.selectedEntity.position[1]
 						self.xscale = hit.position[1] - self.selectedEntity.scale[1]
 						self.gizmo.selectedAxis = 1
+
+						copyVec( self.selectedEntity.position, self.moveCommand.oldPosition )
 					end
 				-- translation in y-axis
 				elseif Physics.rayAABB( ray, self.gizmo.ybounds ) then
@@ -198,6 +205,8 @@ function Editor:update( deltaTime )
 						self.yoffset = hit.position[2] - self.selectedEntity.position[2]
 						self.yscale = hit.position[2] - self.selectedEntity.scale[2]
 						self.gizmo.selectedAxis = 2
+
+						copyVec( self.selectedEntity.position, self.moveCommand.oldPosition )
 					end
 				-- translation in z-axis
 				elseif Physics.rayAABB( ray, self.gizmo.zbounds ) then
@@ -210,6 +219,8 @@ function Editor:update( deltaTime )
 						self.zoffset = hit.position[3] - self.selectedEntity.position[3]
 						self.zscale = hit.position[3] - self.selectedEntity.scale[3]
 						self.gizmo.selectedAxis = 3
+
+						copyVec( self.selectedEntity.position, self.moveCommand.oldPosition )
 					end
 				end
 			elseif Input.buttonDown( Buttons.Left ) then
@@ -282,6 +293,13 @@ function Editor:update( deltaTime )
 						end
 					end
 				end
+			elseif Input.buttonReleased( Buttons.Left ) then
+				if self.xcaptured or self.ycaptured or self.zcaptured then
+					copyVec( self.selectedEntity.position, self.moveCommand.newPosition )
+
+					local moveCommand = CommandMove.create( self.moveCommand.oldPosition, self.moveCommand.newPosition, self.selectedEntity )
+					self.commandHistory:addCommand( moveCommand )
+				end
 			else
 				self.gizmo.selectedAxis = -1
 			end
@@ -303,6 +321,17 @@ function Editor:update( deltaTime )
 		if Input.keyReleased( Keys.D ) and Input.keyDown( Keys.LeftControl ) then
 			self:copyEntity()
 		end
+	end
+
+	-- undo/redo
+	if Input.keyDown( Keys.LeftControl ) then
+		if Input.keyRepeated( Keys.Z ) then
+			self.commandHistory:undo()
+		elseif Input.keyRepeated( Keys.Y ) then
+			self.commandHistory:redo()
+		end
+
+		self.gizmo:setPosition( self.selectedEntity.position )
 	end
 
 	-- select mode
