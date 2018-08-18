@@ -7,7 +7,7 @@ function camera:load()
 end
 
 function camera:update( deltaTime )
-	local result = false
+	local capture = { mouseCaptured = false, keyboardCaptured = false }
 	
 	local mouseDelta = Input.getMouseDelta()
 	
@@ -33,10 +33,11 @@ function camera:update( deltaTime )
 
 		self.camera:relativeMovement( movement )
 		
-		result = true
+		capture.mouseCaptured = true
+		capture.keyboardCaptured = true
 	end
 	
-	return result
+	return capture
 end
 
 return camera

@@ -67,3 +67,8 @@ end
 function writeIndent( file, level, text )
 	file:write( string.rep( "\t", level ) .. text )
 end
+
+function setCapture( src, dst )
+	if src.mouseCaptured then dst.mouseCaptured = true end
+	if src.keyboardCaptured then dst.keyboardCaptured = true end
+end

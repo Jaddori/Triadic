@@ -128,12 +128,20 @@ function gui.menu:load()
 end
 
 function gui.menu:update( deltaTime )
-	self.file:update( deltaTime )
-	self.settings:update( deltaTime )
+	local capture = { mouseCaptured = false, keyboardCaptured = false }
+
+	local result = self.file:update( deltaTime )
+	setCapture( result, capture )
+
+	result = self.settings:update( deltaTime )
+	setCapture( result, capture )
 	
 	for _,v in pairs(self.items) do
-		v:update( deltaTime )
+		result = v:update( deltaTime )
+		setCapture( result, capture )
 	end
+
+	return capture
 end
 
 function gui.menu:render()
@@ -211,15 +219,20 @@ function gui.menu.file:load( xoffset )
 end
 
 function gui.menu.file:update( deltaTime )
+	local capture = { mouseCaptured = false, keyboardCaptured = false }
+
 	if self.visible then
 		for _,v in pairs(self.items) do
-			v:update( deltaTime )
+			local result = v:update( deltaTime )
+			setCapture( result, capture )
 		end
 		
 		if Input.buttonReleased( Buttons.Left ) then
 			self.visible = false
 		end
 	end
+
+	return capture
 end
 
 function gui.menu.file:render()
@@ -270,15 +283,20 @@ function gui.menu.settings:load( xoffset )
 end
 
 function gui.menu.settings:update( deltaTime )
+	local capture = { mouseCaptured = false, keyboardCaptured = false }
+
 	if self.visible then
 		for _,v in pairs(self.items) do
-			v:update( deltaTime )
+			local result = v:update( deltaTime )
+			setCapture( result, capture )
 		end
 		
 		if Input.buttonReleased( Buttons.Left ) then
 			self.visible = false
 		end
 	end
+
+	return capture
 end
 
 function gui.menu.settings:render()
@@ -319,14 +337,17 @@ function gui.componentList:addItem( text, tag )
 end
 
 function gui.componentList:update( deltaTime )
+	local capture = { mouseCaptured = false, keyboardCaptured = false }
+
 	local mousePosition = Input.getMousePosition()
-	local result = insideRect( self.position, self.size, mousePosition )
+	capture.mouseCaptured = insideRect( self.position, self.size, mousePosition )
 
 	for _,v in pairs(self.items) do
-		v:update( deltaTime )
+		local result = v:update( deltaTime )
+		setCapture( result, capture )
 	end
 
-	return result
+	return capture
 end
 
 function gui.componentList:render()
@@ -369,19 +390,18 @@ function gui.contextMenu:show( position )
 end
 
 function gui.contextMenu:update( deltaTime )
-	local result = false
+	local capture = { mouseCaptured = false, keyboardCaptured = false }
 
 	for _,v in pairs(self.items) do
-		if v:update( deltaTime ) then
-			result = true
-		end
+		local result = v:update( deltaTime )
+		setCapture( result, capture )
 	end
 	
 	if Input.buttonReleased( Buttons.Left ) then
 		self.visible = false
 	end
 	
-	return result
+	return capture
 end
 
 function gui.contextMenu:render()
@@ -456,7 +476,6 @@ end
 
 -- info
 function gui.panel.tabs.info:load()
-	-- labels
 	local pos = gui.panel.contentPosition
 	local size = gui.panel.contentSize
 	local padding = 4
@@ -512,31 +531,44 @@ function gui.panel.tabs.info:load()
 		gui.componentList.visible = not gui.componentList.visible
 	end
 	yoffset = yoffset + GUI_BUTTON_HEIGHT + padding
+
+	-- add to items list
+	self.items[#self.items+1] = self.visibleLabel
+	self.items[#self.items+1] = self.visibleCheckbox
+	self.items[#self.items+1] = self.nameLabel
+	self.items[#self.items+1] = self.nameTextbox
+	self.items[#self.items+1] = self.positionLabel
+	self.items[#self.items+1] = self.positionTextbox
+	self.items[#self.items+1] = self.orientationLabel
+	self.items[#self.items+1] = self.orientationTextbox
+	self.items[#self.items+1] = self.scaleLabel
+	self.items[#self.items+1] = self.scaleTextbox
+	self.items[#self.items+1] = self.componentsLabel
+	self.items[#self.items+1] = self.addComponentButton
 end
 
 function gui.panel.tabs.info:update( deltaTime )
-	local result = false
+	local capture = { mouseCaptured = false, keyboardCaptured = false }
 
-	if self.visibleLabel:update( deltaTime ) then result = true end
-	if self.visibleCheckbox:update( deltaTime ) then result = true end
-	if self.nameLabel:update( deltaTime ) then result = true end
-	if self.nameTextbox:update( deltaTime ) then result = true end
-	if self.positionLabel:update( deltaTime ) then result = true end
-	if self.positionTextbox:update( deltaTime ) then result = true end
-	if self.orientationLabel:update( deltaTime ) then result = true end
-	if self.orientationTextbox:update( deltaTime ) then result = true end
-	if self.scaleLabel:update( deltaTime ) then result = true end
-	if self.scaleTextbox:update( deltaTime ) then result = true end
-	if self.componentsLabel:update( deltaTime ) then result = true end
-	if self.addComponentButton:update( deltaTime ) then result = true end
+	--if self.visibleLabel:update( deltaTime ) then result = true end
+	--if self.visibleCheckbox:update( deltaTime ) then result = true end
+	--if self.nameLabel:update( deltaTime ) then result = true end
+	--if self.nameTextbox:update( deltaTime ) then result = true end
+	--if self.positionLabel:update( deltaTime ) then result = true end
+	--if self.positionTextbox:update( deltaTime ) then result = true end
+	--if self.orientationLabel:update( deltaTime ) then result = true end
+	--if self.orientationTextbox:update( deltaTime ) then result = true end
+	--if self.scaleLabel:update( deltaTime ) then result = true end
+	--if self.scaleTextbox:update( deltaTime ) then result = true end
+	--if self.componentsLabel:update( deltaTime ) then result = true end
+	--if self.addComponentButton:update( deltaTime ) then result = true end
 
-	for _,v in pairs(self.items) do
-		if v:update( deltaTime ) then
-			result = true
-		end
+	for k,v in pairs(self.items) do
+		local result = v:update( deltaTime )
+		setCapture( result, capture )
 	end
 	
-	return result
+	return capture
 end
 
 function gui.panel.tabs.info:render()
@@ -606,15 +638,14 @@ end
 function gui.panel.tabs.entities:load() end
 
 function gui.panel.tabs.entities:update( deltaTime )
-	local result = false
+	local capture = { mouseCaptured = false, keyboardCaptured = false }
 	
 	for _,v in pairs(self.items) do
-		if v:update( deltaTime ) then
-			result = true
-		end
+		local result = v:update( deltaTime )
+		setCapture( result, capture )
 	end
 	
-	return result
+	return capture
 end
 
 function gui.panel.tabs.entities:render()
@@ -642,6 +673,20 @@ function gui.panel.tabs.entities:addEntity( entity, onSelect )
 	self.items[#self.items+1] = button
 end
 
+function gui.panel.tabs.entities:removeEntity( entity )
+	local index = 0
+	for i=1, #self.items do
+		if self.items[i].tag == entity then
+			index = i
+			break
+		end
+	end
+
+	if index > 0 then
+		self.items[index] = nil
+	end
+end
+
 function gui.panel.tabs.entities:clear()
 	local count = #self.items
 	for i=1, count do self.items[i] = nil end
@@ -649,7 +694,11 @@ end
 
 -- prefabs
 function gui.panel.tabs.prefabs:load() end
-function gui.panel.tabs.prefabs:update( deltaTime ) end
+function gui.panel.tabs.prefabs:update( deltaTime )
+	local capture = { mouseCaptured = false, keyboardCaptured = false }
+
+	return capture
+end
 function gui.panel.tabs.prefabs:render() end
 
 function gui:load()
@@ -686,43 +735,43 @@ function gui:load()
 end
 
 function gui:update( deltaTime )
-	local result = false
+	local capture = { mouseCaptured = false, keyboardCaptured = false }
 
 	-- menu
-	self.menu:update( deltaTime )
+	local result = self.menu:update( deltaTime )
+	setCapture( result, capture )
 	
 	-- panel
 	for _,v in pairs(self.panel.tabBar.items) do
-		if v:update( deltaTime ) then
-			result = true
-		end
+		--if v:update( deltaTime ) then
+		--	result = true
+		--end
+		result = v:update( deltaTime )
+		setCapture( result, capture )
 	end
 	
 	-- tabs
-	if self.panel.tabs[self.panel.tabBar.curTab]:update( deltaTime ) then
-		result = true
-	end
+	result = self.panel.tabs[self.panel.tabBar.curTab]:update( deltaTime )
+	setCapture( result, capture )
 
 	-- component list
 	if self.componentList.visible then
-		if self.componentList:update( deltaTime ) then
-			result = true
-		end
+		result = self.componentList:update( deltaTime )
+		setCapture( result, capture )
 	end
 	
 	-- context menu
 	if self.contextMenu.visible then
-		if self.contextMenu:update( deltaTime ) then
-			result = true
-		end
+		result = self.contextMenu:update( deltaTime )
+		setCapture( result, capture )
 	end
 	
-	if not result then
+	if not capture.mouseCaptured then
 		local mousePosition = Input.getMousePosition()
-		result = insideRect( self.panel.position, self.panel.size, mousePosition ) 
+		capture.mouseCaptured = insideRect( self.panel.position, self.panel.size, mousePosition ) 
 	end
 	
-	return result
+	return capture
 end
 
 function gui:render()

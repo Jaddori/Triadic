@@ -204,18 +204,20 @@ function ComponentWalkableInfo:load()
 end
 
 function ComponentWalkableInfo:update( deltaTime )
+	local capture = { mouseCaptured = false, keyboardCapture = false }
+
 	local result = self.titleButton:update( deltaTime )
+	setCapture( result, capture )
 
 	if self.expanded then
 		-- update items
 		for _,v in pairs(self.items) do
-			if v:update( deltaTime ) then
-				result = true
-			end
+			result = v:update( deltaTime )
+			setCapture( result, capture )
 		end
 	end
 
-	return result
+	return capture
 end
 
 function ComponentWalkableInfo:render()

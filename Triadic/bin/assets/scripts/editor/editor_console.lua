@@ -39,13 +39,18 @@ function console:load()
 end
 
 function console:update( deltaTime )
+	local capture = { mouseCaptured = false, keyboardCaptured = false }
+
 	if Input.keyReleased( Keys.Tilde ) then
 		self.visible = not self.visible
 		self.inputTextbox.focus = self.visible
+
+		capture.keyboardCaptured = true
 	end
 
 	if self.visible then
-		self.inputTextbox:update( deltaTime )
+		local result = self.inputTextbox:update( deltaTime )
+		setCapture( result, capture )
 		
 		-- manipulate command history
 		if Input.keyRepeated( Keys.Up ) then
@@ -55,6 +60,8 @@ function console:update( deltaTime )
 			end
 			
 			self.inputTextbox:setText( self.history[self.curHistory] )
+
+			capture.mouseCaptured = true
 		end
 		
 		if Input.keyRepeated( Keys.Down ) then
@@ -64,8 +71,12 @@ function console:update( deltaTime )
 			end
 			
 			self.inputTextbox:setText( self.history[self.curHistory] )
+
+			capture.mouseCaptured = true
 		end
 	end
+
+	return capture
 end
 
 function console:render()

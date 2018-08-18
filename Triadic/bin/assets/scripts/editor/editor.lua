@@ -150,13 +150,20 @@ function Editor:unload()
 end
 
 function Editor:update( deltaTime )
-	self.camera:update( deltaTime )
+	local capture = { mouseCaptured = false, keyboardCaptured = false }
+
+	local captureResult = self.camera:update( deltaTime )
+	setCapture( captureResult, capture )
+
 	self.gizmo:update( deltaTime )
-	self.console:update( deltaTime )
+
+	captureResult = self.console:update( deltaTime )
+	setCapture( captureResult, capture )
 	
-	local mouseCaptured = self.gui:update( deltaTime )
-	
-	if not mouseCaptured then
+	captureResult = self.gui:update( deltaTime )
+	setCapture( captureResult, capture )
+
+	if not capture.mouseCaptured then
 		-- context menu
 		if Input.buttonReleased( Buttons.Right ) then
 			local mousePosition = Input.getMousePosition()
@@ -368,37 +375,46 @@ function Editor:update( deltaTime )
 		end
 	end
 	
-	-- copy current entity
-	if self.selectedEntity then
-		if Input.keyReleased( Keys.D ) and Input.keyDown( Keys.LeftControl ) then
-			self:copyEntity()
-		end
-	end
-
-	-- undo/redo
-	if Input.keyDown( Keys.LeftControl ) then
-		local undoRedo = false
-		if Input.keyRepeated( Keys.Z ) then
-			self.commandHistory:undo()
-			undoRedo = true
-		elseif Input.keyRepeated( Keys.Y ) then
-			self.commandHistory:redo()
-			undoRedo = true
+	if not capture.keyboardCaptured then
+		-- copy current entity
+		if self.selectedEntity then
+			if Input.keyReleased( Keys.D ) and Input.keyDown( Keys.LeftControl ) then
+				self:copyEntity()
+			end
 		end
 
-		if self.selectedEntity and undoRedo then
-			self.gizmo:setPosition( self.selectedEntity.position )
-			self.gui.panel.tabs.info:refresh()
+		-- remove current entity
+		if self.selectedEntity then
+			if Input.keyReleased( Keys.Delete ) then
+				self:removeEntity( self.selectedEntity )
+			end
 		end
-	end
 
-	-- select mode
-	if Input.keyPressed( Keys.W ) then
-		self.mode = MODE_TRANSLATE
-	elseif Input.keyPressed( Keys.E ) then
-		self.mode = MODE_SCALE
-	elseif Input.keyPressed( Keys.R ) then
-		self.mode = MODE_ROTATE
+		-- undo/redo
+		if Input.keyDown( Keys.LeftControl ) then
+			local undoRedo = false
+			if Input.keyRepeated( Keys.Z ) then
+				self.commandHistory:undo()
+				undoRedo = true
+			elseif Input.keyRepeated( Keys.Y ) then
+				self.commandHistory:redo()
+				undoRedo = true
+			end
+
+			if self.selectedEntity and undoRedo then
+				self.gizmo:setPosition( self.selectedEntity.position )
+				self.gui.panel.tabs.info:refresh()
+			end
+		end
+
+		-- select mode
+		if Input.keyPressed( Keys.W ) then
+			self.mode = MODE_TRANSLATE
+		elseif Input.keyPressed( Keys.E ) then
+			self.mode = MODE_SCALE
+		elseif Input.keyPressed( Keys.R ) then
+			self.mode = MODE_ROTATE
+		end
 	end
 	
 	-- entities
@@ -479,6 +495,25 @@ function Editor:createEntity( position )
 	self.gizmo.selectedAxis = -1
 	
 	self.gui.panel.tabs.entities:addEntity( entity, self.onEntitySelected )
+end
+
+function Editor:removeEntity( entity )
+	local index = 0
+	for i=1, #self.entities do
+		if self.entities[i] == entity then
+			index = i
+			break
+		end
+	end
+
+	if index > 0 then
+		self.selectedEntity = nil
+		self.gui.panel.tabs.info:setEntity( self.selectedEntity )
+		self.gizmo.visible = false
+		self.gui.panel.tabs.entities:removeEntity( entity )
+
+		self.entities[index] = nil
+	end
 end
 
 function Editor:reset()

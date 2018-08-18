@@ -45,7 +45,8 @@ function EditorButton.create( position, size, text )
 end
 
 function EditorButton:update( deltaTime )
-	local result = false
+	local capture = { mouseCaptured = false, keyboardCaptured = false }
+
 	local mousePosition = Input.getMousePosition()
 	
 	if not self.disabled then
@@ -62,7 +63,7 @@ function EditorButton:update( deltaTime )
 				self.pressed = false
 			end
 			
-			result = true
+			capture.mouseCaptured = true
 		else
 			self.hovered = false
 			self.pressed = false
@@ -73,7 +74,7 @@ function EditorButton:update( deltaTime )
 		end
 	end
 	
-	return result
+	return capture
 end
 
 function EditorButton:render()

@@ -43,7 +43,7 @@ function EditorCheckbox.create( position, size )
 end
 
 function EditorCheckbox:update( deltaTime )
-	local result = false
+	local capture = { mouseCaptured = false, keyboardCaptured = false }
 
 	local mousePosition = Input.getMousePosition()
 
@@ -63,12 +63,14 @@ function EditorCheckbox:update( deltaTime )
 
 			self.pressed = false
 		end
+
+		capture.mouseCaptured = true
 	else
 		self.hovered = false
 		self.pressed = false
 	end
 
-	return result
+	return capture
 end
 
 function EditorCheckbox:render()

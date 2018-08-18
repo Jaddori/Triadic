@@ -248,21 +248,23 @@ function ComponentMeshInfo:load()
 end
 
 function ComponentMeshInfo:update( deltaTime )
+	local capture = { mouseCaptured = false, keyboardCaptured = false }
+
 	local result = self.titleButton:update( deltaTime )
+	setCapture( result, capture )
 
 	if self.expanded then
 		-- update mesh list
 		if self.meshList.visible then
 			for _,v in pairs(self.meshList.items) do
-				if v:update( deltaTime ) then
-					result = true
-				end
+				result = v:update( deltaTime )
+				setCapture( result, capture )
 			end
 			
 			if Input.buttonReleased( Buttons.Left ) then
 				local mousePosition = Input.getMousePosition()
 				if insideRect( self.meshList.position, self.meshList.size, mousePosition ) then
-					result = true
+					capture.mouseCaptured = true
 				else
 					self.meshList.visible = false
 				end
@@ -271,13 +273,12 @@ function ComponentMeshInfo:update( deltaTime )
 		
 		-- update items
 		for _,v in pairs(self.items) do
-			if v:update( deltaTime ) then
-				result = true
-			end
+			result = v:update( deltaTime )
+			setCapture( result, capture )
 		end
 	end
 	
-	return result
+	return capture
 end
 
 function ComponentMeshInfo:render()

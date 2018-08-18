@@ -26,6 +26,9 @@ function EditorLabel.create( position, text )
 end
 
 function EditorLabel:update( deltaTime )
+	local capture = { mouseCaptured = false, keyboardCapture = false }
+
+	return capture
 end
 
 function EditorLabel:render()

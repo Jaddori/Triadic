@@ -49,24 +49,33 @@ bool Script::bind( CoreData* coreData )
 		LuaCore::bind( lua, coreData );
 
 		// load main script
+		lua_getglobal( lua, "debug" );
+		lua_getfield( lua, -1, "traceback" );
+		lua_replace( lua, -2 );
+
 		LOG_INFO( "Loading main script." );
 		if( luaL_loadfile( lua, LUA_MAIN_SCRIPT ) != 0 )
 		{
 			LOG_ERROR( "Failed to load main script." );
 			LOG_ERROR( "%s", lua_tostring( lua, -1 ) );
+
 			valid = false;
 		}
 		else
 		{
 			LOG_INFO( "Running main script." );
-			if( lua_pcall( lua, 0, 0, 0 ) != 0 )
+
+			if( lua_pcall( lua, 0, 0, -2 ) != 0 )
 			{
 				LOG_ERROR( "Failed to run main script." );
 				LOG_ERROR( "%s", lua_tostring( lua, -1 ) );
+
 				valid = false;
 			}
 			else
 			{
+				lua_pop( lua, 1 ); // remove traceback error function
+
 				// get load function
 				lua_getglobal( lua, "mainLoad" );
 				if( !lua_isfunction( lua, -1 ) )
@@ -128,14 +137,21 @@ void Script::update( float deltaTime )
 {
 	if( valid )
 	{
+		lua_getglobal( lua, "debug" );
+		lua_getfield( lua, -1, "traceback" );
+		lua_replace( lua, -2 );
+
 		lua_rawgeti( lua, LUA_REGISTRYINDEX, updateFunctionReference );
 		lua_pushnumber( lua, deltaTime );
-		if( lua_pcall( lua, 1, 0, 0 ) != 0 )
+		if( lua_pcall( lua, 1, 0, -3 ) != 0 )
 		{
 			LOG_ERROR( "Failed to run update function." );
 			LOG_ERROR( "%s", lua_tostring( lua, -1 ) );
+
 			valid = false;
 		}
+		else
+			lua_pop( lua, 1 );
 	}
 
 	if( _coreData->input->keyReleased( SDL_SCANCODE_F1 ) )
@@ -146,13 +162,19 @@ void Script::run( int functionReference, const char* debugName )
 {
 	if( valid )
 	{
+		lua_getglobal( lua, "debug" );
+		lua_getfield( lua, -1, "traceback" );
+		lua_replace( lua, -2 );
+
 		lua_rawgeti( lua, LUA_REGISTRYINDEX, functionReference );
-		if( lua_pcall( lua, 0, 0, 0 ) != 0 )
+		if( lua_pcall( lua, 0, 0, -2 ) != 0 )
 		{
 			LOG_ERROR( "Failed to run function reference for: %s", debugName );
 			LOG_ERROR( "%s", lua_tostring( lua, -1 ) );
 			valid = false;
 		}
+		else
+			lua_pop( lua, 1 );
 	}
 }
 

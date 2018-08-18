@@ -64,7 +64,7 @@ function EditorTextbox.create( position, size )
 end
 
 function EditorTextbox:update( deltaTime )
-	local result = false
+	local capture = { mouseCaptured = false, keyboardCaptured = false }
 	
 	local mousePosition = Input.getMousePosition()
 	
@@ -87,7 +87,7 @@ function EditorTextbox:update( deltaTime )
 				self.pressed = false
 			end
 			
-			result = true
+			capture.mouseCaptured = true
 		else
 			self.hovered = false
 			self.pressed = false
@@ -252,10 +252,12 @@ function EditorTextbox:update( deltaTime )
 					self:selectAll()
 				end
 			end
+
+			capture.keyboardCaptured = true
 		end
 	end
-	
-	return result
+
+	return capture
 end
 
 function EditorTextbox:render()
