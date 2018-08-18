@@ -59,6 +59,12 @@ function Editor:load()
 	end
 	
 	-- gui info panel
+	self.gui.panel.tabs.info.visibleCheckbox.onCheck = function( checkbox )
+		if self.selectedEntity then
+			self.selectedEntity.visible = checkbox.checked
+		end
+	end
+
 	self.gui.panel.tabs.info.nameTextbox.onFinish = function( self )
 		if self.text:len() > 0 then
 			Editor.selectedEntity.name = self.text
@@ -237,7 +243,7 @@ function Editor:update( deltaTime )
 						if self.mode == MODE_TRANSLATE then
 							self.selectedEntity.position[2] = hit.position[2] - self.yoffset
 							
-							if snapMove then
+							if snap then
 								self.selectedEntity.position[2] = math.floor( self.selectedEntity.position[2] + 0.5 )
 							end
 							
@@ -259,7 +265,7 @@ function Editor:update( deltaTime )
 						if self.mode == MODE_TRANSLATE then
 							self.selectedEntity.position[3] = hit.position[3] - self.zoffset
 							
-							if snapMove then
+							if snap then
 								self.selectedEntity.position[3] = math.floor( self.selectedEntity.position[3] + 0.5 )
 							end
 							
@@ -345,7 +351,7 @@ end
 
 function Editor:copyEntity()
 	local position = self.selectedEntity.position
-	local entity = Entity.create( {position[1]+1, position[2], position[3]+1}, "New Entity" )
+	local entity = Entity.create( "New Entity", {position[1]+1, position[2], position[3]+1} )
 	
 	for _,v in pairs(self.selectedEntity.components) do
 		local component = v:copy( entity )

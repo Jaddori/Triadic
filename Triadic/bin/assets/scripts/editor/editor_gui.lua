@@ -68,6 +68,8 @@ local gui =
 			{
 				items = {},
 				entity = nil,
+				visibleLabel = {},
+				visibleCheckbox = {},
 				nameLabel = {},
 				nameTextbox = {},
 				positionLabel = {},
@@ -396,6 +398,12 @@ function gui.panel.tabs.info:load()
 	local size = gui.panel.contentSize
 	local padding = 4
 	local yoffset = 0
+
+	self.visibleLabel = EditorLabel.create( {pos[1] + padding, pos[2] + padding + yoffset}, "Visible:" )
+	yoffset = yoffset + self.visibleLabel:getHeight() + padding
+
+	self.visibleCheckbox = EditorCheckbox.create( {pos[1] + padding, pos[2] + padding + yoffset} )
+	yoffset = yoffset + self.visibleCheckbox.size[2] + padding
 	
 	self.nameLabel = EditorLabel.create( {pos[1] + padding, pos[2] + padding + yoffset}, "Name:" )
 	yoffset = yoffset + self.nameLabel:getHeight() + padding
@@ -440,6 +448,8 @@ end
 function gui.panel.tabs.info:update( deltaTime )
 	local result = false
 
+	if self.visibleLabel:update( deltaTime ) then result = true end
+	if self.visibleCheckbox:update( deltaTime ) then result = true end
 	if self.nameLabel:update( deltaTime ) then result = true end
 	if self.nameTextbox:update( deltaTime ) then result = true end
 	if self.positionLabel:update( deltaTime ) then result = true end
@@ -461,6 +471,8 @@ end
 
 function gui.panel.tabs.info:render()
 	-- render title
+	self.visibleLabel:render()
+	self.visibleCheckbox:render()
 	self.nameLabel:render()
 	self.nameTextbox:render()
 	self.positionLabel:render()
@@ -484,6 +496,7 @@ function gui.panel.tabs.info:setEntity( entity )
 	
 	if entity then
 		-- set name and position
+		self.visibleCheckbox.checked = entity.visible
 		self.nameTextbox.text = entity.name
 		self.positionTextbox:setText( stringVec( entity.position ) )
 		self.orientationTextbox:setText( stringVec( entity.orientation ) )
@@ -500,6 +513,7 @@ function gui.panel.tabs.info:setEntity( entity )
 			yoffset = yoffset + allocatedSpace
 		end
 	else
+		self.visibleCheckbox.checked = false
 		self.nameTextbox:setText( "" )
 		self.positionTextbox:setText( "" )
 		self.orientationTextbox:setText( "" )
@@ -567,6 +581,7 @@ function gui:load()
 	doscript( "editor/editor_button.lua" )
 	doscript( "editor/editor_label.lua" )
 	doscript( "editor/editor_textbox.lua" )
+	doscript( "editor/editor_checkbox.lua" )
 	
 	self.fontIndex = Assets.loadFont( "./assets/fonts/verdana12.bin", "./assets/fonts/verdana12.dds" )
 	local font = Assets.getFont( self.fontIndex )

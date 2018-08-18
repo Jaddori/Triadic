@@ -105,9 +105,12 @@ function ComponentMesh:select( ray )
 	if self.boundingBox then
 		local worldBox =
 		{
-			minPosition = self.boundingBox.minPosition:add( self.parent.position ),
-			maxPosition = self.boundingBox.maxPosition:add( self.parent.position )
+			minPosition = self.boundingBox.minPosition:mul( self.parent.scale ),
+			maxPosition = self.boundingBox.maxPosition:mul( self.parent.scale )
 		}
+
+		worldBox.minPosition = worldBox.minPosition:add( self.parent.position )
+		worldBox.maxPosition = worldBox.maxPosition:add( self.parent.position )
 		
 		result = Physics.rayAABB( ray, worldBox )
 	end
@@ -125,9 +128,13 @@ function ComponentMesh:render()
 		if self.boundingBox and self.parent.selected then
 			local worldBox =
 			{
-				minPosition = self.boundingBox.minPosition:add( self.parent.position ),
-				maxPosition = self.boundingBox.maxPosition:add( self.parent.position )
+				minPosition = self.boundingBox.minPosition:mul( self.parent.scale ),
+				maxPosition = self.boundingBox.maxPosition:mul( self.parent.scale )
 			}
+
+			worldBox.minPosition = worldBox.minPosition:add( self.parent.position )
+			worldBox.maxPosition = worldBox.maxPosition:add( self.parent.position )
+
 			DebugShapes.addAABB( worldBox.minPosition, worldBox.maxPosition, {0.0, 1.0, 0.0, 1.0}, false )
 		end
 	end

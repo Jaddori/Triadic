@@ -1,5 +1,6 @@
 Entity = 
 {
+	visible = true,
 	name = "",
 	components = {},
 	selected = false,
@@ -25,7 +26,8 @@ function Entity.create( name, position, orientation, scale)
 		
 		scale = scale or {1,1,1},
 		prevScale = {1,1,1},
-		
+	
+		visible = true,
 		name = name,
 		selected = false,
 		components = {},
@@ -129,16 +131,18 @@ function Entity:update( deltaTime )
 end
 
 function Entity:render()
-	local rendered = false
-	
-	for _,v in pairs(self.components) do
-		if v:render() then
-			rendered = true
+	if self.visible then
+		local rendered = false
+		
+		for _,v in pairs(self.components) do
+			if v:render() then
+				rendered = true
+			end
 		end
-	end
-	
-	if not rendered then
-		DebugShapes.addSphere( self.position, 1.0, { 0.0, 1.0, 0.0, 1.0 } )
+		
+		if not rendered then
+			DebugShapes.addSphere( self.position, 1.0, { 0.0, 1.0, 0.0, 1.0 } )
+		end
 	end
 end
 

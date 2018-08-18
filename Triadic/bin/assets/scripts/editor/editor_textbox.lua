@@ -79,13 +79,13 @@ function EditorTextbox:update( deltaTime )
 				end
 			end
 			
-			self.pressed = False
+			self.pressed = false
 		end
 		
 		result = true
 	else
 		self.hovered = false
-		self.pressed = False
+		self.pressed = false
 		
 		if Input.buttonReleased( Buttons.Left ) then
 			if self.focus then
@@ -322,7 +322,7 @@ function EditorTextbox:selectText( first, last )
 		self.selectionEnd = self.text:len()
 	end
 
-	self.caretIndex = self.selectionStart
+	self.caretIndex = self.selectionEnd
 end
 
 function EditorTextbox:selectAll()
