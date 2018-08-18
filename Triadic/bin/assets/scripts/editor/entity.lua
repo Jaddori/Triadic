@@ -13,6 +13,9 @@ Entity =
 	
 	scale = {1,1,1},
 	prevScale = {1,1,1},
+
+	componentList = {},
+	infoList = {},
 }
 
 function Entity.create( name, position, orientation, scale)
@@ -148,5 +151,10 @@ end
 
 local componentScripts = Filesystem.getFiles( "./assets/scripts/editor/components/*" )
 for _,v in pairs(componentScripts) do
-	doscript( "editor/components/" .. v )
+	local component, info = doscript( "editor/components/" .. v )
+
+	Entity.componentList[#Entity.componentList+1] = component
+	Entity.infoList[#Entity.infoList+1] = info
+
+	Editor.gui.componentList:addItem( component.name, component )
 end

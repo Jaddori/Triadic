@@ -44,6 +44,11 @@ function ComponentMesh.create( parent )
 		meshIndex = -1,
 		boundingBox = nil,
 	}
+
+	if #ComponentMeshInfo.meshIndices > 0 then
+		result.meshIndex = ComponentMeshInfo.meshIndices[1]
+		result.boundingBox = ComponentMeshInfo.meshBoundingBoxes[1]
+	end
 	
 	result.transform:setPosition( parent.position )
 	
@@ -299,3 +304,5 @@ function ComponentMeshInfo:render()
 end
 
 ComponentMeshInfo:load()
+
+return ComponentMesh, ComponentMeshInfo

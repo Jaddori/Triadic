@@ -1,6 +1,7 @@
 GUI_MENU_HEIGHT = 0
 GUI_PANEL_WIDTH = 256
 GUI_BUTTON_HEIGHT = 0
+GUI_COMPONENT_LIST_WIDTH = 128
 local MENU_SETTINGS_BUTTON_WIDTH = 128
 local MENU_FILE_BUTTON_WIDTH = 128
 
@@ -89,6 +90,18 @@ local gui =
 				items = {},
 			},
 		},
+	},
+
+	componentList =
+	{
+		visible = false,
+		textureIndex = -1,
+		position = {0,0},
+		size = {0,0},
+		color = { 0.35, 0.35, 0.35, 1.0 },
+		items = {},
+
+		onClick = nil,
 	},
 	
 	contextMenu =
@@ -276,6 +289,56 @@ function gui.menu.settings:render()
 	end
 end
 
+-- component list
+function gui.componentList:load()
+	self.textureIndex = Assets.loadTexture( "./assets/textures/white.dds" )
+
+	self.position = {WINDOW_WIDTH - GUI_PANEL_WIDTH - GUI_COMPONENT_LIST_WIDTH, GUI_MENU_HEIGHT}
+	self.size = {GUI_COMPONENT_LIST_WIDTH, WINDOW_HEIGHT-GUI_MENU_HEIGHT}
+end
+
+function gui.componentList:addItem( text, tag )
+	local count = #self.items
+
+	local padding = 4
+
+	local button = EditorButton.create( {self.position[1]+padding, self.position[2]+padding+count*(GUI_BUTTON_HEIGHT+padding)}, {self.size[1]-padding*2, GUI_BUTTON_HEIGHT}, text )
+	button.tag = tag
+	button.index = count + 1
+	button.onClick = function( button )
+		if self.onClick then
+			self.onClick( button )
+		end
+
+		self.visible = false
+	end
+
+	self.items[count+1] = button
+	
+	return button
+end
+
+function gui.componentList:update( deltaTime )
+	local mousePosition = Input.getMousePosition()
+	local result = insideRect( self.position, self.size, mousePosition )
+
+	for _,v in pairs(self.items) do
+		v:update( deltaTime )
+	end
+
+	return result
+end
+
+function gui.componentList:render()
+	-- render background
+	Graphics.queueQuad( self.textureIndex, self.position, self.size, self.color )
+
+	-- render items
+	for _,v in pairs(self.items) do
+		v:render()
+	end
+end
+
 -- context menu
 function gui.contextMenu:addItem( text, tag )
 	local count = #self.items
@@ -440,9 +503,15 @@ function gui.panel.tabs.info:load()
 		textbox:selectAll()
 	end
 	yoffset = yoffset + 24 + padding
-	
+
 	self.componentsLabel = EditorLabel.create( {pos[1] + padding, pos[2] + padding + yoffset}, "Components:" )
 	yoffset = yoffset + self.componentsLabel:getHeight() + padding
+
+	self.addComponentButton = EditorButton.create( {pos[1] + padding, pos[2] + padding + yoffset}, {size[1]-padding*2, GUI_BUTTON_HEIGHT}, "Add Component" )
+	self.addComponentButton.onClick = function( button )
+		gui.componentList.visible = not gui.componentList.visible
+	end
+	yoffset = yoffset + GUI_BUTTON_HEIGHT + padding
 end
 
 function gui.panel.tabs.info:update( deltaTime )
@@ -459,6 +528,7 @@ function gui.panel.tabs.info:update( deltaTime )
 	if self.scaleLabel:update( deltaTime ) then result = true end
 	if self.scaleTextbox:update( deltaTime ) then result = true end
 	if self.componentsLabel:update( deltaTime ) then result = true end
+	if self.addComponentButton:update( deltaTime ) then result = true end
 
 	for _,v in pairs(self.items) do
 		if v:update( deltaTime ) then
@@ -482,6 +552,7 @@ function gui.panel.tabs.info:render()
 	self.scaleLabel:render()
 	self.scaleTextbox:render()
 	self.componentsLabel:render()
+	self.addComponentButton:render()
 
 	-- render items
 	for _,v in pairs(self.items) do
@@ -507,17 +578,21 @@ function gui.panel.tabs.info:setEntity( entity )
 		
 		local position = gui.panel.contentPosition
 		local size = gui.panel.contentSize
-		local yoffset = self.componentsLabel.position[2] + self.componentsLabel:getHeight()
+		local yoffset = self.addComponentButton.position[2] + self.addComponentButton.size[2] + 8
 		for _,v in pairs(self.entity.components) do
 			local allocatedSpace = v:addInfo({position[1], yoffset}, size, self.items)
 			yoffset = yoffset + allocatedSpace
 		end
+
+		self.addComponentButton.disabled = false
 	else
 		self.visibleCheckbox.checked = false
 		self.nameTextbox:setText( "" )
 		self.positionTextbox:setText( "" )
 		self.orientationTextbox:setText( "" )
 		self.scaleTextbox:setText( "" )
+		self.addComponentButton.disabled = true
+		gui.componentList.visible = false
 	end
 end
 
@@ -602,6 +677,8 @@ function gui:load()
 	self.panel.contentSize = { self.panel.size[1], self.panel.size[2] - GUI_BUTTON_HEIGHT }
 	
 	self.panel.tabBar:load()
+
+	self.componentList:load()
 	
 	self.panel.tabs.info:load()
 	self.panel.tabs.entities:load()
@@ -624,6 +701,13 @@ function gui:update( deltaTime )
 	-- tabs
 	if self.panel.tabs[self.panel.tabBar.curTab]:update( deltaTime ) then
 		result = true
+	end
+
+	-- component list
+	if self.componentList.visible then
+		if self.componentList:update( deltaTime ) then
+			result = true
+		end
 	end
 	
 	-- context menu
@@ -655,6 +739,11 @@ function gui:render()
 	-- tabs
 	self.panel.tabs[self.panel.tabBar.curTab]:render()
 	
+	-- component list
+	if self.componentList.visible then
+		self.componentList:render()
+	end
+
 	-- context menu
 	if self.contextMenu.visible then
 		self.contextMenu:render()

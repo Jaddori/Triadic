@@ -47,6 +47,17 @@ function Editor:load()
 	self.commandHistory:load()
 	
 	doscript( "editor/entity.lua" )
+
+	-- gui component list
+	self.gui.componentList.onClick = function( button )
+		local component = button.tag
+
+		if self.selectedEntity then
+			local newComponent = component.create( self.selectedEntity )
+			self.selectedEntity:addComponent( newComponent )
+			self.gui.panel.tabs.info:setEntity( self.selectedEntity )
+		end
+	end
 	
 	-- gui context menu
 	self.gui.contextMenu:addItem( "New Entity", { index = 1 } )
@@ -454,11 +465,9 @@ function Editor:createEntity( position )
 	end
 
 	local entity = Entity.create( "New Entity", position )
-	--entity:addComponent( ComponentMesh.create( position ) )
-	local meshComponent = ComponentMesh.create( entity, position )
-	--meshComponent.meshIndex = 3
-	meshComponent:loadMesh( "./assets/models/pillar.mesh" )
-	entity:addComponent( meshComponent )
+	--local meshComponent = ComponentMesh.create( entity, position )
+	--meshComponent:loadMesh( "./assets/models/pillar.mesh" )
+	--entity:addComponent( meshComponent )
 	self.entities[#self.entities+1] = entity
 	
 	self.gui.panel.tabs.info:setEntity( entity )
