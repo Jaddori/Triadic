@@ -109,25 +109,29 @@ namespace LuaRendering
 
 	LDEC( queueBillboard )
 	{
-		LUA_EXPECT_ARGS( 5 )
+		LUA_EXPECT_ARGS( 7 )
 		{
 			if( LUA_EXPECT_NUMBER( 1 ) &&
-				LUA_EXPECT_TABLE( 2 ) &&
+				LUA_EXPECT_NUMBER( 2 ) &&
 				LUA_EXPECT_TABLE( 3 ) &&
 				LUA_EXPECT_TABLE( 4 ) &&
-				LUA_EXPECT_BOOL( 5 ) )
+				LUA_EXPECT_TABLE( 5 ) &&
+				LUA_EXPECT_BOOL( 6 ) && 
+				LUA_EXPECT_TABLE( 7 ) )
 			{
-				glm::vec3 position;
+				glm::vec3 position, scroll;
 				glm::vec2 size;
 				glm::vec4 uv;
 
 				int textureIndex = lua_toint( lua, 1 );
-				lua_getvec3( lua, 2, position );
-				lua_getvec2( lua, 3, size );
-				lua_getvec4( lua, 4, uv );
-				bool spherical = lua_tobool( lua, 5 );
+				int maskIndex = lua_toint( lua, 2 );
+				lua_getvec3( lua, 3, position );
+				lua_getvec2( lua, 4, size );
+				lua_getvec4( lua, 5, uv );
+				bool spherical = lua_tobool( lua, 6 );
+				lua_getvec3( lua, 7, scroll );
 
-				g_coreData->graphics->queueBillboard( textureIndex, position, size, uv, spherical );
+				g_coreData->graphics->queueBillboard( textureIndex, maskIndex, position, size, uv, spherical, scroll );
 			}
 		}
 

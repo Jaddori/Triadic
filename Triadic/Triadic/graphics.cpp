@@ -89,6 +89,7 @@ void Graphics::load()
 		LOG_INFO( "Retrieving uniform locations from billboard shader." );
 		billboardProjectionLocation = billboardShader.getLocation( "projectionMatrix" );
 		billboardViewLocation = billboardShader.getLocation( "viewMatrix" );
+		billboardDeltaTimeLocation = billboardShader.getLocation( "deltaTime" );
 
 		LOG_INFO( "Generating vertex data for billboard shader." );
 		glGenVertexArrays( 1, &billboardVAO );
@@ -98,6 +99,7 @@ void Graphics::load()
 		glEnableVertexAttribArray( 1 );
 		glEnableVertexAttribArray( 2 );
 		glEnableVertexAttribArray( 3 );
+		glEnableVertexAttribArray( 4 );
 
 		glGenBuffers( 1, &billboardVBO );
 		glBindBuffer( GL_ARRAY_BUFFER, billboardVBO );
@@ -107,6 +109,7 @@ void Graphics::load()
 		glVertexAttribPointer( 1, 4, GL_FLOAT, GL_FALSE, sizeof(Billboard), (void*)(sizeof(GLfloat)*3) );
 		glVertexAttribPointer( 2, 2, GL_FLOAT, GL_FALSE, sizeof(Billboard), (void*)(sizeof(GLfloat)*7 ) );
 		glVertexAttribPointer( 3, 1, GL_FLOAT, GL_FALSE, sizeof(Billboard), (void*)( sizeof(GLfloat)*9) );
+		glVertexAttribPointer( 4, 3, GL_FLOAT, GL_FALSE, sizeof(Billboard), (void*)( sizeof(GLfloat)*10) );
 
 		glBindVertexArray( 0 );
 	}
@@ -165,8 +168,10 @@ void Graphics::finalize()
 	}
 }
 
-void Graphics::render()
+void Graphics::render( float deltaTime )
 {
+	elapsedTime += deltaTime;
+
 	shader.bind();
 	shader.setMat4( projectionLocation, perspectiveCamera.getProjectionMatrix() );
 	shader.setMat4( viewLocation, perspectiveCamera.getViewMatrix() );
@@ -194,9 +199,18 @@ void Graphics::render()
 	}
 
 	// render billboards
+	glEnable( GL_BLEND );
+	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+	glDepthMask( GL_FALSE );
+	
 	billboardShader.bind();
 	billboardShader.setMat4( billboardProjectionLocation, perspectiveCamera.getProjectionMatrix() );
 	billboardShader.setMat4( billboardViewLocation, perspectiveCamera.getViewMatrix() );
+
+	//float intPart = 0;
+	//float billboardDelta = modf( elapsedTime, &intPart );
+	//billboardShader.setFloat( billboardDeltaTimeLocation, billboardDelta );
+	billboardShader.setFloat( billboardDeltaTimeLocation, elapsedTime );
 
 	glBindVertexArray( billboardVAO );
 	glBindBuffer( GL_ARRAY_BUFFER, billboardVBO );
@@ -206,10 +220,8 @@ void Graphics::render()
 	{
 		BillboardCollection& collection = billboardCollections[curCollection];
 
-		if( collection.texture )
-			collection.texture->bind();
-		else
-			glBindTexture( GL_TEXTURE_2D, 0 );
+		collection.texture->bind( GL_TEXTURE0 );
+		collection.mask->bind( GL_TEXTURE1 );
 
 		const int BILLBOARD_COUNT = collection.billboards[readIndex].getSize();
 		int offset = 0;
@@ -226,12 +238,11 @@ void Graphics::render()
 		}
 	}
 
+	glDepthMask( GL_TRUE );
 	glBindVertexArray( 0 );
 
 	// render quads
 	glDisable( GL_DEPTH_TEST );
-	glEnable( GL_BLEND );
-	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
 	quadShader.bind();
 	quadShader.setMat4( quadProjectionLocation, orthographicCamera.getProjectionMatrix() );
@@ -408,21 +419,24 @@ void Graphics::queueText( int fontIndex, const char* text, const glm::vec2& posi
 	}
 }
 
-void Graphics::queueBillboard( int textureIndex, const glm::vec3& position, const glm::vec2& size, const glm::vec4& uv, bool spherical )
+void Graphics::queueBillboard( int textureIndex, int maskIndex, const glm::vec3& position, const glm::vec2& size, const glm::vec4& uv, bool spherical, const glm::vec3& scroll )
 {
 	const Texture* texture = assets.getTexture( textureIndex );
+	const Texture* mask = assets.getTexture( maskIndex );
 
 	const int BILLBOARD_COLLECTION_COUNT = billboardCollections.getSize();
 
 	int index = -1;
 	for( int i=0; i<BILLBOARD_COLLECTION_COUNT && index < 0; i++ )
-		if( billboardCollections[i].texture == texture )
+		if( billboardCollections[i].texture == texture &&
+			billboardCollections[i].mask == mask )
 			index = i;
 
 	if( index < 0 ) // this is a new texture
 	{
 		BillboardCollection& collection = billboardCollections.append();
 		collection.texture = texture;
+		collection.mask = mask;
 		collection.billboards[writeIndex].expand( GRAPHICS_MAX_BILLBOARDS );
 		collection.billboards[readIndex].expand( GRAPHICS_MAX_BILLBOARDS );
 
@@ -434,6 +448,7 @@ void Graphics::queueBillboard( int textureIndex, const glm::vec3& position, cons
 	billboard.uv = uv;
 	billboard.size = size;
 	billboard.spherical = ( spherical ? 1.0f : 0.0f );
+	billboard.scroll = scroll;
 }
 
 //Camera* Graphics::getCamera()

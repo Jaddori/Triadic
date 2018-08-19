@@ -161,6 +161,8 @@ int main( int argc, char* argv[] )
 
 			SDL_Thread* updateThread = SDL_CreateThread( update, NULL, &threadData );
 
+			uint64_t lastTick = SDL_GetTicks();
+
 			while( running )
 			{
 				int waitResult = SDL_SemWait( threadData.updateDone );
@@ -200,7 +202,11 @@ int main( int argc, char* argv[] )
 
 				debugShapes.render( projectionMatrix, viewMatrix );
 
-				graphics.render();
+				uint64_t curTick = SDL_GetTicks();
+				float deltaTime = ( curTick - lastTick ) * 0.001f;
+				lastTick = curTick;
+
+				graphics.render( deltaTime );
 
 				glClear( GL_DEPTH_BUFFER_BIT );
 

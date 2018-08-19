@@ -1,10 +1,12 @@
 local DEFAULT_TEXTURE = "./assets/textures/white.dds"
-local DEFAULT_PARTICLE_TEXTURE = "./assets/textures/white.dds"
+local DEFAULT_PARTICLE_TEXTURE = "./assets/textures/cloud.dds"
+local DEFAULT_PARTICLE_MASK = "./assets/textures/mask.dds"
 
 ComponentParticleEmitter =
 {
 	name = "Particle Emitter",
 	textureIndex = -1,
+	maskIndex = -1,
 	particles = {},
 	parent = nil,
 	spherical = true,
@@ -20,6 +22,9 @@ ComponentParticleEmitter =
 	maxDirection = {1,1,1},
 	startSpeed = 1.0,
 	endSpeed = 0.1,
+	scroll = {0,0,0},
+	startSize = 5,
+	endSize = 4,
 }
 
 ComponentParticleEmitterInfo =
@@ -40,6 +45,7 @@ ComponentParticleEmitterInfo =
 function ComponentParticleEmitter.create( parent )
 	if ComponentParticleEmitter.textureIndex < 0 then
 		ComponentParticleEmitter.textureIndex = Assets.loadTexture( DEFAULT_PARTICLE_TEXTURE )
+		ComponentParticleEmitter.maskIndex = Assets.loadTexture( DEFAULT_PARTICLE_MASK )
 	end
 
 	local result =
@@ -60,10 +66,10 @@ function ComponentParticleEmitter.create( parent )
 		{
 			alive = false,
 			position = {0,0,0},
-			size = {1,1},
 			velocity = {0,1,0},
 			lifetime = 0,
 			elapsed = 0,
+			size = 0,
 		}
 	end
 
@@ -109,6 +115,12 @@ function ComponentParticleEmitter:update( deltaTime )
 				}
 				v.lifetime = lerp( self.minLifetime, self.maxLifetime, math.random() )
 				v.elapsed = 0
+				v.scroll = 
+				{
+					math.random(),
+					math.random(),
+					lerp( 0.25, 0.5, math.random() )
+				}
 
 				break
 			end
@@ -127,6 +139,8 @@ function ComponentParticleEmitter:update( deltaTime )
 				v.position[1] = v.position[1] + v.direction[1] * speed * deltaTime
 				v.position[2] = v.position[2] + v.direction[2] * speed * deltaTime
 				v.position[3] = v.position[3] + v.direction[3] * speed * deltaTime
+
+				v.size = easeOutCubic( v.elapsed, self.startSize, self.endSize - self.startSize, v.lifetime )
 			end
 		end
 	end
@@ -135,7 +149,7 @@ end
 function ComponentParticleEmitter:render()
 	for _,v in pairs(self.particles) do
 		if v.alive then
-			Graphics.queueBillboard( self.textureIndex, v.position, v.size, {0,0,1,1}, self.spherical )
+			Graphics.queueBillboard( self.textureIndex, self.maskIndex, v.position, {v.size,v.size}, {0,0,1,1}, self.spherical, v.scroll )
 		end
 	end
 end
@@ -238,7 +252,7 @@ function ComponentParticleEmitter:addInfo( position, size, items )
 	end
 	yoffset = yoffset + directionInput.size[2]
 
-	local speedInput = EditorInputbox.create( {xoffset+padding, yoffset}, info.size[1]-padding*2, "Start speed:" )
+	local speedInput = EditorInputbox.create( {xoffset+padding, yoffset}, info.size[1]-padding*2, "Speed:" )
 	speedInput.textbox:setText( tostring( self.startSpeed ) .. " : " .. tostring( self.endSpeed ) )
 	speedInput.textbox.onFinish = function( textbox )
 		local components = split( textbox.text, ":" )
@@ -247,6 +261,16 @@ function ComponentParticleEmitter:addInfo( position, size, items )
 		self.endSpeed = tonumber( components[2] )
 	end
 	yoffset = yoffset + speedInput.size[2]
+
+	local sizeInput = EditorInputbox.create( {xoffset+padding, yoffset}, info.size[1]-padding*2, "Size:" )
+	sizeInput.textbox:setText( tostring( self.startSize ) .. " : " .. tostring( self.endSize ) )
+	sizeInput.textbox.onFinish = function( textbox )
+		local components = split( textbox.text, ":" )
+
+		self.startSize = tonumber( components[1] )
+		self.endSize = tonumber( components[2] )
+	end
+	yoffset = yoffset + sizeInput.size[2]
 
 	local sphericalLabel = EditorLabel.create( {xoffset+padding, yoffset}, "Spherical:" )
 	yoffset = yoffset + sphericalLabel:getHeight() + padding
@@ -264,6 +288,7 @@ function ComponentParticleEmitter:addInfo( position, size, items )
 	info.items[#info.items+1] = lifetimeInput
 	info.items[#info.items+1] = directionInput
 	info.items[#info.items+1] = speedInput
+	info.items[#info.items+2] = sizeInput
 	info.items[#info.items+1] = sphericalLabel
 	info.items[#info.items+1] = sphericalCheckbox
 
