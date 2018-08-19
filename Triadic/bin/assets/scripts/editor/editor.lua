@@ -186,6 +186,10 @@ function Editor:update( deltaTime )
 			end
 
 			if Input.buttonReleased( Buttons.Left ) then
+				if self.selectedEntity then
+					self.selectedEntity.selected = false
+				end
+
 				self.selectedEntity = self.hoveredEntity
 				self.gui.panel.tabs.info:setEntity( self.selectedEntity )
 
