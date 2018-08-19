@@ -15,6 +15,9 @@ ComponentMeshWindow =
 {
 	window = {},
 	component = {},
+	meshNames = {},
+	meshIndices = {},
+	meshBoundingBoxes = {},
 }
 
 function ComponentMesh.create( parent )
@@ -27,11 +30,11 @@ function ComponentMesh.create( parent )
 		meshName = "",
 	}
 
-	--if #ComponentMeshInfo.meshIndices > 0 then
-	--	result.meshIndex = ComponentMeshInfo.meshIndices[1]
-	--	result.meshName = "./assets/models/" .. ComponentMeshInfo.meshNames[1]
-	--	result.boundingBox = ComponentMeshInfo.meshBoundingBoxes[1]
-	--end
+	if #ComponentMeshWindow.meshIndices > 0 then
+		result.meshIndex = ComponentMeshWindow.meshIndices[1]
+		result.meshName = "./assets/models/" .. ComponentMeshWindow.meshNames[1]
+		result.boundingBox = ComponentMeshWindow.meshBoundingBoxes[1]
+	end
 	
 	result.transform:setPosition( parent.position )
 	
@@ -149,11 +152,15 @@ function ComponentMesh:render()
 		end
 	end
 	
-	return true
+	return ( self.meshIndex >= 0 )
 end
 
 function ComponentMesh:showInfoWindow()
-	ComponentMeshWindow:show( self )
+	if ComponentMeshWindow.window.visible then
+		ComponentMeshWindow:hide()
+	else
+		ComponentMeshWindow:show( self )
+	end
 end
 
 -- WINDOW
@@ -162,16 +169,58 @@ function ComponentMeshWindow:show( component )
 	self.window.visible = true
 
 	-- update items
-	self.window.items[1].textbox:setText( component.meshIndex )
+	local meshName = "N/A"
+	for i=1, #self.meshIndices do
+		if self.meshIndices[i] == component.meshIndex then
+			meshName = self.meshNames[i]
+			break
+		end
+	end
+	self.window.items[1].textbox:setText( meshName )
+end
+
+function ComponentMeshWindow:hide()
+	self.window.visible = false
 end
 
 function ComponentMeshWindow:load()
 	self.window = EditorWindow.create( "Mesh Component" )
-	self.window.position[1] = WINDOW_WIDTH - GUI_PANEL_WIDTH - self.window.size[1]
+	self.window.position[1] = WINDOW_WIDTH - GUI_PANEL_WIDTH - self.window.size[1] - 8
+	self.window.position[2] = GUI_MENU_HEIGHT + 8
 	self.window.visible = false
 
-	local meshIndexInput = EditorInputbox.create( {0,0}, 0, "Mesh index:" )
-	self.window:addItem( meshIndexInput )
+	-- load meshes
+	self.meshNames = Filesystem.getFiles( "./assets/models/*" )
+	if self.meshNames then
+		for i=1, #self.meshNames do
+			self.meshIndices[i] = Assets.loadMesh( "./assets/models/" .. self.meshNames[i] )
+
+			local mesh = Assets.getMesh( self.meshIndices[i] )
+			self.meshBoundingBoxes[i] = mesh:getBoundingBox()
+		end
+	end
+
+	-- add items
+	local meshInput = EditorInputbox.create( nil, nil, "Mesh:" )
+	meshInput.textbox.readOnly = true
+	self.window:addItem( meshInput )
+
+	local meshList = EditorListbox.create( nil, {0, 256} )
+	for i=1, #self.meshNames do
+		meshList:addItem( self.meshNames[i], i )
+	end
+
+	meshList.onItemSelected = function( list, item )
+		local index = item.tag
+
+		self.component.meshIndex = self.meshIndices[index]
+		self.component.boundingBox = self.meshBoundingBoxes[index]
+		self.component.meshName = self.meshNames[index]
+
+		self.window.items[1].textbox:setText( self.meshNames[index] )
+	end
+
+	self.window:addItem( meshList )
 end
 
 function ComponentMeshWindow:update( deltaTime )

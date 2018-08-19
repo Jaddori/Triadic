@@ -191,7 +191,11 @@ function ComponentParticleEmitter:render()
 end
 
 function ComponentParticleEmitter:showInfoWindow()
-	ComponentParticleEmitterWindow:show( self )
+	if ComponentParticleEmitterWindow.window.visible then
+		ComponentParticleEmitterWindow:hide()
+	else
+		ComponentParticleEmitterWindow:show( self )
+	end
 end
 
 -- WINDOW
@@ -214,9 +218,14 @@ function ComponentParticleEmitterWindow:show( component )
 	self.window.items[13].checked = component.spherical
 end
 
+function ComponentParticleEmitterWindow:hide()
+	self.window.visible = false
+end
+
 function ComponentParticleEmitterWindow:load()
 	self.window = EditorWindow.create( "Particle Emitter Component" )
-	self.window.position[1] = WINDOW_WIDTH - GUI_PANEL_WIDTH - self.window.size[1]
+	self.window.position[1] = WINDOW_WIDTH - GUI_PANEL_WIDTH - self.window.size[1] - 8
+	self.window.position[2] = GUI_MENU_HEIGHT + 8
 	self.window.visible = false
 	
 	-- max particles

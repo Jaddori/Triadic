@@ -118,7 +118,11 @@ function ComponentWalkable:render()
 end
 
 function ComponentWalkable:showInfoWindow()
-	ComponentWalkableWindow:show( self )
+	if ComponentWalkableWindow.window.visible then
+		ComponentWalkableWindow:hide()
+	else
+		ComponentWalkableWindow:show( self )
+	end
 end
 
 -- WINDOW
@@ -131,9 +135,14 @@ function ComponentWalkableWindow:show( component )
 	self.window.items[2].textbox:setText( component.interval )
 end
 
+function ComponentWalkableWindow:hide()
+	self.window.visible = false
+end
+
 function ComponentWalkableWindow:load()
 	self.window = EditorWindow.create( "Walkable Component" )
-	self.window.position[1] = WINDOW_WIDTH - GUI_PANEL_WIDTH - self.window.size[1]
+	self.window.position[1] = WINDOW_WIDTH - GUI_PANEL_WIDTH - self.window.size[1] - 8
+	self.window.position[2] = GUI_MENU_HEIGHT + 8
 	self.window.visible = false
 
 	-- size
