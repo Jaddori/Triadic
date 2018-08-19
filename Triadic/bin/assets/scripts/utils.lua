@@ -32,6 +32,17 @@ function stringVec( vec )
 	return result
 end
 
+function vecString( str )
+	local result = {}
+	local components = split( str, "," )
+
+	for i=1, #components do
+		result[i] = tonumber( components[i] )
+	end
+
+	return result
+end
+
 function equalsVec( a, b )
 	local result = true
 	

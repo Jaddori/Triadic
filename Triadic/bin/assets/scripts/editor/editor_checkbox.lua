@@ -31,7 +31,7 @@ function EditorCheckbox.create( position, size )
 
 	local checkbox =
 	{
-		position = position,
+		position = position or {0,0},
 		size = size,
 		hovered = false,
 		pressed = false,

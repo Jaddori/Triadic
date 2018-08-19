@@ -6,6 +6,7 @@ EditorLabel =
 	fontIndex = -1,
 	fontHeight = -1,
 	position = {0,0},
+	size = {0,0},
 	textColor = {1.0, 1.0, 1.0, 1.0},
 	text = "",
 }
@@ -13,7 +14,8 @@ EditorLabel =
 function EditorLabel.create( position, text )
 	if EditorLabel.fontIndex < 0 then
 		EditorLabel.fontIndex = Assets.loadFont( DEFAULT_FONT_INFO, DEFAULT_FONT_TEXTURE )
-		EditorLabel.fontHeight = Assets.getFont( EditorLabel.fontIndex ):getHeight()
+		local font = Assets.getFont( EditorLabel.fontIndex )
+		EditorLabel.fontHeight = font:getHeight()
 	end
 	
 	local label = {}
@@ -21,6 +23,9 @@ function EditorLabel.create( position, text )
 	
 	label.position = position
 	label.text = text
+
+	local font = Assets.getFont( EditorLabel.fontIndex )
+	label.size = font:measureText( label.text )
 	
 	return label
 end
@@ -45,7 +50,17 @@ end
 
 function EditorLabel:loadFont( info, texture )
 	self.fontIndex = Assets.loadFont( info, texture )
-	self.fontHeight = Assets.getFont( self.fontIndex ):getHeight()
+	local font = Assets.getFont( self.fontIndex )
+	self.fontHeight = font:getHeight()
+
+	self.size = font:measureText( self.text )
+end
+
+function EditorLabel:setText( text )
+	self.text = tostring( text )
+	
+	local font = Assets.getFont( self.fontIndex )
+	self.size = font:measureText( self.text )
 end
 
 function EditorLabel:getHeight()

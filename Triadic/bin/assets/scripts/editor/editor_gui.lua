@@ -601,12 +601,17 @@ function gui.panel.tabs.info:setEntity( entity )
 		-- create new items
 		self.entity = entity
 		
+		local padding = 4
 		local position = gui.panel.contentPosition
 		local size = gui.panel.contentSize
 		local yoffset = self.addComponentButton.position[2] + self.addComponentButton.size[2] + 8
 		for _,v in pairs(self.entity.components) do
-			local allocatedSpace = v:addInfo({position[1], yoffset}, size, self.subItems)
-			yoffset = yoffset + allocatedSpace
+			local button = EditorButton.create( {position[1]+padding, yoffset}, {size[1]-padding*2, GUI_BUTTON_HEIGHT}, v.name )
+			button.onClick = function( button )
+				v:showInfoWindow()
+			end
+			self.subItems[#self.subItems+1] = button
+			yoffset = yoffset + GUI_BUTTON_HEIGHT + padding
 		end
 
 		self.addComponentButton.disabled = false
@@ -727,21 +732,10 @@ function gui:load()
 	self.panel.tabs.info:load()
 	self.panel.tabs.entities:load()
 	self.panel.tabs.prefabs:load()
-
-	self.window = EditorWindow.create( "Test Window" )
-
-	local inputbox = EditorInputbox.create( {0,0}, 0, "Some input:" )
-	self.window:addItem( inputbox )
-
-	local inputbox2 = EditorInputbox.create( {0,0}, 0, "Some other input:" )
-	self.window:addItem( inputbox2 )
 end
 
 function gui:update( deltaTime )
 	local capture = { mouseCaptured = false, keyboardCaptured = false }
-
-	local r = self.window:update( deltaTime )
-	setCapture( r, capture )
 
 	-- menu
 	local result = self.menu:update( deltaTime )
@@ -762,6 +756,12 @@ function gui:update( deltaTime )
 		result = self.componentList:update( deltaTime )
 		setCapture( result, capture )
 	end
+
+	-- component info windows
+	for _,v in pairs(Entity.windowList) do
+		result = v:update( deltaTime )
+		setCapture( result, capture )
+	end
 	
 	-- context menu
 	if self.contextMenu.visible then
@@ -778,8 +778,6 @@ function gui:update( deltaTime )
 end
 
 function gui:render()
-	self.window:render()
-
 	-- menu
 	self.menu:render()
 	
@@ -796,6 +794,11 @@ function gui:render()
 	-- component list
 	if self.componentList.visible then
 		self.componentList:render()
+	end
+
+	-- component info windows
+	for _,v in pairs(Entity.windowList) do
+		v:render()
 	end
 
 	-- context menu

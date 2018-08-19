@@ -9,19 +9,10 @@ ComponentWalkable =
 	nodes = {},
 }
 
-ComponentWalkableInfo =
+ComponentWalkableWindow =
 {
-	name = "Walkable",
-	position = {0,0},
-	size = {0,0},
-	expanded = true,
-	textureIndex = -1,
-	color = {0.35, 0.35, 0.35, 1.0},
-	titleButton = nil,
-	entity = nil,
-	walkableComponent = nil,
-	curInfo = nil,
-	items = {},
+	window = {},
+	component = {},
 }
 
 function ComponentWalkable.create( parent )
@@ -126,131 +117,55 @@ function ComponentWalkable:render()
 	return true
 end
 
-function ComponentWalkable:addInfo( position, size, items )
-	local info =
-	{
-		name = "Walkable",
-		position = {0,0},
-		size = {0,0},
-		items = {},
-	}
-	setmetatable( info, { __index = ComponentWalkableInfo } )
+function ComponentWalkable:showInfoWindow()
+	ComponentWalkableWindow:show( self )
+end
 
-	local padding = 4
-	local inset = 8
-	local xoffset = position[1] + padding
-	local yoffset = position[2]
+-- WINDOW
+function ComponentWalkableWindow:show( component )
+	self.component = component
+	self.window.visible = true
 
-	-- add title button
-	info.titleButton = EditorButton.create( {xoffset, yoffset}, {size[1]-padding*2, 24}, "Walkable:" )
-	info.titleButton.tag = info
-	yoffset = yoffset + 24
+	-- update items
+	self.window.items[1].textbox:setText( stringVec( component.size ) )
+	self.window.items[2].textbox:setText( component.interval )
+end
 
-	info.titleButton.onClick = function( self )
-		self.tag.expanded = not self.tag.expanded
+function ComponentWalkableWindow:load()
+	self.window = EditorWindow.create( "Walkable Component" )
+	self.window.position[1] = WINDOW_WIDTH - GUI_PANEL_WIDTH - self.window.size[1]
+	self.window.visible = false
+
+	-- size
+	local sizeInput = EditorInputbox.create( {0,0}, 0, "Size:" )
+	sizeInput.textbox.onFinish = function( textbox )
+		self.component.size = vecString( textbox.text )
 	end
-
-	-- set position
-	info.position[1] = position[1] + padding
-	info.position[2] = yoffset
-	info.size[1] = size[1] - padding * 2
-
-	-- add sub items
-	local sizeLabel = EditorLabel.create( {xoffset+padding, yoffset}, "Size:" )
-	yoffset = yoffset + sizeLabel:getHeight()
-
-	local sizeTextbox = EditorTextbox.create( {xoffset+padding, yoffset}, {info.size[1]-padding*2, GUI_BUTTON_HEIGHT} )
-	sizeTextbox.text = stringVec( self.size )
-	sizeTextbox.onFocus = function( textbox )
-		textbox:selectAll()
+	self.window:addItem( sizeInput )
+	
+	-- interval
+	local intervalInput = EditorInputbox.create( {0,0}, 0, "Interval:" )
+	intervalInput.textbox.onFinish = function( textbox )
+		self.component.interval = tonumber( textbox.text )
 	end
-	sizeTextbox.onFinish = function( textbox )
-		local components = split( textbox.text, "," )
+	self.window:addItem( intervalInput )
 
-		local x = tonumber( components[1] )
-		local z = tonumber( components[2] )
-
-		self.size = {x,z}
-	end
-	yoffset = yoffset + GUI_BUTTON_HEIGHT
-
-	local intervalLabel = EditorLabel.create( {xoffset+padding, yoffset}, "Interval:" )
-	yoffset = yoffset + intervalLabel:getHeight()
-
-	local intervalTextbox = EditorTextbox.create( {xoffset+padding, yoffset}, {info.size[1]-padding*2, GUI_BUTTON_HEIGHT} )
-	intervalTextbox.text = tostring( self.interval )
-	intervalTextbox.onFocus = function( textbox )
-		textbox:selectAll()
-	end
-	intervalTextbox.onFinish = function( textbox )
-		local interval = tonumber( textbox.text )
-		self.interval = interval
-	end
-	yoffset = yoffset + GUI_BUTTON_HEIGHT + padding
-
-	local calculateButton = EditorButton.create( {xoffset+padding, yoffset}, {info.size[1]-padding*2, GUI_BUTTON_HEIGHT}, "Calculate" )
+	-- calculate
+	local calculateButton = EditorButton.create( {0,0}, {0,GUI_BUTTON_HEIGHT}, "Calculate" )
 	calculateButton.onClick = function( button )
-		ComponentWalkableInfo.walkableComponent:calculate()
+		self.component:calculate()
 	end
-	--yoffset = yoffset + GUI_BUTTON_HEIGHT
-	yoffset = yoffset + padding
-
-	info.items[#info.items+1] = sizeLabel
-	info.items[#info.items+1] = sizeTextbox
-	info.items[#info.items+1] = intervalLabel
-	info.items[#info.items+1] = intervalTextbox
-	info.items[#info.items+1] = calculateButton
-
-	-- set size
-	info.size[2] = yoffset - position[2]
-	ComponentWalkableInfo.entity = self.parent
-	ComponentWalkableInfo.walkableComponent = self
-	ComponentWalkableInfo.curInfo = info
-
-	-- add to callers list of items
-	items[#items+1] = info
-
-	return info.size[2]
+	self.window:addItem( calculateButton )
 end
 
--- INFO
-function ComponentWalkableInfo:load()
-	ComponentWalkableInfo.textureIndex = Assets.loadTexture( DEFAULT_TEXTURE )
-
-
+function ComponentWalkableWindow:update( deltaTime )
+	return self.window:update( deltaTime )
 end
 
-function ComponentWalkableInfo:update( deltaTime )
-	local capture = { mouseCaptured = false, keyboardCapture = false }
-
-	local result = self.titleButton:update( deltaTime )
-	setCapture( result, capture )
-
-	if self.expanded then
-		-- update items
-		for _,v in pairs(self.items) do
-			result = v:update( deltaTime )
-			setCapture( result, capture )
-		end
-	end
-
-	return capture
+function ComponentWalkableWindow:render()
+	self.window:render()
 end
 
-function ComponentWalkableInfo:render()
-	self.titleButton:render()
+ComponentWalkableWindow:load()
 
-	if self.expanded then
-		-- render background
-		Graphics.queueQuad( self.textureIndex, self.position, self.size, self.color )
-
-		-- render items
-		for _,v in pairs(self.items) do
-			v:render()
-		end
-	end
-end
-
-ComponentWalkableInfo:load()
-
-return ComponentWalkable, ComponentWalkableInfo
+return ComponentWalkable, ComponentWalkableWindow

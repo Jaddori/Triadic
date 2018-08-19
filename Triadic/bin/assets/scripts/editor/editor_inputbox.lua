@@ -9,7 +9,7 @@ EditorInputbox =
 function EditorInputbox.create( position, width, text )
 	local result = 
 	{
-		position = position,
+		position = position or {0,0},
 		size = {0,0},
 		label = {},
 		textbox = {},
@@ -18,10 +18,10 @@ function EditorInputbox.create( position, width, text )
 	setmetatable( result, { __index = EditorInputbox } )
 
 	local yoffset = 0
-	result.label = EditorLabel.create( {position[1], position[2] + yoffset}, text )
+	result.label = EditorLabel.create( {result.position[1], result.position[2] + yoffset}, text )
 	yoffset = yoffset + result.label:getHeight()
 
-	result.textbox = EditorTextbox.create( {position[1], position[2] + yoffset}, {width, GUI_BUTTON_HEIGHT} )
+	result.textbox = EditorTextbox.create( {result.position[1], result.position[2] + yoffset}, {width, GUI_BUTTON_HEIGHT} )
 	result.textbox.onFocus = function( textbox )
 		textbox:selectAll()
 	end

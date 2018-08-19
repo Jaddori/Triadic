@@ -95,70 +95,72 @@ end
 function EditorWindow:update( deltaTime )
 	local capture = { mouseCaptured = false, keyboardCaptured = false }
 
-	-- update window
-	local mousePosition = Input.getMousePosition()
-	if insideRect( self.position, self.size, mousePosition ) then
-		capture.mouseCaptured = true
+	if self.visible then
+		-- update window
+		local mousePosition = Input.getMousePosition()
+		if insideRect( self.position, self.size, mousePosition ) then
+			capture.mouseCaptured = true
 
-		if not self.titlebarCaptured and not self.crossCaptured then
-			if Input.buttonPressed( Buttons.Left ) then
-				local crossPosition = { self.position[1] + self.size[1] - self.crossSize[1], self.position[2] }
-				if insideRect( crossPosition, self.crossSize, mousePosition ) then
-					self.crossCaptured = true
-				elseif insideRect( self.position, self.titlebarSize, mousePosition ) then
-					self.titlebarCaptured = true
-					self.movementOffset[1] = mousePosition[1] - self.position[1]
-					self.movementOffset[2] = mousePosition[2] - self.position[2]
+			if not self.titlebarCaptured and not self.crossCaptured then
+				if Input.buttonPressed( Buttons.Left ) then
+					local crossPosition = { self.position[1] + self.size[1] - self.crossSize[1], self.position[2] }
+					if insideRect( crossPosition, self.crossSize, mousePosition ) then
+						self.crossCaptured = true
+					elseif insideRect( self.position, self.titlebarSize, mousePosition ) then
+						self.titlebarCaptured = true
+						self.movementOffset[1] = mousePosition[1] - self.position[1]
+						self.movementOffset[2] = mousePosition[2] - self.position[2]
+					end
+				end
+			else
+				if Input.buttonDown( Buttons.Left ) then
+					if not self.crossCaptured then
+						self.position[1] = mousePosition[1] - self.movementOffset[1]
+						self.position[2] = mousePosition[2] - self.movementOffset[2]
+
+						-- clamp position to be inside window
+						if self.position[1] < 0 then
+							self.position[1] = 0
+						elseif self.position[1] > ( WINDOW_WIDTH - GUI_PANEL_WIDTH - self.size[1] ) then
+							self.position[1] = ( WINDOW_WIDTH - GUI_PANEL_WIDTH - self.size[1] )
+						end
+
+						if self.position[2] < GUI_MENU_HEIGHT then
+							self.position[2] = GUI_MENU_HEIGHT
+						elseif self.position[2] > ( WINDOW_HEIGHT - self.size[2] ) then
+							self.position[2] = ( WINDOW_HEIGHT - self.size[2] )
+						end
+
+						self:layout()
+					end
+				else
+					local crossPosition = { self.position[1] + self.size[1] - self.crossSize[1], self.position[2] }
+					if insideRect( crossPosition, self.crossSize, mousePosition ) then
+						self.visible = false
+					end
+
+					self.crossCaptured = false
+					self.titlebarCaptured = false
 				end
 			end
 		else
-			if Input.buttonDown( Buttons.Left ) then
-				if not self.crossCaptured then
-					self.position[1] = mousePosition[1] - self.movementOffset[1]
-					self.position[2] = mousePosition[2] - self.movementOffset[2]
-
-					-- clamp position to be inside window
-					if self.position[1] < 0 then
-						self.position[1] = 0
-					elseif self.position[1] > ( WINDOW_WIDTH - GUI_PANEL_WIDTH - self.size[1] ) then
-						self.position[1] = ( WINDOW_WIDTH - GUI_PANEL_WIDTH - self.size[1] )
-					end
-
-					if self.position[2] < GUI_MENU_HEIGHT then
-						self.position[2] = GUI_MENU_HEIGHT
-					elseif self.position[2] > ( WINDOW_HEIGHT - self.size[2] ) then
-						self.position[2] = ( WINDOW_HEIGHT - self.size[2] )
-					end
-
-					self:layout()
-				end
-			else
-				local crossPosition = { self.position[1] + self.size[1] - self.crossSize[1], self.position[2] }
-				if insideRect( crossPosition, self.crossSize, mousePosition ) then
-					self.visible = false
-				end
-
+			if not Input.buttonDown( Buttons.Left ) then
 				self.crossCaptured = false
-				self.titlebarCaptured = false
 			end
 		end
-	else
-		if not Input.buttonDown( Buttons.Left ) then
-			self.crossCaptured = false
+
+		local crossPosition = { self.position[1] + self.size[1] - self.crossSize[1], self.position[2] }
+		if insideRect( crossPosition, self.crossSize, mousePosition ) then
+			self.crossHovered = true
+		else
+			self.crossHovered = false
 		end
-	end
 
-	local crossPosition = { self.position[1] + self.size[1] - self.crossSize[1], self.position[2] }
-	if insideRect( crossPosition, self.crossSize, mousePosition ) then
-		self.crossHovered = true
-	else
-		self.crossHovered = false
-	end
-
-	-- update items
-	for _,v in pairs(self.items) do
-		local result = v:update( deltaTime )
-		setCapture( result, capture )
+		-- update items
+		for _,v in pairs(self.items) do
+			local result = v:update( deltaTime )
+			setCapture( result, capture )
+		end
 	end
 
 	return capture

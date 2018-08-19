@@ -27,19 +27,10 @@ ComponentParticleEmitter =
 	endSize = 4,
 }
 
-ComponentParticleEmitterInfo =
+ComponentParticleEmitterWindow =
 {
-	name = "Particle Emitter",
-	position = {0,0},
-	size = {0,0},
-	expanded = true,
-	textureIndex = -1,
-	color = { 0.35, 0.35, 0.35, 1.0 },
-	titleButton = nil,
-	entity = nil,
-	component = nil,
-	curInfo = nil,
-	items = {},
+	window = {},
+	component = {},
 }
 
 function ComponentParticleEmitter.create( parent )
@@ -199,176 +190,126 @@ function ComponentParticleEmitter:render()
 	end
 end
 
-function ComponentParticleEmitter:addInfo( position, size, items )
-	local info =
-	{
-		name = "Particle Emitter",
-		position = {0,0},
-		size = {0,0},
-		items = {},
-	}
+function ComponentParticleEmitter:showInfoWindow()
+	ComponentParticleEmitterWindow:show( self )
+end
 
-	setmetatable( info, { __index = ComponentParticleEmitterInfo } )
+-- WINDOW
+function ComponentParticleEmitterWindow:show( component )
+	self.component = component
+	self.window.visible = true
 
-	local padding = 4
-	local inset = 8
-	local xoffset = position[1] + padding
-	local yoffset = position[2]
+	-- update items
+	self.window.items[1].textbox:setText( component.maxParticles )
+	self.window.items[2].textbox:setText( component.minFrequency )
+	self.window.items[3].textbox:setText( component.maxFrequency )
+	self.window.items[4].textbox:setText( component.minLifetime )
+	self.window.items[5].textbox:setText( component.maxLifetime )
+	self.window.items[6].textbox:setText( stringVec( component.minDirection ) )
+	self.window.items[7].textbox:setText( stringVec( component.maxDirection ) )
+	self.window.items[8].textbox:setText( component.startSpeed )
+	self.window.items[9].textbox:setText( component.endSpeed )
+	self.window.items[10].textbox:setText( component.startSize )
+	self.window.items[11].textbox:setText( component.endSize )
+	self.window.items[13].checked = component.spherical
+end
 
-	-- add title button
-	info.titleButton = EditorButton.create( {xoffset, yoffset}, {size[1]-padding*2, 24}, "Particle Emitter:" )
-	info.titleButton.tag = info
-	yoffset = yoffset + 24
-
-	info.titleButton.onClick = function( button )
-		info.expanded = not info.expanded
+function ComponentParticleEmitterWindow:load()
+	self.window = EditorWindow.create( "Particle Emitter Component" )
+	self.window.position[1] = WINDOW_WIDTH - GUI_PANEL_WIDTH - self.window.size[1]
+	self.window.visible = false
+	
+	-- max particles
+	local maxParticles = EditorInputbox.create( nil, nil, "Max particles:" )
+	maxParticles.textbox.onFinish = function( textbox )
+		self.component:setMaxParticles( tonumber( textbox.text ) )
 	end
+	self.window:addItem( maxParticles )
 
-	-- set position
-	info.position[1] = position[1] + padding
-	info.position[2] = yoffset
-	info.size[1] = size[1] - padding * 2
-
-	-- add sub items
-	local maxParticlesInput = EditorInputbox.create( {xoffset+padding, yoffset}, info.size[1]-padding*2, "Max particles:" )
-	maxParticlesInput.textbox:setText( tostring( self.maxParticles ) )
-	maxParticlesInput.textbox.onFinish = function( textbox )
-		self:setMaxParticles( tonumber( textbox.text ) )
+	-- frequency
+	local minFrequency = EditorInputbox.create( nil, nil, "Min. frequency:" )
+	minFrequency.textbox.onFinish = function( textbox )
+		self.component.minFrequency = tonumber( textbox.text )
 	end
-	yoffset = yoffset + maxParticlesInput.size[2]
+	self.window:addItem( minFrequency )
 
-	local frequencyInput = EditorInputbox.create( {xoffset+padding, yoffset}, info.size[1]-padding*2, "Frequency:" )
-	frequencyInput.textbox:setText( tostring( self.minFrequency ) .. " : " .. tostring( self.maxFrequency ) )
-	frequencyInput.textbox.onFinish = function( textbox )
-		local components = split( textbox.text, ":" )
-		
-		self.minFrequency = tonumber( components[1] )
-		self.maxFrequency = tonumber( components[2] )
-		self.curFrequency = lerp( self.minFrequency, self.maxFrequency, math.random() )
+	local maxFrequency = EditorInputbox.create( nil, nil, "Max. frequency:" )
+	maxFrequency.textbox.onFinish = function( textbox )
+		self.component.maxFrequency = tonumber( textbox.text )
 	end
-	yoffset = yoffset + frequencyInput.size[2]
+	self.window:addItem( maxFrequency )
 
-	local lifetimeInput = EditorInputbox.create( {xoffset+padding, yoffset}, info.size[1]-padding*2, "Lifetime:" )
-	lifetimeInput.textbox:setText( tostring( self.minLifetime ) .. " : " .. tostring( self.maxLifetime ) )
-	lifetimeInput.textbox.onFinish = function( textbox )
-		local components = split( textbox.text, ":" )
-
-		self.minLifetime = tonumber( components[1] )
-		self.maxLifetime = tonumber( components[2] )
+	-- lifetime
+	local minLifetime = EditorInputbox.create( nil, nil, "Min. lifetime:" )
+	minLifetime.textbox.onFinish = function( textbox )
+		self.component.minLifetime = tonumber( textbox.text )
 	end
-	yoffset = yoffset + lifetimeInput.size[2]
+	self.window:addItem( minLifetime )
 
-	local directionInput = EditorInputbox.create( {xoffset+padding, yoffset}, info.size[1]-padding*2, "Direction:" )
-	directionInput.textbox:setText( stringVec( self.minDirection ) .. " : " .. stringVec( self.maxDirection ) )
-	directionInput.textbox.onFinish = function( textbox )
-		local words = split( textbox.text, ":" )
-
-		local components = split( words[1], "," )
-
-		local x = tonumber( components[1] )
-		local y = tonumber( components[2] )
-		local z = tonumber( components[3] )
-
-		self.minDirection = {x,y,z}
-
-		components = split( words[2], "," )
-
-		x = tonumber( components[1] )
-		y = tonumber( components[2] )
-		z = tonumber( components[3] )
-
-		self.maxDirection = {x,y,z}
+	local maxLifetime = EditorInputbox.create( nil, nil, "Max. lifetime:" )
+	maxLifetime.textbox.onFinish = function( textbox )
+		self.component.maxLifetime = tonumber( textbox.text )
 	end
-	yoffset = yoffset + directionInput.size[2]
+	self.window:addItem( maxLifetime )
 
-	local speedInput = EditorInputbox.create( {xoffset+padding, yoffset}, info.size[1]-padding*2, "Speed:" )
-	speedInput.textbox:setText( tostring( self.startSpeed ) .. " : " .. tostring( self.endSpeed ) )
-	speedInput.textbox.onFinish = function( textbox )
-		local components = split( textbox.text, ":" )
-
-		self.startSpeed = tonumber( components[1] )
-		self.endSpeed = tonumber( components[2] )
+	-- direction
+	local minDirection = EditorInputbox.create( nil, nil, "Min. direction:" )
+	minDirection.textbox.onFinish = function( textbox )
+		self.component.minDirection = vecString( textbox.text )
 	end
-	yoffset = yoffset + speedInput.size[2]
+	self.window:addItem( minDirection )
 
-	local sizeInput = EditorInputbox.create( {xoffset+padding, yoffset}, info.size[1]-padding*2, "Size:" )
-	sizeInput.textbox:setText( tostring( self.startSize ) .. " : " .. tostring( self.endSize ) )
-	sizeInput.textbox.onFinish = function( textbox )
-		local components = split( textbox.text, ":" )
-
-		self.startSize = tonumber( components[1] )
-		self.endSize = tonumber( components[2] )
+	local maxDirection = EditorInputbox.create( nil, nil, "Max. direction:" )
+	maxDirection.textbox.onFinish = function( textbox )
+		self.component.maxDirection = vecString( textbox.text )
 	end
-	yoffset = yoffset + sizeInput.size[2]
+	self.window:addItem( maxDirection )
 
-	local sphericalLabel = EditorLabel.create( {xoffset+padding, yoffset}, "Spherical:" )
-	yoffset = yoffset + sphericalLabel:getHeight() + padding
+	-- speed
+	local startSpeed = EditorInputbox.create( nil, nil, "Start speed:" )
+	startSpeed.textbox.onFinish = function( textbox )
+		self.component.startSpeed = tonumber( textbox.text )
+	end
+	self.window:addItem( startSpeed )
 
-	local sphericalCheckbox = EditorCheckbox.create( {xoffset+padding, yoffset} )
-	sphericalCheckbox.checked = self.spherical
+	local endSpeed = EditorInputbox.create( nil, nil, "End speed:" )
+	endSpeed.textbox.onFinish = function( textbox )
+		self.component.endSpeed = tonumber( textbox.text )
+	end
+	self.window:addItem( endSpeed )
+
+	-- size
+	local startSize = EditorInputbox.create( nil, nil, "Start size:" )
+	startSize.textbox.onFinish = function( textbox )
+		self.component.startSize = tonumber( textbox.text )
+	end
+	self.window:addItem( startSize )
+
+	local endSize = EditorInputbox.create( nil, nil, "End size:" )
+	endSize.textbox.onFinish = function( textbox )
+		self.component.endSize = tonumber( textbox.text )
+	end
+	self.window:addItem( endSize )
+
+	-- spherical
+	local sphericalLabel = EditorLabel.create( {0,0}, "Spherical:" )
+	self.window:addItem( sphericalLabel )
+
+	local sphericalCheckbox = EditorCheckbox.create()
 	sphericalCheckbox.onCheck = function( checkbox )
-		self.spherical = checkbox.checked
+		self.component.spherical = checkbox.checked
 	end
-	--yoffset = yoffset + sphericalCheckbox.size[2] + padding
-	yoffset = yoffset + padding
-
-	info.items[#info.items+1] = maxParticlesInput
-	info.items[#info.items+1] = frequencyInput
-	info.items[#info.items+1] = lifetimeInput
-	info.items[#info.items+1] = directionInput
-	info.items[#info.items+1] = speedInput
-	info.items[#info.items+2] = sizeInput
-	info.items[#info.items+1] = sphericalLabel
-	info.items[#info.items+1] = sphericalCheckbox
-
-	-- set size
-	info.size[2] = yoffset - position[2]
-	ComponentParticleEmitter.entity = self.parent
-	ComponentParticleEmitter.component = self
-	ComponentParticleEmitter.curInfo = info
-
-	-- add to callers list of items
-	items[#items+1] = info
-
-	return info.size[2]
+	self.window:addItem( sphericalCheckbox )
 end
 
--- INFO
-function ComponentParticleEmitterInfo:load()
-	ComponentParticleEmitterInfo.textureIndex = Assets.loadTexture( DEFAULT_TEXTURE )
+function ComponentParticleEmitterWindow:update( deltaTime )
+	return self.window:update( deltaTime )
 end
 
-function ComponentParticleEmitterInfo:update( deltaTime )
-	local capture = { mouseCaptured = false, keyboardCaptured = false }
-
-	local result = self.titleButton:update( deltaTime )
-	setCapture( result, capture )
-
-	if self.expanded then
-		-- update items
-		for _,v in pairs(self.items) do
-			result = v:update( deltaTime )
-			setCapture( result, capture )
-		end
-	end
-
-	return capture
+function ComponentParticleEmitterWindow:render()
+	self.window:render()
 end
 
-function ComponentParticleEmitterInfo:render()
-	self.titleButton:render()
+ComponentParticleEmitterWindow:load()
 
-	if self.expanded then
-		-- render background
-		Graphics.queueQuad( self.textureIndex, self.position, self.size, self.color )
-
-		-- render items
-		for _,v in pairs(self.items) do
-			v:render()
-		end
-	end
-end
-
-ComponentParticleEmitterInfo:load()
-
-return ComponentParticleEmitter, ComponentParticleEmitterInfo
+return ComponentParticleEmitter, ComponentParticleEmitterWindow
