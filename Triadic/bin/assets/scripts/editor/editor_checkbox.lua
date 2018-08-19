@@ -42,6 +42,14 @@ function EditorCheckbox.create( position, size )
 	return checkbox
 end
 
+function EditorCheckbox:setPosition( position )
+	self.position[1] = position[1]
+	self.position[2] = position[2]
+end
+
+function EditorCheckbox:setSize( size )
+end
+
 function EditorCheckbox:update( deltaTime )
 	local capture = { mouseCaptured = false, keyboardCaptured = false }
 

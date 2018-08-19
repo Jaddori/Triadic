@@ -558,7 +558,23 @@ function Editor:openLevel()
 
 	local filepath = Filesystem.openFileDialog()
 	if filepath and filepath:len() > 0 then
-		Log.debug( "TODO: Open level." )
+		local chunk, error = loadfile( filepath )
+		if chunk then
+			local status, value = pcall(chunk)
+			if status then
+				self.entities = value
+
+				for _,v in pairs(self.entities) do
+					self.gui.panel.tabs.entities:addEntity( v, self.onEntitySelected )
+				end
+			else
+				Log.error( "Failed to load entities:" )
+				Log.error( value )
+			end
+		else
+			Log.error( "Failed to load level:" )
+			Log.error( error )
+		end
 	end
 end
 

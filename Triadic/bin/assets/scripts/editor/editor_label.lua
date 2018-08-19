@@ -25,6 +25,14 @@ function EditorLabel.create( position, text )
 	return label
 end
 
+function EditorLabel:setPosition( position )
+	self.position[1] = position[1]
+	self.position[2] = position[2]
+end
+
+function EditorLabel:setSize( size )
+end
+
 function EditorLabel:update( deltaTime )
 	local capture = { mouseCaptured = false, keyboardCapture = false }
 

@@ -32,6 +32,15 @@ function EditorInputbox.create( position, width, text )
 	return result
 end
 
+function EditorInputbox:setPosition( position )
+	self.label.position = {position[1], position[2]}
+	self.textbox.position = {position[1], position[2] + self.label:getHeight()}
+end
+
+function EditorInputbox:setSize( size )
+	self.textbox.size[1] = size[1]
+end
+
 function EditorInputbox:update( deltaTime )
 	local capture = { mouseCaptured = false, keyboardCaptured = false }
 	

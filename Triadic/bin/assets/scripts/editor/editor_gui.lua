@@ -700,6 +700,7 @@ function gui:load()
 	doscript( "editor/editor_textbox.lua" )
 	doscript( "editor/editor_checkbox.lua" )
 	doscript( "editor/editor_inputbox.lua" )
+	doscript( "editor/editor_window.lua" )
 	
 	self.fontIndex = Assets.loadFont( "./assets/fonts/verdana12.bin", "./assets/fonts/verdana12.dds" )
 	local font = Assets.getFont( self.fontIndex )
@@ -726,10 +727,21 @@ function gui:load()
 	self.panel.tabs.info:load()
 	self.panel.tabs.entities:load()
 	self.panel.tabs.prefabs:load()
+
+	self.window = EditorWindow.create( "Test Window" )
+
+	local inputbox = EditorInputbox.create( {0,0}, 0, "Some input:" )
+	self.window:addItem( inputbox )
+
+	local inputbox2 = EditorInputbox.create( {0,0}, 0, "Some other input:" )
+	self.window:addItem( inputbox2 )
 end
 
 function gui:update( deltaTime )
 	local capture = { mouseCaptured = false, keyboardCaptured = false }
+
+	local r = self.window:update( deltaTime )
+	setCapture( r, capture )
 
 	-- menu
 	local result = self.menu:update( deltaTime )
@@ -737,9 +749,6 @@ function gui:update( deltaTime )
 	
 	-- panel
 	for _,v in pairs(self.panel.tabBar.items) do
-		--if v:update( deltaTime ) then
-		--	result = true
-		--end
 		result = v:update( deltaTime )
 		setCapture( result, capture )
 	end
@@ -769,6 +778,8 @@ function gui:update( deltaTime )
 end
 
 function gui:render()
+	self.window:render()
+
 	-- menu
 	self.menu:render()
 	

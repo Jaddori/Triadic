@@ -60,6 +60,7 @@ function Entity:write( file, level )
 	writeIndent( file, level, "-- " .. self.name .. "\n" )
 
 	writeIndent( file, level, "local " .. self.name .. " = Entity.create( \"" .. self.name .. "\", {" .. stringVec( self.position ) .. "}, {" .. stringVec( self.orientation ) .. "}, {" .. stringVec( self.scale ) .. "} )\n" )
+	writeIndent( file, level, self.name .. ".visible = " .. tostring( self.visible ) .. "\n" )
 
 	for _,v in pairs(self.components) do
 		v:write( file, level )

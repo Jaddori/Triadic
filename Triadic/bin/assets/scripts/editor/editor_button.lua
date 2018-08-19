@@ -44,6 +44,16 @@ function EditorButton.create( position, size, text )
 	return button
 end
 
+function EditorButton:setPosition( position )
+	self.position[1] = position[1]
+	self.position[2] = position[2]
+end
+
+function EditorButton:setSize( size )
+	self.size[1] = size[1]
+	self.size[2] = size[2]
+end
+
 function EditorButton:update( deltaTime )
 	local capture = { mouseCaptured = false, keyboardCaptured = false }
 

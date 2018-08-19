@@ -63,6 +63,16 @@ function EditorTextbox.create( position, size )
 	return textbox
 end
 
+function EditorTextbox:setPosition( position )
+	self.position[1] = position[1]
+	self.position[2] = position[2]
+end
+
+function EditorTextbox:setSize( size )
+	self.size[1] = size[1]
+	self.size[2] = size[2]
+end
+
 function EditorTextbox:update( deltaTime )
 	local capture = { mouseCaptured = false, keyboardCaptured = false }
 	

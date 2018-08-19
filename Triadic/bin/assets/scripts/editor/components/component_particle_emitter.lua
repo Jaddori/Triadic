@@ -81,7 +81,7 @@ function ComponentParticleEmitter:write( file, level )
 
 	writeIndent( file, level, "local " .. componentName .. " = ComponentParticleEmitter.create( " .. self.parent.name .. " )\n" )
 
-	writeIndent( file, level, componentName .. ".maxParticles = " .. tostring( self.maxParticles ) .. "\n" )
+	writeIndent( file, level, componentName .. ":setMaxParticles( " .. tostring( self.maxParticles ) .. " )\n" )
 	writeIndent( file, level, componentName .. ".spherical = " .. tostring( self.spherical ) .. "\n" )
 	writeIndent( file, level, componentName .. ".minFrequency = " .. tostring( self.minFrequency ) .. "\n" )
 	writeIndent( file, level, componentName .. ".maxFrequency = " .. tostring( self.maxFrequency ) .. "\n" )
@@ -116,6 +116,26 @@ function ComponentParticleEmitter:select( ray )
 	return -1
 end
 
+function ComponentParticleEmitter:setMaxParticles( amount )
+	self.maxParticles = amount
+
+	local count = #self.particles
+	if count < self.maxParticles then
+		for i=count+1, self.maxParticles do
+			self.particles[i] = 
+			{
+				alive = false,
+				size = {1,1},
+				position = {0,0,0},
+			}
+		end
+	elseif count > self.maxParticles then
+		for i=self.maxParticles+1, count do
+			self.particles[i] = nil
+		end
+	end
+end
+
 function ComponentParticleEmitter:update( deltaTime )
 	self.elapsedTime = self.elapsedTime + deltaTime
 
@@ -142,6 +162,10 @@ function ComponentParticleEmitter:update( deltaTime )
 					math.random(),
 					lerp( 0.25, 0.5, math.random() )
 				}
+
+				if math.random() < 0.5 then
+					v.scroll[3] = -v.scroll[3]
+				end
 
 				break
 			end
@@ -209,23 +233,7 @@ function ComponentParticleEmitter:addInfo( position, size, items )
 	local maxParticlesInput = EditorInputbox.create( {xoffset+padding, yoffset}, info.size[1]-padding*2, "Max particles:" )
 	maxParticlesInput.textbox:setText( tostring( self.maxParticles ) )
 	maxParticlesInput.textbox.onFinish = function( textbox )
-		self.maxParticles = tonumber( textbox.text )
-
-		local count = #self.particles
-		if count < self.maxParticles then
-			for i=count+1, self.maxParticles do
-				self.particles[i] = 
-				{
-					alive = false,
-					size = {1,1},
-					position = {0,0,0},
-				}
-			end
-		elseif count > self.maxParticles then
-			for i=self.maxParticles+1, count do
-				self.particles[i] = nil
-			end
-		end
+		self:setMaxParticles( tonumber( textbox.text ) )
 	end
 	yoffset = yoffset + maxParticlesInput.size[2]
 
