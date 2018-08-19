@@ -31,6 +31,7 @@ function Editor:load()
 	self.gui.menu.file.onOpen = function() self:openLevel() end
 	self.gui.menu.file.onSave = function() self:saveLevel() end
 	self.gui.menu.file.onSaveAs = function() self:saveAsLevel() end
+	self.gui.menu.file.onCompile = function() self:compileLevel() end
 	self.gui.menu.file.onExit = function() Core.exit() end
 	self.gui.menu.settings.onShowGrid = function() self.grid.showGrid = not self.grid.showGrid end
 	self.gui.menu.settings.onShowOrigo = function() self.grid.showOrigo = not self.grid.showOrigo end
@@ -170,7 +171,7 @@ function Editor:update( deltaTime )
 			local mousePosition = Input.getMousePosition()
 			self.gui.contextMenu:show( mousePosition )
 		end
-		
+
 		-- hovering and selecting entities
 		if self.hoveredEntity then
 			self.hoveredEntity.hovered = false
@@ -488,7 +489,7 @@ end
 
 function Editor:copyEntity()
 	local position = self.selectedEntity.position
-	local entity = Entity.create( "New Entity", {position[1]+1, position[2], position[3]+1} )
+	local entity = Entity.create( "NewEntity", {position[1]+1, position[2], position[3]+1} )
 	
 	for _,v in pairs(self.selectedEntity.components) do
 		local component = v:copy( entity )
@@ -505,7 +506,7 @@ function Editor:copyEntity()
 end
 
 function Editor:createEntity( position )
-	local entity = Entity.create( "New Entity", position )
+	local entity = Entity.create( "NewEntity", position )
 	self.entities[#self.entities+1] = entity
 	
 	self.gui.panel.tabs.entities:addEntity( entity, self.onEntitySelected )
@@ -561,9 +562,13 @@ function Editor:saveLevel()
 	if self.currentLevelPath then
 		local file = io.open( self.currentLevelPath, "w" )
 		if file then
+			writeIndent( file, 0, "local entities = {}\n\n" )
+
 			for _,v in pairs(self.entities) do
 				v:write( file )
 			end
+
+			writeIndent( file, 0, "return entities\n" )
 
 			file:close()
 		end
@@ -578,5 +583,19 @@ function Editor:saveAsLevel()
 		self.currentLevelPath = filepath
 
 		self:saveLevel()
+	end
+end
+
+function Editor:compileLevel()
+	local filepath = Filesystem.saveFileDialog()
+	if filepath and filepath:len() > 0 then
+		local file = io.open( filepath, "w" )
+		if file then
+			for _,v in pairs(self.entities) do
+				v:compile( file )
+			end
+
+			file:close()
+		end
 	end
 end

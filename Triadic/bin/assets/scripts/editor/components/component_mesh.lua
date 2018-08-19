@@ -6,6 +6,7 @@ ComponentMesh =
 	name = "Mesh",
 	transform = nil,
 	meshIndex = -1,
+	meshName = "",
 	parent = nil,
 	boundingBox = nil,
 }
@@ -43,10 +44,12 @@ function ComponentMesh.create( parent )
 		transform = Transform.create(),
 		meshIndex = -1,
 		boundingBox = nil,
+		meshName = "",
 	}
 
 	if #ComponentMeshInfo.meshIndices > 0 then
 		result.meshIndex = ComponentMeshInfo.meshIndices[1]
+		result.meshName = "./assets/models/" .. ComponentMeshInfo.meshNames[1]
 		result.boundingBox = ComponentMeshInfo.meshBoundingBoxes[1]
 	end
 	
@@ -58,19 +61,29 @@ function ComponentMesh.create( parent )
 end
 
 function ComponentMesh:write( file, level )
+	local componentName = self.parent.name .. "_component"
+	writeIndent( file, level, "local " .. componentName .. " = ComponentMesh.create( " .. self.parent.name .. " )\n" )
+	
+	writeIndent( file, level, componentName .. ":loadMesh( \"" .. self.meshName .. "\" )\n" )
+
+	writeIndent( file, level, self.parent.name .. ":addComponent( " .. componentName .. " )\n" )
+end
+
+function ComponentMesh:read( file )
+end
+
+function ComponentMesh:compile( file, level )
 	writeIndent( file, level, "Mesh =\n" )
 	writeIndent( file, level, "{\n" )
 	level = level + 1
 
 	writeIndent( file, level, "parent = " .. self.parent.name .. ",\n" )
 	writeIndent( file, level, "transform = Transform.create(),\n" )
-	writeIndent( file, level, "meshIndex = " .. tostring( self.meshIndex ) .. ",\n" )
+	--writeIndent( file, level, "meshIndex = " .. tostring( self.meshIndex ) .. ",\n" )
+	writeIndent( file, level, "meshIndex = Assets.loadMesh( \"" .. self.meshName .. "\" ),\n" )
 
 	level = level - 1
 	writeIndent( file, level, "},\n" )
-end
-
-function ComponentMesh:read( file )
 end
 
 function ComponentMesh:copy( parent )
@@ -78,12 +91,14 @@ function ComponentMesh:copy( parent )
 	
 	result.meshIndex = self.meshIndex
 	result.boundingBox = self.boundingBox
+	result.meshName = self.meshName
 	
 	return result
 end
 
 function ComponentMesh:loadMesh( path )
 	self.meshIndex = Assets.loadMesh( path )
+	self.meshName = path
 	if self.meshIndex then
 		local mesh = Assets.getMesh( self.meshIndex )
 		self.boundingBox = mesh:getBoundingBox()
@@ -226,6 +241,7 @@ end
 function ComponentMeshInfo:meshSelected( index )
 	self.meshComponent.meshIndex = self.meshIndices[index]
 	self.meshComponent.boundingBox = self.meshBoundingBoxes[index]
+	self.meshComponent.meshName = "./assets/models/" .. self.meshNames[index]
 	
 	self.curInfo.items[2].text = self.meshNames[index]
 end

@@ -61,9 +61,19 @@ function ComponentWalkable:calculate()
 end
 
 function ComponentWalkable:write( file, level )
+	local componentName = self.parent.name .. "_component"
+	writeIndent( file, level, "local " .. componentName .. " = ComponentWalkable.create( " .. self.parent.name .. " )\n" )
+
+	writeIndent( file, level, componentName .. ".size = {" .. stringVec( self.size ) .. "}\n" )
+	writeIndent( file, level, componentName .. ".interval = " .. tostring( self.interval ) .. "\n" )
+
+	writeIndent( file, level, self.parent.name .. ":addComponent( " .. componentName .. " )\n" )
 end
 
 function ComponentWalkable:read( file )
+end
+
+function ComponentWalkable:compile( file, level )
 end
 
 function ComponentWalkable:copy( parent )

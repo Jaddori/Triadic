@@ -56,32 +56,49 @@ end
 
 function Entity:write( file, level )
 	level = level or 0
+	
+	writeIndent( file, level, "-- " .. self.name .. "\n" )
 
-	--writeIndent( file, level, self.name .. " =\n" )
-	writeIndent( file, level, "{\n")
+	writeIndent( file, level, "local " .. self.name .. " = Entity.create( \"" .. self.name .. "\", {" .. stringVec( self.position ) .. "}, {" .. stringVec( self.orientation ) .. "}, {" .. stringVec( self.scale ) .. "} )\n" )
+
+	for _,v in pairs(self.components) do
+		v:write( file, level )
+	end
+
+	writeIndent( file, level, "local " .. self.name .. "_component = nil\n" )
+	writeIndent( file, level, "entities[#entities+1] = " .. self.name .. "\n" )
+
+	writeIndent( file, level, "-- " .. self.name .. "\n\n" )
+end
+
+function Entity:read( file )
+	
+end
+
+function Entity:compile( file, level )
+	level = level or 0
+
+	writeIndent( file, level, self.name .. " =\n" )
+	writeIndent( file, level, "{\n" )
 	level = level + 1
 
-	writeIndent( file, level, "position = {" .. stringVec(self.position) .. "},\n" )
-	writeIndent( file, level, "orientation = {" .. stringVec(self.orientation) .. "},\n" )
-	writeIndent( file, level, "scale = {" .. stringVec(self.scale) .. "},\n" )
+	writeIndent( file, level, "position = {" .. stringVec( self.position ) .. "},\n" )
+	writeIndent( file, level, "orientation = {" .. stringVec( self.orientation ) .. "},\n" )
+	writeIndent( file, level, "scale = {" .. stringVec( self.scale ) .. "},\n" )
 
 	writeIndent( file, level, "components =\n" )
 	writeIndent( file, level, "{\n" )
 	level = level + 1
 
 	for _,v in pairs(self.components) do
-		v:write( file, level )
+		v:compile( file, level )
 	end
 
 	level = level - 1
 	writeIndent( file, level, "}\n" )
-	
+
 	level = level - 1
 	writeIndent( file, level, "}\n" )
-end
-
-function Entity:read( file )
-	
 end
 
 function Entity:select( ray )

@@ -32,6 +32,7 @@ local gui =
 			onOpen = nil,
 			onSave = nil,
 			onSaveAs = nil,
+			onCompile = nil,
 			onExit = nil,
 		},
 		settings =
@@ -199,6 +200,14 @@ function gui.menu.file:load( xoffset )
 		end
 	end
 	yoffset = yoffset + GUI_BUTTON_HEIGHT
+
+	self.compileButton = EditorButton.create( {xoffset, yoffset}, {MENU_FILE_BUTTON_WIDTH, GUI_BUTTON_HEIGHT}, "Compile" )
+	self.compileButton.onClick = function( button )
+		if self.onCompile then
+			self.onCompile()
+		end
+	end
+	yoffset = yoffset + GUI_BUTTON_HEIGHT
 	
 	self.exitButton = EditorButton.create( {xoffset, yoffset}, {MENU_FILE_BUTTON_WIDTH, GUI_BUTTON_HEIGHT}, "Exit" )
 	self.exitButton.onClick = function( self )
@@ -214,6 +223,7 @@ function gui.menu.file:load( xoffset )
 	self.items[#self.items+1] = self.openButton
 	self.items[#self.items+1] = self.saveButton
 	self.items[#self.items+1] = self.saveAsButton
+	self.items[#self.items+1] = self.compileButton
 	self.items[#self.items+1] = self.exitButton
 	
 	return width
