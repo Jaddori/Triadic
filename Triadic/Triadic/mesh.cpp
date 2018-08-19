@@ -56,6 +56,8 @@ bool Mesh::load( const char* path )
 
 			boundingBox.minPosition = minPosition;
 			boundingBox.maxPosition = maxPosition;
+
+			uploaded = false;
 		}
 	}
 	else
@@ -98,8 +100,11 @@ void Mesh::upload()
 		LOG_ASSERT( vertices, "Trying to upload a mesh without valid vertex data." );
 		LOG_ASSERT( indices, "Trying to upload mesh without valid index data." );
 
-		glGenVertexArrays( 1, &vertexArray );
-		glGenBuffers( 2, buffers );
+		if( vertexArray == 0 )
+		{
+			glGenVertexArrays( 1, &vertexArray );
+			glGenBuffers( 2, buffers );
+		}
 
 		glBindVertexArray( vertexArray );
 

@@ -4,6 +4,9 @@ using namespace Rendering;
 Assets::Assets()
 	: dirtyTextures( false ), dirtyMeshes( false )
 {
+#if _DEBUG
+	lastHotload = SDL_GetTicks();
+#endif
 }
 
 Assets::~Assets()
@@ -58,6 +61,41 @@ void Assets::upload()
 	}
 }
 
+#if _DEBUG
+void Assets::hotload()
+{
+	uint64_t curTick = SDL_GetTicks();
+	if( curTick - lastHotload > ASSETS_HOTLOAD_DELAY )
+	{
+		lastHotload = curTick;
+
+		// hotload textures
+		const int TEXTURE_COUNT = texturePaths.getSize();
+		for( int i=0; i<TEXTURE_COUNT; i++ )
+		{
+			uint64_t curTimestamp = getTimestamp( texturePaths[i] );
+			if( curTimestamp != textureTimestamps[i] )
+			{
+				reloadTexture( i );
+				textureTimestamps[i] = curTimestamp;
+			}
+		}
+
+		// hotload meshes
+		const int MESH_COUNT = meshPaths.getSize();
+		for( int i=0; i<MESH_COUNT; i++ )
+		{
+			uint64_t curTimestamp = getTimestamp( meshPaths[i] );
+			if( curTimestamp != meshTimestamps[i] )
+			{
+				reloadMesh( i );
+				meshTimestamps[i] = curTimestamp;
+			}
+		}
+	}
+}
+#endif
+
 int Assets::loadTexture( const char* path )
 {
 	uint64_t hash = hashPath( path );
@@ -72,6 +110,16 @@ int Assets::loadTexture( const char* path )
 			textureHashes.add( hash );
 
 			dirtyTextures = true;
+
+#if _DEBUG
+			char* texturePath = new char[ASSETS_PATH_MAX_LEN];
+			strcpy( texturePath, path );
+			texturePath[strlen( path )] = 0;
+			texturePaths.add( texturePath );
+
+			uint64_t timestamp = getTimestamp( path );
+			textureTimestamps.add( timestamp );
+#endif
 		}
 	}
 
@@ -92,6 +140,16 @@ int Assets::loadMesh( const char* path )
 			meshHashes.add( hash );
 
 			dirtyMeshes = true;
+
+#if _DEBUG
+			char* meshPath = new char[ASSETS_PATH_MAX_LEN];
+			strcpy( meshPath, path );
+			meshPath[strlen( path )] = 0;
+			meshPaths.add( meshPath );
+
+			uint64_t timestamp = getTimestamp( path );
+			meshTimestamps.add( timestamp );
+#endif
 		}
 	}
 
@@ -151,3 +209,38 @@ uint64_t Assets::hashPath( const char* path )
 
 	return hash;
 }
+
+#if _DEBUG
+uint64_t Assets::getTimestamp( const char* path )
+{
+	uint64_t result = 0;
+
+	HANDLE file = CreateFile( path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
+	if( file )
+	{
+		FILETIME writeTime;
+		if( GetFileTime( file, NULL, NULL, &writeTime ) )
+		{
+			result = ((uint64_t)writeTime.dwHighDateTime << 32) | (uint64_t)writeTime.dwLowDateTime;
+		}
+
+		CloseHandle( file );
+	}
+
+	return result;
+}
+
+void Assets::reloadTexture( int index )
+{
+	LOG_INFO( "Hotloading texture: %s", texturePaths[index] );
+	textures[index].load( texturePaths[index] );
+	dirtyTextures = true;
+}
+
+void Assets::reloadMesh( int index )
+{
+	LOG_INFO( "Hotloading mesh: %s", meshPaths[index] );
+	meshes[index].load( meshPaths[index] );
+	dirtyMeshes = true;
+}
+#endif

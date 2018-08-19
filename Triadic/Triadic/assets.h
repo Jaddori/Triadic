@@ -5,6 +5,9 @@
 #include "mesh.h"
 #include "font.h"
 
+#define ASSETS_PATH_MAX_LEN 128
+#define ASSETS_HOTLOAD_DELAY 1000
+
 namespace Rendering
 {
 	class Assets
@@ -15,6 +18,10 @@ namespace Rendering
 
 		void unload();
 		void upload();
+
+#if _DEBUG
+		void hotload();
+#endif
 
 		int loadTexture( const char* path );
 		int loadMesh( const char* path );
@@ -38,5 +45,19 @@ namespace Rendering
 		Array<uint64_t> fontHashes;
 		Array<Font> fonts;
 		bool dirtyFonts;
+
+#if _DEBUG
+		uint64_t getTimestamp( const char* path );
+		void reloadTexture( int index );
+		void reloadMesh( int index );
+
+		Array<char*> texturePaths;
+		Array<char*> meshPaths;
+
+		Array<uint64_t> textureTimestamps;
+		Array<uint64_t> meshTimestamps;
+
+		uint64_t lastHotload;
+#endif
 	};
 }

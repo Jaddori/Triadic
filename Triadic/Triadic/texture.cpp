@@ -41,6 +41,7 @@ bool Texture::load( const char* path )
 			fread( pixels, sizeof(GLbyte), size, file );
 
 			result = true;
+			uploaded = false;
 		}
 
 		fclose( file );
@@ -70,7 +71,9 @@ void Texture::upload()
 {
 	if( !uploaded )
 	{
-		glGenTextures( 1, &id );
+		if( id == 0 )
+			glGenTextures( 1, &id );
+
 		glBindTexture( GL_TEXTURE_2D, id );
 		glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
 		glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );

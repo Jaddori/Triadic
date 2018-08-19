@@ -180,6 +180,9 @@ int main( int argc, char* argv[] )
 					}
 
 					// finalize objects
+#if _DEBUG
+					graphics.getAssets()->hotload();
+#endif
 					graphics.getAssets()->upload();
 					graphics.finalize();
 					debugShapes.finalize();
