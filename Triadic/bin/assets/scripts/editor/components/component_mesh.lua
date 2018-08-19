@@ -184,9 +184,7 @@ function ComponentMeshWindow:hide()
 end
 
 function ComponentMeshWindow:refresh( entity )
-	Log.debug( "REF MESH" )
 	if self.window.visible then
-		Log.debug( "MESH VIS" )
 		if entity.components[ComponentMesh.name] then
 			self:show( entity.components[ComponentMesh.name] )
 		else

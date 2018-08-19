@@ -55,9 +55,7 @@ function Entity:removeComponent( name )
 end
 
 function Entity:refreshInfoWindows()
-	Log.debug( "REFRESH INFO WINDOWS" )
 	for _,v in pairs(Entity.windowList) do
-		Log.debug( "REFRESHING" )
 		v:refresh( self )
 	end
 end

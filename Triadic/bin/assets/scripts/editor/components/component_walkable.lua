@@ -140,9 +140,7 @@ function ComponentWalkableWindow:hide()
 end
 
 function ComponentWalkableWindow:refresh( entity )
-	Log.debug( "REF WALK" )
 	if self.window.visible then
-		Log.debug( "WALK VIS" )
 		if entity.components[ComponentWalkable.name] then
 			self:show( entity.components[ComponentWalkable.name] )
 		else

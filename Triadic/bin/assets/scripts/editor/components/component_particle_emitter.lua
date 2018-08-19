@@ -223,9 +223,7 @@ function ComponentParticleEmitterWindow:hide()
 end
 
 function ComponentParticleEmitterWindow:refresh( entity )
-	Log.debug( "REF PART" )
 	if self.window.visible then
-		Log.debug( "PART VIS" )
 		if entity.components[ComponentParticleEmitter.name] then
 			self:show( entity.components[ComponentParticleEmitter.name] )
 		else
