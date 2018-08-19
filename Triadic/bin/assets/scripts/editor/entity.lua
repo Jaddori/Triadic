@@ -54,6 +54,14 @@ function Entity:removeComponent( name )
 	self.components[name] = nil
 end
 
+function Entity:refreshInfoWindows()
+	Log.debug( "REFRESH INFO WINDOWS" )
+	for _,v in pairs(Entity.windowList) do
+		Log.debug( "REFRESHING" )
+		v:refresh( self )
+	end
+end
+
 function Entity:write( file, level )
 	level = level or 0
 	

@@ -222,6 +222,18 @@ function ComponentParticleEmitterWindow:hide()
 	self.window.visible = false
 end
 
+function ComponentParticleEmitterWindow:refresh( entity )
+	Log.debug( "REF PART" )
+	if self.window.visible then
+		Log.debug( "PART VIS" )
+		if entity.components[ComponentParticleEmitter.name] then
+			self:show( entity.components[ComponentParticleEmitter.name] )
+		else
+			self.window.visible = false
+		end
+	end
+end
+
 function ComponentParticleEmitterWindow:load()
 	self.window = EditorWindow.create( "Particle Emitter Component" )
 	self.window.position[1] = WINDOW_WIDTH - GUI_PANEL_WIDTH - self.window.size[1] - 8

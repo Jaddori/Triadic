@@ -195,6 +195,8 @@ function Editor:update( deltaTime )
 
 				if self.selectedEntity then
 					self.selectedEntity.selected = true
+					self.selectedEntity:refreshInfoWindows()
+
 					self.gizmo:setPosition( self.selectedEntity.position )
 					self.gizmo.visible = true
 					self.gizmo.selectedAxis = -1

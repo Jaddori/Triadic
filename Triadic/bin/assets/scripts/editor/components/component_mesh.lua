@@ -183,6 +183,18 @@ function ComponentMeshWindow:hide()
 	self.window.visible = false
 end
 
+function ComponentMeshWindow:refresh( entity )
+	Log.debug( "REF MESH" )
+	if self.window.visible then
+		Log.debug( "MESH VIS" )
+		if entity.components[ComponentMesh.name] then
+			self:show( entity.components[ComponentMesh.name] )
+		else
+			self.window.visible = false
+		end
+	end
+end
+
 function ComponentMeshWindow:load()
 	self.window = EditorWindow.create( "Mesh Component" )
 	self.window.position[1] = WINDOW_WIDTH - GUI_PANEL_WIDTH - self.window.size[1] - 8

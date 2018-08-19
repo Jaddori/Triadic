@@ -139,6 +139,18 @@ function ComponentWalkableWindow:hide()
 	self.window.visible = false
 end
 
+function ComponentWalkableWindow:refresh( entity )
+	Log.debug( "REF WALK" )
+	if self.window.visible then
+		Log.debug( "WALK VIS" )
+		if entity.components[ComponentWalkable.name] then
+			self:show( entity.components[ComponentWalkable.name] )
+		else
+			self.window.visible = false
+		end
+	end
+end
+
 function ComponentWalkableWindow:load()
 	self.window = EditorWindow.create( "Walkable Component" )
 	self.window.position[1] = WINDOW_WIDTH - GUI_PANEL_WIDTH - self.window.size[1] - 8
