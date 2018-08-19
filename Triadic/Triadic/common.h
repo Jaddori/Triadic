@@ -37,6 +37,7 @@
 
 #define GRAPHICS_MAX_GLYPHS 128
 #define GRAPHICS_MAX_QUADS 128
+#define GRAPHICS_MAX_BILLBOARDS 128
 
 // Maths
 #include "glm\glm.hpp"

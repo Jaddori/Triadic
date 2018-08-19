@@ -2,7 +2,7 @@
 using namespace System;
 
 Input::Input()
-	: active( true )
+	: active( true ), mouseWheel( 0 )
 {
 	memset( keys, 0, INPUT_MAX_KEYS );
 	memset( prevKeys, 0, INPUT_MAX_KEYS );

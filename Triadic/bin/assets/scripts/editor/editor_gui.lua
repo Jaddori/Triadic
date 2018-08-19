@@ -689,6 +689,7 @@ function gui:load()
 	doscript( "editor/editor_label.lua" )
 	doscript( "editor/editor_textbox.lua" )
 	doscript( "editor/editor_checkbox.lua" )
+	doscript( "editor/editor_inputbox.lua" )
 	
 	self.fontIndex = Assets.loadFont( "./assets/fonts/verdana12.bin", "./assets/fonts/verdana12.dds" )
 	local font = Assets.getFont( self.fontIndex )

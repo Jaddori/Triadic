@@ -12,6 +12,7 @@ namespace LuaRendering
 			{ "queueMesh", queueMesh },
 			{ "queueQuad", queueQuad },
 			{ "queueText", queueText },
+			{ "queueBillboard", queueBillboard },
 
 			{ "getPerspectiveCamera", getPerspectiveCamera },
 			{ "getOrthographicCamera", getOrthographicCamera },
@@ -100,6 +101,33 @@ namespace LuaRendering
 				lua_getvec4( lua, 4, color );
 
 				g_coreData->graphics->queueText( fontIndex, text, position, color );
+			}
+		}
+
+		return 0;
+	}
+
+	LDEC( queueBillboard )
+	{
+		LUA_EXPECT_ARGS( 5 )
+		{
+			if( LUA_EXPECT_NUMBER( 1 ) &&
+				LUA_EXPECT_TABLE( 2 ) &&
+				LUA_EXPECT_TABLE( 3 ) &&
+				LUA_EXPECT_TABLE( 4 ) &&
+				LUA_EXPECT_BOOL( 5 ) )
+			{
+				glm::vec3 position;
+				glm::vec2 size;
+				glm::vec4 uv;
+
+				int textureIndex = lua_toint( lua, 1 );
+				lua_getvec3( lua, 2, position );
+				lua_getvec2( lua, 3, size );
+				lua_getvec4( lua, 4, uv );
+				bool spherical = lua_tobool( lua, 5 );
+
+				g_coreData->graphics->queueBillboard( textureIndex, position, size, uv, spherical );
 			}
 		}
 

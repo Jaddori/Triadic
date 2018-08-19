@@ -72,3 +72,17 @@ function setCapture( src, dst )
 	if src.mouseCaptured then dst.mouseCaptured = true end
 	if src.keyboardCaptured then dst.keyboardCaptured = true end
 end
+
+function lerp( a, b, t )
+	return a + (b-a)*t
+end
+
+function easeInCubic( t, b, c, d )
+	t = t / d
+	return c * math.pow(t, 3) + b
+end
+  
+function easeOutCubic( t, b, c, d )
+	t = t / d - 1
+	return c * (math.pow(t, 3) + 1) + b
+end

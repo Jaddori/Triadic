@@ -38,11 +38,12 @@ function camera:update( deltaTime )
 		capture.keyboardCaptured = true
 	else
 		local mouseWheel = Input.getMouseWheel()
+		if mouseWheel ~= 0 then
+			local movement = { 0, 0, mouseWheel * self.scrollSpeed }
+			self.camera:relativeMovement( movement )
 
-		local movement = { 0, 0, mouseWheel * self.scrollSpeed }
-		self.camera:relativeMovement( movement )
-
-		capture.mouseCaptured = true
+			capture.mouseCaptured = true
+		end
 	end
 	
 	return capture

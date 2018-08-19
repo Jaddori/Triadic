@@ -40,6 +40,20 @@ namespace Rendering
 		Array<Quad> quads[2];
 	};
 
+	struct Billboard
+	{
+		glm::vec3 position;
+		glm::vec4 uv;
+		glm::vec2 size;
+		float spherical;
+	};
+
+	struct BillboardCollection
+	{
+		const Texture* texture;
+		Array<Billboard> billboards[2];
+	};
+
 	class Graphics
 	{
 	public:
@@ -54,6 +68,7 @@ namespace Rendering
 		void queueMesh( int meshIndex, Transform* transform );
 		void queueQuad( int textureIndex, const glm::vec2& position, const glm::vec2& size, const glm::vec2& uvStart, const glm::vec2& uvEnd, const glm::vec4& color );
 		void queueText( int fontIndex, const char* text, const glm::vec2& position, const glm::vec4& color );
+		void queueBillboard( int textureIndex, const glm::vec3& position, const glm::vec2& size, const glm::vec4& uv, bool spherical );
 
 		//Camera* getCamera();
 		Camera* getPerspectiveCamera();
@@ -88,6 +103,13 @@ namespace Rendering
 		GLuint quadVAO;
 		GLuint quadVBO;
 		Array<QuadCollection> quadCollections;
+
+		Shader billboardShader;
+		GLint billboardProjectionLocation;
+		GLint billboardViewLocation;
+		GLuint billboardVAO;
+		GLuint billboardVBO;
+		Array<BillboardCollection> billboardCollections;
 
 		int writeIndex, readIndex;
 	};
