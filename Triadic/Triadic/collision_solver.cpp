@@ -9,7 +9,7 @@ CollisionSolver::~CollisionSolver()
 {
 }
 
-bool CollisionSolver::ray( const Ray& ray, const Sphere& sphere )
+bool CollisionSolver::ray( const Ray& ray, const Sphere& sphere, Hit* hit )
 {
 	float t = 0.0f;
 
@@ -29,10 +29,16 @@ bool CollisionSolver::ray( const Ray& ray, const Sphere& sphere )
 	if( t < 0.0f )
 		t = 0.0f;
 
+	if( hit )
+	{
+		hit->length = t;
+		hit->position = ray.start + ( ray.direction * t );
+	}
+
 	return true;
 }
 
-bool CollisionSolver::ray( const Ray& ray, const AABB& aabb )
+bool CollisionSolver::ray( const Ray& ray, const AABB& aabb, Hit* hit )
 {
 	float tmin = 0.0f;
 	float tmax = std::numeric_limits<float>().max();
@@ -84,6 +90,12 @@ bool CollisionSolver::ray( const Ray& ray, const AABB& aabb )
 	glm::vec3 intersectionPoint = rayPosition + (rayDirection * hitdistance);
 	//ray->hit(intersectionPoint, hitdistance);
 
+	if( hit )
+	{
+		hit->length = hitdistance;
+		hit->position = intersectionPoint;
+	}
+
 	return true;
 }
 
@@ -108,10 +120,21 @@ bool CollisionSolver::ray( const Ray& ray, const Plane& plane, Hit* hit )
 	return false;
 }
 
-bool CollisionSolver::sphere( const Sphere& a, const Sphere& b )
+bool CollisionSolver::sphere( const Sphere& a, const Sphere& b, Hit* hit )
 {
 	float distance = glm::distance( a.center, b.center );
-	return ( distance <= ( a.radius + b.radius ) );
+	if( distance <= ( a.radius + b.radius ) )
+	{
+		if( hit )
+		{
+			hit->length = distance;
+			hit->position = a.center + ( b.center - a.center )*0.5f;
+		}
+
+		return true;
+	}
+
+	return false;
 }
 
 bool CollisionSolver::aabb( const AABB& a, const AABB& b )
@@ -121,7 +144,6 @@ bool CollisionSolver::aabb( const AABB& a, const AABB& b )
 
 	const glm::vec3& minPos2 = b.minPosition;
 	const glm::vec3& maxPos2 = b.maxPosition;
-
 
 	return (maxPos1.x >= minPos2.x &&
 		minPos1.x <= maxPos2.x &&

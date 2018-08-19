@@ -4,6 +4,7 @@ Entity =
 	name = "",
 	components = {},
 	selected = false,
+	hovered = false,
 	
 	position = {0,0,0},
 	prevPosition = {0,0,0},
@@ -84,17 +85,22 @@ function Entity:read( file )
 end
 
 function Entity:select( ray )
-	local result = false
+	local result = -1
 	
 	for _,v in pairs(self.components) do
-		if v:select( ray ) then
-			result = true
+		local distance = v:select( ray )
+		if distance > 0 and ( distance < result or result < 0 ) then
+			result = distance
 		end
 	end
 	
-	if not result then
+	if result < 0 then
 		local sphere = Physics.createSphere( self.position, 1.0 )
-		result = Physics.raySphere( ray, sphere )
+
+		local hit = {}
+		if Physics.raySphere( ray, sphere, hit ) then
+			result = hit.length
+		end
 	end
 	
 	return result
@@ -144,7 +150,12 @@ function Entity:render()
 		end
 		
 		if not rendered then
-			DebugShapes.addSphere( self.position, 1.0, { 0.0, 1.0, 0.0, 1.0 } )
+			local color = {0,1,0,1}
+			if self.hovered then
+				color[1] = 1
+			end
+
+			DebugShapes.addSphere( self.position, 1.0, color )
 		end
 	end
 end

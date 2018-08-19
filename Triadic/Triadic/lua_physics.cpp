@@ -210,18 +210,33 @@ namespace LuaPhysics
 	{
 		int result = 0;
 
-		LUA_EXPECT_ARGS( 2 )
+		int args = lua_gettop( lua );
+		if( args == 2 || args == 3 )
 		{
 			if( LUA_EXPECT_TABLE( 1 ) && 
 				LUA_EXPECT_TABLE( 2 ) )
 			{
 				Ray ray = readRay( lua, 1 );
 				Sphere sphere = readSphere( lua, 2 );
+				Hit hit = {};
 
-				bool collision = g_coreData->collisionSolver->ray( ray, sphere );
+				bool collision = g_coreData->collisionSolver->ray( ray, sphere, &hit );
+
+				if( args == 3 && LUA_EXPECT_TABLE( 3 ) )
+				{
+					lua_newtable( lua );
+					lua_setvec3( lua, hit.position );
+					lua_setfield( lua, 3, "position" );
+					lua_setnumber( lua, 3, "length", hit.length );
+				}
+
 				lua_pushboolean( lua, collision );
 				result = 1;
 			}
+		}
+		else
+		{
+			LOG_ERROR( "Expected 2 or 3 arguments. Got %d.", args );
 		}
 
 		return result;
@@ -231,26 +246,26 @@ namespace LuaPhysics
 	{
 		int result = 0;
 
-		LUA_EXPECT_ARGS( 2 )
+		int args = lua_gettop( lua );
+		if( args == 2 || args == 3 )
 		{
 			if( LUA_EXPECT_TABLE( 1 ) &&
 				LUA_EXPECT_TABLE( 2 ) )
 			{
-				//Ray ray = {};
-				//
-				//lua_getvec3( lua, 1, ray.start );
-				//lua_getvec3( lua, 2, ray.direction );
-				//ray.length = lua_tofloat( lua, 3 );
-				//
-				//AABB aabb = {};
-				//
-				//lua_getvec3( lua, 4, aabb.minPosition );
-				//lua_getvec3( lua, 5, aabb.maxPosition );
-
 				Ray ray = readRay( lua, 1 );
 				AABB aabb = readAABB( lua, 2 );
+				Hit hit = {};
 
-				bool collision = g_coreData->collisionSolver->ray( ray, aabb );
+				bool collision = g_coreData->collisionSolver->ray( ray, aabb, &hit );
+
+				if( args == 3 && LUA_EXPECT_TABLE( 3 ) )
+				{
+					lua_newtable( lua );
+					lua_setvec3( lua, hit.position );
+					lua_setfield( lua, 3, "position" );
+					lua_setnumber( lua, 3, "length", hit.length );
+				}
+
 				lua_pushboolean( lua, collision );
 				result = 1;
 			}
@@ -271,24 +286,17 @@ namespace LuaPhysics
 			{
 				Ray ray = readRay( lua, 1 );
 				Plane plane = readPlane( lua, 2 );
-
 				Hit hit = {};
-				Hit* hitp = NULL;
+
+				bool collision = g_coreData->collisionSolver->ray( ray, plane, &hit );
+
 				if( args == 3 && LUA_EXPECT_TABLE( 3 ) )
-				{
-					hitp = &hit;
-				}
-
-				bool collision = g_coreData->collisionSolver->ray( ray, plane, hitp );
-
-				if( hitp )
 				{
 					lua_newtable( lua );
 					lua_setvec3( lua, hit.position );
 					lua_setfield( lua, 3, "position" );
 
-					lua_pushnumber( lua, hit.length );
-					lua_setfield( lua, 3, "length" );
+					lua_setnumber( lua, 3, "length", hit.length );
 				}
 
 				lua_pushboolean( lua, collision );
@@ -303,23 +311,26 @@ namespace LuaPhysics
 	{
 		int result = 0;
 
-		LUA_EXPECT_ARGS( 4 )
+		int args = lua_gettop( lua );
+		if( args == 2 || args == 3 )
 		{
 			if( LUA_EXPECT_TABLE( 1 ) &&
-				LUA_EXPECT_NUMBER( 2 ) &&
-				LUA_EXPECT_TABLE( 3 ) &&
-				LUA_EXPECT_NUMBER( 4 ) )
+				LUA_EXPECT_TABLE( 3 ) )
 			{
-				Sphere a = {};
+				Sphere a = readSphere( lua, 1 );
+				Sphere b = readSphere( lua, 2 );
+				Hit hit = {};
 
-				lua_getvec3( lua, 1, a.center );
-				a.radius = lua_tofloat( lua, 2 );
+				bool collision = g_coreData->collisionSolver->sphere( a, b, &hit );
 
-				Sphere b = {};
-				lua_getvec3( lua, 3, b.center );
-				b.radius = lua_tofloat( lua, 4 );
+				if( args == 3 && LUA_EXPECT_TABLE( 3 ) )
+				{
+					lua_newtable( lua );
+					lua_setvec3( lua, hit.position );
+					lua_setfield( lua, 3, "position" );
+					lua_setnumber( lua, 3, "length", hit.length );
+				}
 
-				bool collision = g_coreData->collisionSolver->sphere( a, b );
 				lua_pushboolean( lua, collision );
 				result = 1;
 			}

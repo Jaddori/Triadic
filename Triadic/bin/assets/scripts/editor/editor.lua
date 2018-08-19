@@ -10,6 +10,7 @@ Editor =
 	entities = {},
 	selectedEntity = nil,
 	selectedEntityIndex = -1,
+	hoveredEntity = nil,
 	
 	gizmo = nil,
 	console = nil,
@@ -170,22 +171,25 @@ function Editor:update( deltaTime )
 			self.gui.contextMenu:show( mousePosition )
 		end
 		
-		-- selecting entities
+		-- hovering and selecting entities
+		if self.hoveredEntity then
+			self.hoveredEntity.hovered = false
+		end
+
 		local ray = self.camera.camera:createRay()
-		if Input.buttonReleased( Buttons.Left ) then
-			if not self.xcaptured and not self.ycaptured and not self.zcaptured then
-				self.selectedEntity = nil
-				for _,v in pairs(self.entities) do
-					if v:select( ray ) then
-						self.selectedEntity = v
-						v.selected = true
-					else
-						v.selected = false
-					end
-				end
-				
+		if not self.xcaptured and not self.ycaptured and not self.zcaptured then
+			self.hoveredEntity = self:findEntity( ray )
+
+			if self.hoveredEntity then
+				self.hoveredEntity.hovered = true
+			end
+
+			if Input.buttonReleased( Buttons.Left ) then
+				self.selectedEntity = self.hoveredEntity
 				self.gui.panel.tabs.info:setEntity( self.selectedEntity )
+
 				if self.selectedEntity then
+					self.selectedEntity.selected = true
 					self.gizmo:setPosition( self.selectedEntity.position )
 					self.gizmo.visible = true
 					self.gizmo.selectedAxis = -1
@@ -195,6 +199,7 @@ function Editor:update( deltaTime )
 			end
 		end
 		
+		-- manipulating entities
 		if self.selectedEntity then
 			local entityMoved = false
 			local entityOriented = false
@@ -441,6 +446,22 @@ function Editor:render()
 	for _,v in pairs(self.entities) do
 		v:render()
 	end
+end
+
+function Editor:findEntity( ray )
+	local closestEntity = nil
+	local closestDistance = 999999
+	for _,v in pairs(self.entities) do
+		local distance = v:select( ray )
+		if distance > 0 then
+			if distance < closestDistance then
+				closestDistance = distance
+				closestEntity = v
+			end
+		end
+	end
+
+	return closestEntity
 end
 
 function Editor:selectEntity( entity )

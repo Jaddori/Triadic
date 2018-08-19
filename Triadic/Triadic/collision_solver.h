@@ -39,11 +39,11 @@ namespace Physics
 		CollisionSolver();
 		~CollisionSolver();
 
-		bool ray( const Ray& ray, const Sphere& sphere );
-		bool ray( const Ray& ray, const AABB& aabb );
+		bool ray( const Ray& ray, const Sphere& sphere, Hit* hit = NULL );
+		bool ray( const Ray& ray, const AABB& aabb, Hit* hit = NULL );
 		bool ray( const Ray& ray, const Plane& plane, Hit* hit = NULL );
 
-		bool sphere( const Sphere& a, const Sphere& b );
+		bool sphere( const Sphere& a, const Sphere& b, Hit* hit = NULL );
 
 		bool aabb( const AABB& a, const AABB& b );
 	};

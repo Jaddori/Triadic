@@ -30,6 +30,8 @@ namespace LuaInput
 		lua_setnumber( lua, "KeypadSeven", SDL_SCANCODE_KP_7 );
 		lua_setnumber( lua, "KeypadEight", SDL_SCANCODE_KP_8 );
 		lua_setnumber( lua, "KeypadNine", SDL_SCANCODE_KP_9 );
+		lua_setnumber( lua, "KeypadReturn", SDL_SCANCODE_KP_ENTER );
+		lua_setnumber( lua, "KeypadEnter", SDL_SCANCODE_KP_ENTER );
 		
 		lua_setnumber( lua, "Return", SDL_SCANCODE_RETURN );
 		lua_setnumber( lua, "Enter", SDL_SCANCODE_RETURN );
@@ -44,6 +46,8 @@ namespace LuaInput
 		lua_setnumber( lua, "RightShift", SDL_SCANCODE_RSHIFT );
 		lua_setnumber( lua, "Delete", SDL_SCANCODE_DELETE );
 		lua_setnumber( lua, "Tilde", SDL_SCANCODE_GRAVE );
+		lua_setnumber( lua, "Home", SDL_SCANCODE_HOME );
+		lua_setnumber( lua, "End", SDL_SCANCODE_END );
 
 		lua_setnumber( lua, "Left", SDL_SCANCODE_LEFT );
 		lua_setnumber( lua, "Right", SDL_SCANCODE_RIGHT );

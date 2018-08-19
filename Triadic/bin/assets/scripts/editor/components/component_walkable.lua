@@ -76,13 +76,16 @@ function ComponentWalkable:copy( parent )
 end
 
 function ComponentWalkable:select( ray )
-	local result = false
+	local result = -1
 
 	local minPosition = {self.parent.position[1], -0.5, self.parent.position[3]}
 	local maxPosition = {self.parent.position[1]+self.size[1], 0.5, self.parent.position[3]+self.size[2]}
 	local boundingBox = Physics.createAABB( minPosition, maxPosition )
 
-	result = Physics.rayAABB( ray, boundingBox )
+	local hit = {}
+	if Physics.rayAABB( ray, boundingBox, hit ) then
+		result = hit.length
+	end
 
 	return result
 end
@@ -92,10 +95,14 @@ end
 
 function ComponentWalkable:render()
 	-- render bounds
+	local color = {0,1,0,1}
+	if self.parent.hovered then
+		color[1] = 1
+	end
 	local minPosition = {self.parent.position[1], -0.5, self.parent.position[3]}
 	local maxPosition = {self.parent.position[1]+self.size[1], 0.5, self.parent.position[3]+self.size[2]}
 
-	DebugShapes.addAABB( minPosition, maxPosition, {0,1,0,1} )
+	DebugShapes.addAABB( minPosition, maxPosition, color )
 
 	if self.parent.selected then
 		-- render nodes

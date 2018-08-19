@@ -219,9 +219,34 @@ function EditorTextbox:update( deltaTime )
 				end
 			end
 			
-			if Input.keyRepeated( Keys.Right ) and self.caretIndex < textLength then
-				self.caretIndex = self.caretIndex + 1
+			if Input.keyRepeated( Keys.Right ) then
+				if self.caretIndex < textLength then
+					self.caretIndex = self.caretIndex + 1
+				end
 				
+				if Input.keyDown( Keys.LeftShift ) or Input.keyDown( Keys.RightShift ) then
+					self.selectionEnd = self.caretIndex
+				else
+					self.selectionStart = self.caretIndex
+					self.selectionEnd = self.selectionStart
+				end
+			end
+
+			-- move the caret with Home/End keys
+			if Input.keyRepeated( Keys.Home ) then
+				self.caretIndex = 0
+
+				if Input.keyDown( Keys.LeftShift ) or Input.keyDown( Keys.RightShift ) then
+					self.selectionEnd = self.caretIndex
+				else
+					self.selectionStart = self.caretIndex
+					self.selectionEnd = self.selectionStart
+				end
+			end
+
+			if Input.keyRepeated( Keys.End ) then
+				self.caretIndex = #self.text
+
 				if Input.keyDown( Keys.LeftShift ) or Input.keyDown( Keys.RightShift ) then
 					self.selectionEnd = self.caretIndex
 				else
@@ -239,7 +264,7 @@ function EditorTextbox:update( deltaTime )
 			end
 			
 			-- remove focus if Return is pressed
-			if Input.keyReleased( Keys.Return) then
+			if Input.keyReleased( Keys.Return) or Input.keyReleased( Keys.KeypadReturn ) then
 				self.focus = false
 				self.caretVisible = false
 				

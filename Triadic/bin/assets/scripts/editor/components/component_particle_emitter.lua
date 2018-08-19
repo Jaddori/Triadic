@@ -92,7 +92,7 @@ function ComponentParticleEmitter:copy( parent )
 end
 
 function ComponentParticleEmitter:select( ray )
-	return false
+	return -1
 end
 
 function ComponentParticleEmitter:update( deltaTime )

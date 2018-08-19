@@ -105,7 +105,7 @@ function ComponentMesh:parentScaled()
 end
 
 function ComponentMesh:select( ray )
-	local result = false
+	local result = -1
 
 	if self.boundingBox then
 		local worldBox =
@@ -117,7 +117,10 @@ function ComponentMesh:select( ray )
 		worldBox.minPosition = worldBox.minPosition:add( self.parent.position )
 		worldBox.maxPosition = worldBox.maxPosition:add( self.parent.position )
 		
-		result = Physics.rayAABB( ray, worldBox )
+		local hit = {}
+		if Physics.rayAABB( ray, worldBox, hit ) then
+			result = hit.length
+		end
 	end
 	
 	return result
@@ -130,17 +133,24 @@ function ComponentMesh:render()
 	if self.meshIndex >= 0 then
 		Graphics.queueMesh( self.meshIndex, self.transform )
 		
-		if self.boundingBox and self.parent.selected then
-			local worldBox =
-			{
-				minPosition = self.boundingBox.minPosition:mul( self.parent.scale ),
-				maxPosition = self.boundingBox.maxPosition:mul( self.parent.scale )
-			}
+		if self.boundingBox then
+			if self.parent.selected or self.parent.hovered then
+				local color = {0,1,0,1}
+				if self.parent.hovered then
+					color[1] = 1
+				end
 
-			worldBox.minPosition = worldBox.minPosition:add( self.parent.position )
-			worldBox.maxPosition = worldBox.maxPosition:add( self.parent.position )
+				local worldBox =
+				{
+					minPosition = self.boundingBox.minPosition:mul( self.parent.scale ),
+					maxPosition = self.boundingBox.maxPosition:mul( self.parent.scale )
+				}
 
-			DebugShapes.addAABB( worldBox.minPosition, worldBox.maxPosition, {0.0, 1.0, 0.0, 1.0}, false )
+				worldBox.minPosition = worldBox.minPosition:add( self.parent.position )
+				worldBox.maxPosition = worldBox.maxPosition:add( self.parent.position )
+
+				DebugShapes.addAABB( worldBox.minPosition, worldBox.maxPosition, color, false )
+			end
 		end
 	end
 	
