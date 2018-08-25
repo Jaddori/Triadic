@@ -80,7 +80,7 @@ function ComponentMesh:copy( parent )
 end
 
 function ComponentMesh:loadMesh( path )
-	self.meshIndex = Assets.loadMesh( path )
+	self.meshIndex = Assets.loadMesh( "./assets/models/" .. path )
 	self.meshName = path
 	if self.meshIndex then
 		local mesh = Assets.getMesh( self.meshIndex )

@@ -1,4 +1,3 @@
-local DEFAULT_TEXTURE = "./assets/textures/white.dds"
 local DEFAULT_PARTICLE_TEXTURE = "./assets/textures/cloud.dds"
 local DEFAULT_PARTICLE_MASK = "./assets/textures/mask.dds"
 
