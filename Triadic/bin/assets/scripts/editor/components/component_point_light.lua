@@ -9,6 +9,7 @@ ComponentPointLight =
 	linear = 1,
 	constant = 0,
 	exponent = 1,
+	size = 1,
 }
 
 ComponentPointLightWindow =
@@ -28,6 +29,7 @@ function ComponentPointLight.create( parent )
 		linear = 1,
 		constant = 0,
 		exponent = 1,
+		size = 1,
 	}
 
 	setmetatable( result, { __index = ComponentPointLight } )
@@ -67,6 +69,17 @@ end
 
 function ComponentPointLight:render()
 	Graphics.queuePointLight( self.position, self.color, self.intensity, self.linear, self.constant, self.exponent )
+
+	if self.parent.selected then
+		local center = self.position
+		local radius = Graphics.getPointLightSize( self.color, self.intensity, self.linear, self.constant, self.exponent )
+		local color = {0,0,0}
+		copyVec( self.color, color )
+		color[4] = 1
+		DebugShapes.addSphere( center, radius, color )
+	end
+
+	return false
 end
 
 function ComponentPointLight:showInfoWindow()

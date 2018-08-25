@@ -14,9 +14,11 @@ namespace LuaRendering
 			{ "queueText", queueText },
 			{ "queueBillboard", queueBillboard },
 			{ "queuePointLight", queuePointLight },
+			{ "queueDirectionalLight", queueDirectionalLight },
 
 			{ "setLightingEnabled", setLightingEnabled },
 
+			{ "getPointLightSize", getPointLightSize },
 			{ "getPerspectiveCamera", getPerspectiveCamera },
 			{ "getOrthographicCamera", getOrthographicCamera },
 			{ "getLightingEnabled", getLightingEnabled },
@@ -142,6 +144,28 @@ namespace LuaRendering
 		return 0;
 	}
 
+	LDEC( queueDirectionalLight )
+	{
+		LUA_EXPECT_ARGS( 3 )
+		{
+			if( LUA_EXPECT_TABLE( 1 ) &&
+				LUA_EXPECT_TABLE( 2 ) &&
+				LUA_EXPECT_NUMBER( 3 ) )
+			{
+				glm::vec3 direction, color;
+
+				lua_getvec3( lua, 1, direction );
+				lua_getvec3( lua, 2, color );
+
+				float intensity = lua_tofloat( lua, 3 );
+
+				g_coreData->graphics->queueDirectionalLight( direction, color, intensity );
+			}
+		}
+
+		return 0;
+	}
+
 	LDEC( queuePointLight )
 	{
 		LUA_EXPECT_ARGS( 6 )
@@ -181,6 +205,37 @@ namespace LuaRendering
 				bool enabled = lua_tobool( lua, 1 );
 
 				g_coreData->graphics->setLightingEnabled( enabled );
+			}
+		}
+
+		return result;
+	}
+
+	LDEC( getPointLightSize )
+	{
+		int result = 0;
+
+		LUA_EXPECT_ARGS( 5 )
+		{
+			if( LUA_EXPECT_TABLE( 1 ) &&
+				LUA_EXPECT_NUMBER( 2 ) &&
+				LUA_EXPECT_NUMBER( 3 ) &&
+				LUA_EXPECT_NUMBER( 4 ) &&
+				LUA_EXPECT_NUMBER( 5 ) )
+			{
+				glm::vec3 color;
+				lua_getvec3( lua, 1, color );
+
+				float intensity = lua_tofloat( lua, 2 );
+				float linear = lua_tofloat( lua, 3 );
+				float constant = lua_tofloat( lua, 4 );
+				float exponent = lua_tofloat( lua, 5 );
+
+				float C = fmax( fmax( color.r, color.g ), color.b );
+				float radius = ( -linear + sqrt( powf( linear, 2.0f ) - 4*exponent * ( constant - 256*C*intensity ) ) ) / (2*exponent);
+
+				lua_pushnumber( lua, radius );
+				result = 1;
 			}
 		}
 

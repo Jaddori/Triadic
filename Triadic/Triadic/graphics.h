@@ -64,6 +64,7 @@ namespace Rendering
 		void queueQuad( int textureIndex, const glm::vec2& position, const glm::vec2& size, const glm::vec2& uvStart, const glm::vec2& uvEnd, const glm::vec4& color );
 		void queueText( int fontIndex, const char* text, const glm::vec2& position, const glm::vec4& color );
 		void queueBillboard( int textureIndex, int maskIndex, const glm::vec3& position, const glm::vec2& size, const glm::vec4& uv, bool spherical, const glm::vec3& scroll );
+		void queueDirectionalLight( const glm::vec3& direction, const glm::vec3& color, float intensity );
 		void queuePointLight( const glm::vec3& position, const glm::vec3& color, float intensity, float linear, float constant, float exponent );
 
 		void setLightingEnabled( bool enabled );
@@ -119,7 +120,7 @@ namespace Rendering
 		GLuint billboardVBO;
 		Array<BillboardCollection> billboardCollections;
 
-		Array<DirectionalLight> directionalLights;
+		SwapArray<DirectionalLight> directionalLights;
 		SwapArray<PointLight> pointLights;
 
 		int writeIndex, readIndex;

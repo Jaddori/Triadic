@@ -128,23 +128,10 @@ void Graphics::load()
 
 	normalMap = assets.getTexture( normalIndex );
 	specularMap = assets.getTexture( specularIndex );
-
-	DirectionalLight& light = directionalLights.append();
-	light.color = glm::vec3( 1.0f, 0.0f, 0.0f );
-	light.direction = glm::normalize( glm::vec3( 1, -1, 1 ) );
-	light.intensity = 2.0f;
 }
 
 void Graphics::finalize()
 {
-	static float sinval = 0.0f;
-	sinval += 0.01f;
-
-	float x = sinf( sinval );
-	float z = cosf( sinval );
-
-	directionalLights[0].direction = glm::normalize( glm::vec3( x, -1, z ) );
-
 	perspectiveCamera.finalize();
 	orthographicCamera.finalize();
 
@@ -165,6 +152,10 @@ void Graphics::finalize()
 	const int BILLBOARD_COLLECTION_COUNT = billboardCollections.getSize();
 	for( int i=0; i<BILLBOARD_COLLECTION_COUNT; i++ )
 		billboardCollections[i].billboards[writeIndex].clear();
+
+	// swap directional lights
+	directionalLights.swap();
+	directionalLights.getWrite().clear();
 
 	// swap points lights
 	pointLights.swap();
@@ -246,10 +237,10 @@ void Graphics::renderDeferred()
 	gbuffer.endGeometryPass();
 
 	// DIRECTIONAL LIGHT PASS
-	const int DIRECTIONAL_LIGHT_COUNT = directionalLights.getSize();
+	const int DIRECTIONAL_LIGHT_COUNT = directionalLights.getRead().getSize();
 	for( int curLight = 0; curLight < DIRECTIONAL_LIGHT_COUNT; curLight++ )
 	{
-		const DirectionalLight& light = directionalLights[curLight];
+		const DirectionalLight& light = directionalLights.getRead()[curLight];
 
 		// render shadow
 		gbuffer.beginDirectionalShadowPass( &perspectiveCamera, light );
@@ -674,6 +665,14 @@ void Graphics::queueBillboard( int textureIndex, int maskIndex, const glm::vec3&
 	billboard.size = size;
 	billboard.spherical = ( spherical ? 1.0f : 0.0f );
 	billboard.scroll = scroll;
+}
+
+void Graphics::queueDirectionalLight( const glm::vec3& direction, const glm::vec3& color, float intensity )
+{
+	DirectionalLight& light = directionalLights.getWrite().append();
+	light.direction = direction;
+	light.color = color;
+	light.intensity = intensity;
 }
 
 void Graphics::queuePointLight( const glm::vec3& position, const glm::vec3& color, float intensity, float linear, float constant, float exponent )
