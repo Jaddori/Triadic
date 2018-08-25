@@ -9,6 +9,8 @@
 #include "assets.h"
 #include "transform.h"
 #include "font.h"
+#include "gbuffer.h"
+#include "billboard.h"
 
 namespace Rendering
 {
@@ -40,15 +42,6 @@ namespace Rendering
 		Array<Quad> quads[2];
 	};
 
-	struct Billboard
-	{
-		glm::vec3 position;
-		glm::vec4 uv;
-		glm::vec2 size;
-		float spherical;
-		glm::vec3 scroll;
-	};
-
 	struct BillboardCollection
 	{
 		const Texture* texture;
@@ -72,16 +65,27 @@ namespace Rendering
 		void queueText( int fontIndex, const char* text, const glm::vec2& position, const glm::vec4& color );
 		void queueBillboard( int textureIndex, int maskIndex, const glm::vec3& position, const glm::vec2& size, const glm::vec4& uv, bool spherical, const glm::vec3& scroll );
 
+		void setLightingEnabled( bool enabled );
+
 		//Camera* getCamera();
 		Camera* getPerspectiveCamera();
 		Camera* getOrthographicCamera();
 		Assets* getAssets();
+		Gbuffer* getGbuffer();
+		bool getLightingEnabled();
 
 	private:
-		//Camera camera;
+		void renderDeferred();
+		void renderForward();
+		void renderBasic();
+
+		Gbuffer gbuffer;
+
 		Camera perspectiveCamera;
 		Shader shader;
 		Texture texture;
+		const Texture* normalMap;
+		const Texture* specularMap;
 
 		GLuint projectionLocation;
 		GLuint viewLocation;
@@ -114,7 +118,11 @@ namespace Rendering
 		GLuint billboardVBO;
 		Array<BillboardCollection> billboardCollections;
 
+		Array<DirectionalLight> directionalLights;
+		Array<PointLight> pointLights;
+
 		int writeIndex, readIndex;
 		float elapsedTime;
+		bool lightingEnabled;
 	};
 }

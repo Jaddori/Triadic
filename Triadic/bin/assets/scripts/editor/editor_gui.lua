@@ -45,9 +45,11 @@ local gui =
 			items = {},
 			showGridButton = nil,
 			showOrigoButton = nil,
+			enableLightingButton = nil,
 			
 			onShowGrid = nil,
 			onShowOrigo = nil,
+			onEnableLighting = nil,
 		},
 	},
 	
@@ -290,9 +292,20 @@ function gui.menu.settings:load( xoffset )
 		end
 	end
 	yoffset = yoffset + GUI_BUTTON_HEIGHT
+
+	self.enableLightingButton = EditorButton.create( {pos[1], pos[2]+yoffset}, {MENU_SETTINGS_BUTTON_WIDTH, GUI_BUTTON_HEIGHT}, "Toggle lighting" )
+	self.enableLightingButton.onClick = function( button )
+		self.visible = false
+
+		if self.onEnableLighting then
+			self.onEnableLighting()
+		end
+	end
+	yoffset = yoffset + GUI_BUTTON_HEIGHT
 	
 	self.items[#self.items+1] = self.showGridButton
 	self.items[#self.items+1] = self.showOrigoButton
+	self.items[#self.items+1] = self.enableLightingButton
 	
 	return width
 end

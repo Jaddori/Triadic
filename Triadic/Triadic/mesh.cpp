@@ -32,6 +32,8 @@ bool Mesh::load( const char* path )
 			fread( vertices, sizeof(Vertex), vertexCount, file );
 			fread( indices, sizeof(GLuint), indexCount, file );
 
+			fclose( file );
+
 			result = true;
 
 			// calculate bounding box

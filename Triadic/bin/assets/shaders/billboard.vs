@@ -11,8 +11,6 @@ out vec2 geomSize;
 out float geomSpherical;
 out vec3 geomScroll;
 
-uniform mat4 viewMatrix;
-
 void main()
 {
 	gl_Position = vec4( vertPosition, 1.0 );

@@ -87,6 +87,8 @@ GLuint Shader::loadShader( const char* path, GLenum type )
 			glShaderSource( result, 1, &buffer, 0 );
 			glCompileShader( result );
 
+			delete[] buffer;
+
 			GLint compilationStatus;
 			glGetShaderiv( result, GL_COMPILE_STATUS, &compilationStatus );
 			if( compilationStatus != GL_TRUE )

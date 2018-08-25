@@ -14,8 +14,11 @@ namespace LuaRendering
 			{ "queueText", queueText },
 			{ "queueBillboard", queueBillboard },
 
+			{ "setLightingEnabled", setLightingEnabled },
+
 			{ "getPerspectiveCamera", getPerspectiveCamera },
 			{ "getOrthographicCamera", getOrthographicCamera },
+			{ "getLightingEnabled", getLightingEnabled },
 
 			{ NULL, NULL }
 		};
@@ -138,6 +141,23 @@ namespace LuaRendering
 		return 0;
 	}
 
+	LDEC( setLightingEnabled )
+	{
+		int result = 0;
+
+		LUA_EXPECT_ARGS( 1 )
+		{
+			if( LUA_EXPECT_BOOL( 1 ) )
+			{
+				bool enabled = lua_tobool( lua, 1 );
+
+				g_coreData->graphics->setLightingEnabled( enabled );
+			}
+		}
+
+		return result;
+	}
+
 	LDEC( getPerspectiveCamera )
 	{
 		Camera* camera = g_coreData->graphics->getPerspectiveCamera();
@@ -156,6 +176,14 @@ namespace LuaRendering
 		lua_newtable( lua );
 		lua_setuserdata( lua, "__self", camera );
 		luaL_setmetatable( lua, "cameraMeta" );
+
+		return 1;
+	}
+
+	LDEC( getLightingEnabled )
+	{
+		bool enabled = g_coreData->graphics->getLightingEnabled();
+		lua_pushboolean( lua, enabled );
 
 		return 1;
 	}

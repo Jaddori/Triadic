@@ -59,6 +59,11 @@ int update( void* args )
 
 			data->coreData->systemInfo->stopUpdate();
 
+			if( input.keyPressed( SDL_SCANCODE_G ) )
+			{
+				data->coreData->graphics->getGbuffer()->toggleDebugMode();
+			}
+
 			SDL_SemPost( data->updateDone );
 		}
 		else if( result == -1 )

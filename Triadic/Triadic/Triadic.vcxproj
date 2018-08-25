@@ -151,6 +151,7 @@
     <ClCompile Include="collision_solver.cpp" />
     <ClCompile Include="entity.cpp" />
     <ClCompile Include="font.cpp" />
+    <ClCompile Include="gbuffer.cpp" />
     <ClCompile Include="graphics.cpp" />
     <ClCompile Include="input.cpp" />
     <ClCompile Include="instanced_model.cpp" />
@@ -216,12 +217,14 @@
     <ClInclude Include="aabb.h" />
     <ClInclude Include="array.h" />
     <ClInclude Include="assets.h" />
+    <ClInclude Include="billboard.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="collision_solver.h" />
     <ClInclude Include="common.h" />
     <ClInclude Include="core_data.h" />
     <ClInclude Include="entity.h" />
     <ClInclude Include="font.h" />
+    <ClInclude Include="gbuffer.h" />
     <ClInclude Include="graphics.h" />
     <ClInclude Include="input.h" />
     <ClInclude Include="instanced_model.h" />

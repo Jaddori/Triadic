@@ -226,6 +226,9 @@
     <ClCompile Include="lua_core.cpp">
       <Filter>Source Files\Scripting</Filter>
     </ClCompile>
+    <ClCompile Include="gbuffer.cpp">
+      <Filter>Source Files\Rendering</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Lua\lapi.h">
@@ -437,6 +440,12 @@
     </ClInclude>
     <ClInclude Include="lua_core.h">
       <Filter>Source Files\Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="gbuffer.h">
+      <Filter>Source Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="billboard.h">
+      <Filter>Source Files\Rendering</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

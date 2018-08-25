@@ -3,7 +3,7 @@ using namespace Rendering;
 
 Graphics::Graphics()
 	: worldMatrixQueue( WORLD_MATRIX_QUEUE_INITIAL_CAPACITY ),
-	writeIndex( 0 ), readIndex( 1 )
+	writeIndex( 0 ), readIndex( 1 ), lightingEnabled( false )
 {
 }
 
@@ -13,6 +13,11 @@ Graphics::~Graphics()
 
 void Graphics::load()
 {
+	if( !gbuffer.load( &assets, WINDOW_WIDTH, WINDOW_HEIGHT ) )
+	{
+		LOG( VERBOSITY_ERROR, "Failed to load gbuffer." );
+	}
+
 	shader.load( "./assets/shaders/instanced.vs", NULL, "./assets/shaders/instanced.fs" );
 
 	perspectiveCamera.updatePerspective( WINDOW_WIDTH, WINDOW_HEIGHT );
@@ -117,10 +122,37 @@ void Graphics::load()
 	{
 		LOG_ERROR( "Failed to load billboard shader." );
 	}
+
+	int normalIndex = assets.loadTexture( "./assets/textures/normal.dds" );
+	int specularIndex = assets.loadTexture( "./assets/textures/specular.dds" );
+
+	normalMap = assets.getTexture( normalIndex );
+	specularMap = assets.getTexture( specularIndex );
+
+	DirectionalLight& light = directionalLights.append();
+	light.color = glm::vec3( 1.0f, 0.0f, 0.0f );
+	light.direction = glm::normalize( glm::vec3( 1, -1, 1 ) );
+	light.intensity = 2.0f;
+
+	PointLight& pointLight = pointLights.append();
+	pointLight.position = glm::vec3( -1, 1, -1 );
+	pointLight.color = glm::vec3( 0.0f, 0.0f, 1.0f );
+	pointLight.intensity = 2.0f;
+	pointLight.linear = 1.0f;
+	pointLight.constant = 1.0f;
+	pointLight.exponent = 2.0f;
 }
 
 void Graphics::finalize()
 {
+	static float sinval = 0.0f;
+	sinval += 0.001f;
+
+	float x = sinf( sinval );
+	float z = cosf( sinval );
+
+	directionalLights[0].direction = glm::normalize( glm::vec3( x, -1, z ) );
+
 	perspectiveCamera.finalize();
 	orthographicCamera.finalize();
 
@@ -172,6 +204,204 @@ void Graphics::render( float deltaTime )
 {
 	elapsedTime += deltaTime;
 
+	if( lightingEnabled )
+	{
+		renderDeferred();
+		renderForward();
+	}
+	else
+	{
+		renderBasic();
+	}
+}
+
+void Graphics::renderDeferred()
+{
+	gbuffer.begin();
+
+	// GEOMETRY PASS
+	gbuffer.beginGeometryPass( &perspectiveCamera );
+
+	const int MESH_COUNT = meshQueue.getSize();
+	for( int curMesh = 0; curMesh < MESH_COUNT; curMesh++ )
+	{
+		int meshIndex = meshQueue[curMesh];
+		const Mesh* mesh = assets.getMesh( meshIndex );
+		Array<glm::mat4>& matrices = worldMatrixQueue[curMesh];
+
+		if( mesh->getUploaded() )
+		{
+			mesh->bind();
+
+			glBindBuffer( GL_UNIFORM_BUFFER, uniformBuffer );
+			glBufferData( GL_UNIFORM_BUFFER, sizeof(glm::mat4)*matrices.getSize(), &matrices.getConstData()[0][0], GL_DYNAMIC_DRAW );
+
+			//gbuffer.updateGeometryWorldMatrices( matrices.getConstData(), matrices.getSize() );
+
+			gbuffer.updateGeometryTextures( &texture, normalMap, specularMap );
+
+			glDrawElementsInstanced( GL_TRIANGLES, mesh->getIndexCount(), GL_UNSIGNED_INT, NULL, matrices.getSize() );
+
+			glBindBuffer( GL_UNIFORM_BUFFER, 0 );
+		}
+	}
+
+	gbuffer.endGeometryPass();
+
+	// DIRECTIONAL LIGHT PASS
+	const int DIRECTIONAL_LIGHT_COUNT = directionalLights.getSize();
+	for( int curLight = 0; curLight < DIRECTIONAL_LIGHT_COUNT; curLight++ )
+	{
+		const DirectionalLight& light = directionalLights[curLight];
+
+		// render shadow
+		gbuffer.beginDirectionalShadowPass( &perspectiveCamera, light );
+		const int MESH_COUNT = meshQueue.getSize();
+		for( int curMesh = 0; curMesh < MESH_COUNT; curMesh++ )
+		{
+			int meshIndex = meshQueue[curMesh];
+			const Mesh* mesh = assets.getMesh( meshIndex );
+			Array<glm::mat4>& matrices = worldMatrixQueue[curMesh];
+
+			if( mesh->getUploaded() )
+			{
+				mesh->bind();
+
+				glBindBuffer( GL_UNIFORM_BUFFER, uniformBuffer );
+				glBufferData( GL_UNIFORM_BUFFER, sizeof(glm::mat4)*matrices.getSize(), &matrices.getConstData()[0][0], GL_DYNAMIC_DRAW );
+
+				//gbuffer.updateGeometryWorldMatrices( matrices.getConstData(), matrices.getSize() );
+
+				gbuffer.updateGeometryTextures( &texture, normalMap, specularMap );
+
+				glDrawElementsInstanced( GL_TRIANGLES, mesh->getIndexCount(), GL_UNSIGNED_INT, NULL, matrices.getSize() );
+
+				glBindBuffer( GL_UNIFORM_BUFFER, 0 );
+			}
+		}
+		gbuffer.endDirectionalShadowPass();
+
+		// render light
+		gbuffer.beginDirectionalLightPass( TARGET_LIGHT, &perspectiveCamera );
+		gbuffer.renderDirectionalLight( &perspectiveCamera, light );
+		gbuffer.endDirectionalLightPass();
+	}
+
+	// POINT LIGHT PASS
+	gbuffer.beginPointLightPass( TARGET_LIGHT, &perspectiveCamera );
+
+	const int POINT_LIGHT_COUNT = pointLights.getSize();
+	for( int curLight=0; curLight < POINT_LIGHT_COUNT; curLight++ )
+	{
+		gbuffer.renderPointLight( pointLights[curLight] );
+	}
+
+	gbuffer.endPointLightPass();
+
+	// BILLBOARDS
+	gbuffer.beginBillboardPass( &perspectiveCamera );
+
+	Array<Billboard> bbs;
+	Billboard& bb = bbs.append();
+	bb.position = glm::vec3( 0.0f, 0.0f, 0.0f );
+	bb.size = glm::vec2( 2.0f, 2.0f );
+	bb.spherical = 1.0f;
+	bb.uv = glm::vec4( 0.0f, 0.0f, 1.0f, 1.0f );
+	bb.scroll = glm::vec3( 0.0f, 0.0f, 0.0f );
+
+	texture.bind( GL_TEXTURE0 );
+	normalMap->bind( GL_TEXTURE1 );
+	specularMap->bind( GL_TEXTURE2 );
+
+	gbuffer.renderBillboards( bbs );
+
+	gbuffer.endBillboardPass();
+
+	// FINAL PASS
+	gbuffer.performFinalPass();
+	gbuffer.end();
+}
+
+void Graphics::renderForward()
+{
+	// render quads
+	glDisable( GL_DEPTH_TEST );
+	glEnable( GL_BLEND );
+	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+
+	quadShader.bind();
+	quadShader.setMat4( quadProjectionLocation, orthographicCamera.getProjectionMatrix() );
+
+	glBindVertexArray( quadVAO );
+	glBindBuffer( GL_ARRAY_BUFFER, quadVBO );
+
+	const int QUAD_COLLECTION_COUNT = quadCollections.getSize();
+	for( int curCollection = 0; curCollection < QUAD_COLLECTION_COUNT; curCollection++ )
+	{
+		QuadCollection& collection = quadCollections[curCollection];
+
+		if( collection.texture )
+			collection.texture->bind();
+		else
+			glBindTexture( GL_TEXTURE_2D, 0 );
+
+		const int QUAD_COUNT = collection.quads[readIndex].getSize();
+		int offset = 0;
+		while( offset < QUAD_COUNT )
+		{
+			int count = QUAD_COUNT - offset;
+			if( count > GRAPHICS_MAX_QUADS )
+				count = GRAPHICS_MAX_QUADS;
+
+			glBufferSubData( GL_ARRAY_BUFFER, 0, sizeof(Quad)*count, collection.quads[readIndex].getData()+offset );
+			glDrawArrays( GL_POINTS, 0, count );
+
+			offset += count;
+		}
+	}
+
+	glBindVertexArray( 0 );
+
+	// render text
+	textShader.bind();
+	textShader.setMat4( textProjectionLocation, orthographicCamera.getProjectionMatrix() );
+
+	glBindVertexArray( textVAO );
+	glBindBuffer( GL_ARRAY_BUFFER, textVBO );
+
+	const int GLYPH_COLLECTION_COUNT = glyphCollections.getSize();
+	for( int curCollection = 0; curCollection < GLYPH_COLLECTION_COUNT; curCollection++ )
+	{
+		GlyphCollection& collection = glyphCollections[curCollection];
+
+		if( collection.texture )
+			collection.texture->bind();
+		else
+			glBindTexture( GL_TEXTURE_2D, 0 );
+
+		const int GLYPH_COUNT = collection.glyphs[readIndex].getSize();
+		int offset = 0;
+		while( offset < GLYPH_COUNT )
+		{
+			int count = GLYPH_COUNT - offset;
+			if( count > GRAPHICS_MAX_GLYPHS )
+				count = GRAPHICS_MAX_GLYPHS;
+
+			glBufferSubData( GL_ARRAY_BUFFER, 0, sizeof(Glyph)*count, collection.glyphs[readIndex].getData()+offset );
+			glDrawArrays( GL_POINTS, 0, count );
+
+			offset += count;
+		}
+	}
+
+	glBindVertexArray( 0 );
+
+	glEnable( GL_DEPTH_TEST );
+	glDisable( GL_BLEND );
+}
+
+void Graphics::renderBasic()
+{
 	shader.bind();
 	shader.setMat4( projectionLocation, perspectiveCamera.getProjectionMatrix() );
 	shader.setMat4( viewLocation, perspectiveCamera.getViewMatrix() );
@@ -202,7 +432,7 @@ void Graphics::render( float deltaTime )
 	glEnable( GL_BLEND );
 	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 	glDepthMask( GL_FALSE );
-	
+
 	billboardShader.bind();
 	billboardShader.setMat4( billboardProjectionLocation, perspectiveCamera.getProjectionMatrix() );
 	billboardShader.setMat4( billboardViewLocation, perspectiveCamera.getViewMatrix() );
@@ -229,7 +459,7 @@ void Graphics::render( float deltaTime )
 		{
 			int count = BILLBOARD_COUNT - offset;
 			if( count > GRAPHICS_MAX_BILLBOARDS )
-				count = GRAPHICS_MAX_BILLBOARDS;
+			count = GRAPHICS_MAX_BILLBOARDS;
 
 			glBufferSubData( GL_ARRAY_BUFFER, 0, sizeof(Billboard)*count, collection.billboards[readIndex].getData()+offset );
 			glDrawArrays( GL_POINTS, 0, count );
@@ -246,35 +476,35 @@ void Graphics::render( float deltaTime )
 
 	quadShader.bind();
 	quadShader.setMat4( quadProjectionLocation, orthographicCamera.getProjectionMatrix() );
-	
+
 	glBindVertexArray( quadVAO );
 	glBindBuffer( GL_ARRAY_BUFFER, quadVBO );
-	
+
 	const int QUAD_COLLECTION_COUNT = quadCollections.getSize();
 	for( int curCollection = 0; curCollection < QUAD_COLLECTION_COUNT; curCollection++ )
 	{
 		QuadCollection& collection = quadCollections[curCollection];
-	
+
 		if( collection.texture )
 			collection.texture->bind();
 		else
 			glBindTexture( GL_TEXTURE_2D, 0 );
-	
+
 		const int QUAD_COUNT = collection.quads[readIndex].getSize();
 		int offset = 0;
 		while( offset < QUAD_COUNT )
 		{
 			int count = QUAD_COUNT - offset;
 			if( count > GRAPHICS_MAX_QUADS )
-				count = GRAPHICS_MAX_QUADS;
-	
+			count = GRAPHICS_MAX_QUADS;
+
 			glBufferSubData( GL_ARRAY_BUFFER, 0, sizeof(Quad)*count, collection.quads[readIndex].getData()+offset );
 			glDrawArrays( GL_POINTS, 0, count );
-	
+
 			offset += count;
 		}
 	}
-	
+
 	glBindVertexArray( 0 );
 
 	// render text
@@ -456,6 +686,11 @@ void Graphics::queueBillboard( int textureIndex, int maskIndex, const glm::vec3&
 //	return &camera;
 //}
 
+void Graphics::setLightingEnabled( bool enabled )
+{
+	lightingEnabled = enabled;
+}
+
 Camera* Graphics::getPerspectiveCamera()
 {
 	return &perspectiveCamera;
@@ -469,4 +704,14 @@ Camera* Graphics::getOrthographicCamera()
 Assets* Graphics::getAssets()
 {
 	return &assets;
+}
+
+Gbuffer* Graphics::getGbuffer()
+{
+	return &gbuffer;
+}
+
+bool Graphics::getLightingEnabled()
+{
+	return lightingEnabled;
 }
