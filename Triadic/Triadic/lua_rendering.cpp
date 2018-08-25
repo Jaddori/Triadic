@@ -13,6 +13,7 @@ namespace LuaRendering
 			{ "queueQuad", queueQuad },
 			{ "queueText", queueText },
 			{ "queueBillboard", queueBillboard },
+			{ "queuePointLight", queuePointLight },
 
 			{ "setLightingEnabled", setLightingEnabled },
 
@@ -135,6 +136,34 @@ namespace LuaRendering
 				lua_getvec3( lua, 7, scroll );
 
 				g_coreData->graphics->queueBillboard( textureIndex, maskIndex, position, size, uv, spherical, scroll );
+			}
+		}
+
+		return 0;
+	}
+
+	LDEC( queuePointLight )
+	{
+		LUA_EXPECT_ARGS( 6 )
+		{
+			if( LUA_EXPECT_TABLE( 1 ) &&
+				LUA_EXPECT_TABLE( 2 ) &&
+				LUA_EXPECT_NUMBER( 3 ) &&
+				LUA_EXPECT_NUMBER( 4 ) &&
+				LUA_EXPECT_NUMBER( 5 ) &&
+				LUA_EXPECT_NUMBER( 6 ) )
+			{
+				glm::vec3 position, color;
+
+				lua_getvec3( lua, 1, position );
+				lua_getvec3( lua, 2, color );
+
+				float intensity = lua_tofloat( lua, 3 );
+				float linear = lua_tofloat( lua, 4 );
+				float constant = lua_tofloat( lua, 5 );
+				float exponent = lua_tofloat( lua, 6 );
+
+				g_coreData->graphics->queuePointLight( position, color, intensity, linear, constant, exponent );
 			}
 		}
 

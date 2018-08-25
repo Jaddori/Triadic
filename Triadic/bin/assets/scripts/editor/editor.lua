@@ -19,15 +19,9 @@ Editor =
 
 	mode = MODE_TRANSLATE,
 	command = { old = {}, new = {} },
-
-	pillarIndex = -1,
-	pillarTransform = nil,
 }
 
 function Editor:load()
-	self.pillarIndex = Assets.loadMesh( "./assets/models/pillar02.mesh" )
-	self.pillarTransform = Transform.create()
-
 	self.camera = doscript( "editor/editor_camera.lua" )
 	self.camera:load()
 	
@@ -460,8 +454,6 @@ function Editor:render()
 	for _,v in pairs(self.entities) do
 		v:render()
 	end
-
-	Graphics.queueMesh( self.pillarIndex, self.pillarTransform )
 end
 
 function Editor:findEntity( ray )

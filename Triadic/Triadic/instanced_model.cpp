@@ -48,7 +48,7 @@ void InstancedModel::render()
 	model->getTexture()->bind();
 	model->getMesh()->bind();
 
-	glDrawElementsInstanced( GL_TRIANGLES, model->getMesh()->getIndexCount(), GL_UNSIGNED_INT, NULL, worldMatrices.getSize() );
+	//glDrawElementsInstanced( GL_TRIANGLES, model->getMesh()->getIndexCount(), GL_UNSIGNED_INT, NULL, worldMatrices.getSize() );
 
 	glBindBuffer( GL_UNIFORM_BUFFER, 0 );
 }

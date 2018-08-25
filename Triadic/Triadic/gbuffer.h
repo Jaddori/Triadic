@@ -6,7 +6,7 @@
 #include "assets.h"
 #include "billboard.h"
 
-#define GBUFFER_SPHERE_MESH_PATH "./assets/models/cube.mesh"
+#define GBUFFER_SPHERE_MESH_PATH "./assets/models/sphere.mesh"
 #define GBUFFER_SHADOW_MAP_RESOLUTION 10.0f
 
 namespace Rendering
@@ -57,12 +57,12 @@ namespace Rendering
 		~Gbuffer();
 
 		bool load( Assets* assets, int width, int height );
-		void upload();
 
 		void begin();
 		void end();
 
 		void beginGeometryPass( Camera* camera );
+		void beginGeometry( glm::mat4& proj, glm::mat4& view );
 		void endGeometryPass();
 		void updateGeometryWorldMatrices( const glm::mat4* worldMatrices, int count );
 		void updateGeometryTextures( const Texture* diffuseMap, const Texture* normalMap, const Texture* specularMap );
@@ -70,6 +70,7 @@ namespace Rendering
 		void beginDirectionalShadowPass( Camera* camera, const DirectionalLight& light );
 		void endDirectionalShadowPass();
 		void updateDirectionalShadowWorldMatrices( const glm::mat4* worldMatrices, int count );
+		void updateDirectionalShadowWorldMatrix( const glm::mat4& worldMatrix, const glm::vec3& lightDirection );
 		void clearShadowTarget();
 
 		void beginDirectionalLightPass( int target, Camera* camera );
@@ -127,6 +128,7 @@ namespace Rendering
 		GLint directionalShadowProjectionMatrix;
 		GLint directionalShadowViewMatrix;
 		GLint directionalShadowWorldMatrices;
+		GLint directionalShadowWorldMatrix;
 
 		Shader pointLightPass;
 		GLint pointLightProjectionMatrix;

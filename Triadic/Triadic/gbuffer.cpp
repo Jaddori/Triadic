@@ -83,6 +83,7 @@ bool Gbuffer::load( Assets* a, int w, int h )
 		directionalShadowProjectionMatrix = directionalShadowPass.getLocation( "projectionMatrix" );
 		directionalShadowViewMatrix = directionalShadowPass.getLocation( "viewMatrix" );
 		directionalShadowWorldMatrices = directionalShadowPass.getLocation( "worldMatrices" );
+		directionalShadowWorldMatrix = directionalShadowPass.getLocation( "worldMatrix" );
 
 		glUseProgram( 0 );
 	}
@@ -217,7 +218,7 @@ bool Gbuffer::load( Assets* a, int w, int h )
 		glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0 );
 		glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0 );
 
-		if( i == TARGET_DEPTH )
+		if( i == TARGET_DEPTH || i == TARGET_SHADOW )
 		{
 			glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
 			glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
@@ -239,7 +240,7 @@ bool Gbuffer::load( Assets* a, int w, int h )
 	GLenum status = glCheckFramebufferStatus( GL_FRAMEBUFFER );
 	if( status != GL_FRAMEBUFFER_COMPLETE )
 	{
-		LOG( VERBOSITY_ERROR, "GBuffer(upload)", "Failed to create framebuffer.\nStatus: %d", status );
+		LOG( VERBOSITY_ERROR, "Failed to create framebuffer.\nStatus: %d", status );
 	}
 
 	glClearColor( 0.1f, 0.1f, 0.1f, 1.0f );
@@ -385,6 +386,25 @@ void Gbuffer::beginGeometryPass( Camera* camera )
 	geometryPass.setInt( geometryNormalMap, 1 );
 }
 
+void Gbuffer::beginGeometry( glm::mat4& proj, glm::mat4& view )
+{
+	GLenum drawBuffers[] =
+	{
+		GL_COLOR_ATTACHMENT0 + TARGET_DIFFUSE,
+		GL_COLOR_ATTACHMENT0 + TARGET_POSITION,
+		GL_COLOR_ATTACHMENT0 + TARGET_NORMAL,
+		GL_COLOR_ATTACHMENT0 + TARGET_DEPTH,
+	};
+	glDrawBuffers( TARGET_DEPTH+1, drawBuffers );
+
+	geometryPass.bind();
+	geometryPass.setMat4( geometryProjectionMatrix, proj );
+	geometryPass.setMat4( geometryViewMatrix, view );
+
+	geometryPass.setInt( geometryDiffuseMap, 0 );
+	geometryPass.setInt( geometryNormalMap, 1 );
+}
+
 void Gbuffer::endGeometryPass()
 {
 }
@@ -469,16 +489,16 @@ void Gbuffer::beginDirectionalShadowPass( Camera* camera, const DirectionalLight
 	glDrawBuffer( GL_COLOR_ATTACHMENT0 + TARGET_SHADOW );
 	glClearColor( 1.0f, 1.0f, 1.0f, 0.0f );
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-
+	
 	directionalShadowPass.bind();
 
 	// TEMP: Lots of magic numbers
 	float halfResolution = GBUFFER_SHADOW_MAP_RESOLUTION * 0.5f;
 	glm::mat4 projectionMatrix = glm::ortho( -halfResolution, halfResolution, -halfResolution, halfResolution, 0.01f, 100.0f );
-	glm::mat4 viewMatrix = glm::lookAt( -light.direction*10.0f, glm::vec3( 0.0f ), glm::vec3( 0.0f, 1.0f, 0.0f ) );
+	
 
 	directionalShadowPass.setMat4( directionalShadowProjectionMatrix, projectionMatrix );
-	directionalShadowPass.setMat4( directionalShadowViewMatrix, viewMatrix );
+	
 }
 
 void Gbuffer::endDirectionalShadowPass()
@@ -488,6 +508,15 @@ void Gbuffer::endDirectionalShadowPass()
 void Gbuffer::updateDirectionalShadowWorldMatrices( const glm::mat4* worldMatrices, int count )
 {
 	directionalShadowPass.setMat4( directionalShadowWorldMatrices, worldMatrices, count );
+}
+
+void Gbuffer::updateDirectionalShadowWorldMatrix( const glm::mat4& worldMatrix, const glm::vec3& lightDirection )
+{
+	directionalShadowPass.setMat4( directionalShadowWorldMatrix, worldMatrix );
+
+	glm::vec3 position = glm::vec3( worldMatrix[3] );
+	glm::mat4 viewMatrix = glm::lookAt( position - lightDirection*10.0f, glm::vec3( 0.0f ), glm::vec3( 0.0f, 1.0f, 0.0f ) );
+	directionalShadowPass.setMat4( directionalShadowViewMatrix, viewMatrix );
 }
 
 void Gbuffer::clearShadowTarget()
@@ -543,10 +572,9 @@ void Gbuffer::renderPointLight( const PointLight& light )
 	pointLightPass.setVec3( pointLightColor, light.color );
 	pointLightPass.setFloat( pointLightIntensity, light.intensity );
 
-	// TEMP: Magic numbers
-	pointLightPass.setFloat( pointLightLinear, 1.0f );
-	pointLightPass.setFloat( pointLightConstant, 0.0f );
-	pointLightPass.setFloat( pointLightExponent, 1.0f );
+	pointLightPass.setFloat( pointLightLinear, light.linear );
+	pointLightPass.setFloat( pointLightConstant, light.constant );
+	pointLightPass.setFloat( pointLightExponent, light.exponent );
 
 	// Distance-from-attenuation formula:
 	// http://ogldev.atspace.co.uk/www/tutorial36/tutorial36.html

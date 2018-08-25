@@ -133,20 +133,12 @@ void Graphics::load()
 	light.color = glm::vec3( 1.0f, 0.0f, 0.0f );
 	light.direction = glm::normalize( glm::vec3( 1, -1, 1 ) );
 	light.intensity = 2.0f;
-
-	PointLight& pointLight = pointLights.append();
-	pointLight.position = glm::vec3( -1, 1, -1 );
-	pointLight.color = glm::vec3( 0.0f, 0.0f, 1.0f );
-	pointLight.intensity = 2.0f;
-	pointLight.linear = 1.0f;
-	pointLight.constant = 1.0f;
-	pointLight.exponent = 2.0f;
 }
 
 void Graphics::finalize()
 {
 	static float sinval = 0.0f;
-	sinval += 0.001f;
+	sinval += 0.01f;
 
 	float x = sinf( sinval );
 	float z = cosf( sinval );
@@ -173,6 +165,10 @@ void Graphics::finalize()
 	const int BILLBOARD_COLLECTION_COUNT = billboardCollections.getSize();
 	for( int i=0; i<BILLBOARD_COLLECTION_COUNT; i++ )
 		billboardCollections[i].billboards[writeIndex].clear();
+
+	// swap points lights
+	pointLights.swap();
+	pointLights.getWrite().clear();
 
 	// finalize world matrices
 	const int MESH_COUNT = meshQueue.getSize();
@@ -240,7 +236,8 @@ void Graphics::renderDeferred()
 
 			gbuffer.updateGeometryTextures( &texture, normalMap, specularMap );
 
-			glDrawElementsInstanced( GL_TRIANGLES, mesh->getIndexCount(), GL_UNSIGNED_INT, NULL, matrices.getSize() );
+			//glDrawElementsInstanced( GL_TRIANGLES, mesh->getIndexCount(), GL_UNSIGNED_INT, NULL, matrices.getSize() );
+			glDrawArraysInstanced( GL_TRIANGLES, 0, mesh->getVertexCount(), matrices.getSize() );
 
 			glBindBuffer( GL_UNIFORM_BUFFER, 0 );
 		}
@@ -256,7 +253,7 @@ void Graphics::renderDeferred()
 
 		// render shadow
 		gbuffer.beginDirectionalShadowPass( &perspectiveCamera, light );
-		const int MESH_COUNT = meshQueue.getSize();
+		/*const int MESH_COUNT = meshQueue.getSize();
 		for( int curMesh = 0; curMesh < MESH_COUNT; curMesh++ )
 		{
 			int meshIndex = meshQueue[curMesh];
@@ -267,18 +264,15 @@ void Graphics::renderDeferred()
 			{
 				mesh->bind();
 
-				glBindBuffer( GL_UNIFORM_BUFFER, uniformBuffer );
-				glBufferData( GL_UNIFORM_BUFFER, sizeof(glm::mat4)*matrices.getSize(), &matrices.getConstData()[0][0], GL_DYNAMIC_DRAW );
+				const int MATRIX_COUNT = matrices.getSize();
+				for( int curMatrix = 0; curMatrix < MATRIX_COUNT; curMatrix++ )
+				{
+					gbuffer.updateDirectionalShadowWorldMatrix( matrices[curMatrix], light.direction );
 
-				//gbuffer.updateGeometryWorldMatrices( matrices.getConstData(), matrices.getSize() );
-
-				gbuffer.updateGeometryTextures( &texture, normalMap, specularMap );
-
-				glDrawElementsInstanced( GL_TRIANGLES, mesh->getIndexCount(), GL_UNSIGNED_INT, NULL, matrices.getSize() );
-
-				glBindBuffer( GL_UNIFORM_BUFFER, 0 );
+					mesh->render();
+				}
 			}
-		}
+		}*/
 		gbuffer.endDirectionalShadowPass();
 
 		// render light
@@ -290,10 +284,10 @@ void Graphics::renderDeferred()
 	// POINT LIGHT PASS
 	gbuffer.beginPointLightPass( TARGET_LIGHT, &perspectiveCamera );
 
-	const int POINT_LIGHT_COUNT = pointLights.getSize();
+	const int POINT_LIGHT_COUNT = pointLights.getRead().getSize();
 	for( int curLight=0; curLight < POINT_LIGHT_COUNT; curLight++ )
 	{
-		gbuffer.renderPointLight( pointLights[curLight] );
+		gbuffer.renderPointLight( pointLights.getRead()[curLight] );
 	}
 
 	gbuffer.endPointLightPass();
@@ -422,7 +416,8 @@ void Graphics::renderBasic()
 			glBindBuffer( GL_UNIFORM_BUFFER, uniformBuffer );
 			glBufferData( GL_UNIFORM_BUFFER, sizeof(glm::mat4)*matrices.getSize(), &matrices.getConstData()[0][0], GL_DYNAMIC_DRAW );
 
-			glDrawElementsInstanced( GL_TRIANGLES, mesh->getIndexCount(), GL_UNSIGNED_INT, NULL, matrices.getSize() );
+			//glDrawElementsInstanced( GL_TRIANGLES, mesh->getIndexCount(), GL_UNSIGNED_INT, NULL, matrices.getSize() );
+			glDrawArraysInstanced( GL_TRIANGLES, 0, mesh->getVertexCount(), matrices.getSize() );
 
 			glBindBuffer( GL_UNIFORM_BUFFER, 0 );
 		}
@@ -679,6 +674,17 @@ void Graphics::queueBillboard( int textureIndex, int maskIndex, const glm::vec3&
 	billboard.size = size;
 	billboard.spherical = ( spherical ? 1.0f : 0.0f );
 	billboard.scroll = scroll;
+}
+
+void Graphics::queuePointLight( const glm::vec3& position, const glm::vec3& color, float intensity, float linear, float constant, float exponent )
+{
+	PointLight& light = pointLights.getWrite().append();
+	light.position = position;
+	light.color = color;
+	light.intensity = intensity;
+	light.linear = linear;
+	light.constant = constant;
+	light.exponent = exponent;
 }
 
 //Camera* Graphics::getCamera()

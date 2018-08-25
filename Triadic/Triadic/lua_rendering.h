@@ -12,6 +12,7 @@ namespace LuaRendering
 	LDEC( queueQuad );
 	LDEC( queueText );
 	LDEC( queueBillboard );
+	LDEC( queuePointLight );
 
 	LDEC( setLightingEnabled );
 
