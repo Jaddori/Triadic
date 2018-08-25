@@ -173,7 +173,7 @@ function Entity:render()
 			end
 		end
 		
-		if not rendered then
+		if not rendered or self.hovered or self.selected then
 			local color = {0,1,0,1}
 			if self.hovered then
 				color[1] = 1

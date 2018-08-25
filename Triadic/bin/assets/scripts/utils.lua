@@ -22,6 +22,23 @@ function copyVec( src, dst )
 	end
 end
 
+function normalizeVec( vec )
+	local result = {}
+
+	local magnitude = 0
+	for i=1, #vec do
+		magnitude = magnitude + (vec[i]*vec[i])
+	end
+
+	magnitude = math.sqrt( magnitude )
+
+	for i=1, #vec do
+		result[i] = vec[i] / magnitude
+	end
+
+	return result
+end
+
 function stringVec( vec )
 	local result = tostring( roundTo( vec[1], 2 ) )
 	

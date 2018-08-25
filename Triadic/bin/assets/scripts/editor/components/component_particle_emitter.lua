@@ -188,6 +188,8 @@ function ComponentParticleEmitter:render()
 			Graphics.queueBillboard( self.textureIndex, self.maskIndex, v.position, {v.size,v.size}, {0,0,1,1}, self.spherical, v.scroll )
 		end
 	end
+
+	return true
 end
 
 function ComponentParticleEmitter:showInfoWindow()

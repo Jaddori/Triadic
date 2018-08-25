@@ -1,7 +1,3 @@
-local DEFAULT_TEXTURE = "./assets/textures/white.dds"
-local DEFAULT_FONT_INFO = "./assets/fonts/verdana12.bin"
-local DEFAULT_FONT_TEXTURE = "./assets/fonts/verdana12.dds"
-
 EditorButton =
 {
 	textureIndex = -1,
@@ -24,11 +20,11 @@ EditorButton =
 
 function EditorButton.create( position, size, text )
 	if EditorButton.textureIndex < 0 then
-		EditorButton.textureIndex = Assets.loadTexture( DEFAULT_TEXTURE )
+		EditorButton.textureIndex = Assets.loadTexture( GUI_DEFAULT_BACKGROUND_TEXTURE )
 	end
 	
 	if EditorButton.fontIndex < 0 then
-		EditorButton.fontIndex = Assets.loadFont( DEFAULT_FONT_INFO, DEFAULT_FONT_TEXTURE )
+		EditorButton.fontIndex = Assets.loadFont( GUI_DEFAULT_FONT_INFO, GUI_DEFAULT_FONT_TEXTURE )
 	end
 	
 	local button = {}

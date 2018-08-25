@@ -1,3 +1,7 @@
+GUI_DEFAULT_BACKGROUND_TEXTURE = "./assets/textures/white.dds"
+GUI_DEFAULT_FONT_INFO = "./assets/fonts/verdana12.bin"
+GUI_DEFAULT_FONT_TEXTURE = "./assets/fonts/verdana12.dds"
+
 GUI_MENU_HEIGHT = 0
 GUI_PANEL_WIDTH = 256
 GUI_BUTTON_HEIGHT = 0
@@ -707,6 +711,7 @@ function gui:load()
 	doscript( "editor/editor_inputbox.lua" )
 	doscript( "editor/editor_window.lua" )
 	doscript( "editor/editor_listbox.lua" )
+	doscript( "editor/editor_dropdown.lua" )
 	
 	self.fontIndex = Assets.loadFont( "./assets/fonts/verdana12.bin", "./assets/fonts/verdana12.dds" )
 	local font = Assets.getFont( self.fontIndex )

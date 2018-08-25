@@ -50,6 +50,7 @@ namespace LuaPhysics
 
 				lua_getvec3( lua, 1, start );
 				lua_getvec3( lua, 2, direction );
+				direction = glm::normalize( direction );
 
 				float length = lua_tofloat( lua, 3 );
 

@@ -1,6 +1,3 @@
-local DEFAULT_TEXTURE = "./assets/textures/white.dds"
-local DEFAULT_FONT_INFO = "./assets/fonts/verdana12.bin"
-local DEFAULT_FONT_TEXTURE = "./assets/fonts/verdana12.dds"
 local CARET_BLINK_FREQUENCY = 0.35
 
 EditorTextbox =
@@ -40,11 +37,11 @@ EditorTextbox =
 
 function EditorTextbox.create( position, size )
 	if EditorTextbox.textureIndex < 0 then
-		EditorTextbox.textureIndex = Assets.loadTexture( DEFAULT_TEXTURE )
+		EditorTextbox.textureIndex = Assets.loadTexture( GUI_DEFAULT_BACKGROUND_TEXTURE )
 	end
 	
 	if EditorTextbox.fontIndex < 0 then
-		EditorTextbox.fontIndex = Assets.loadFont( DEFAULT_FONT_INFO, DEFAULT_FONT_TEXTURE )
+		EditorTextbox.fontIndex = Assets.loadFont( GUI_DEFAULT_FONT_INFO, GUI_DEFAULT_FONT_TEXTURE )
 		EditorTextbox.font = Assets.getFont( EditorTextbox.fontIndex )
 		EditorTextbox.fontHeight = EditorTextbox.font:getHeight()
 	end

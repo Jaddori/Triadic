@@ -68,7 +68,7 @@ namespace LuaRendering
 				lua_getvec4( lua, 4, color );
 
 				glm::vec2 uvStart( 0, 0 ), uvEnd( 1, 1 );
-				if( args == 5 &&
+				if( args == 6 &&
 					LUA_EXPECT_TABLE( 5 ) &&
 					LUA_EXPECT_TABLE( 6 ) )
 				{
