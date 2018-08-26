@@ -84,13 +84,13 @@ function Editor:load()
 		end
 	end
 
-	self.gui.panel.tabs.info.nameTextbox.onFinish = function( self )
+	self.gui.panel.tabs.info.nameInputbox.textbox.onFinish = function( self )
 		if self.text:len() > 0 then
 			Editor.selectedEntity.name = self.text
 		end
 	end
 	
-	self.gui.panel.tabs.info.positionTextbox.onFinish = function( textbox )
+	self.gui.panel.tabs.info.positionInputbox.textbox.onFinish = function( textbox )
 		if textbox.text:len() > 0 then
 			local components = split( textbox.text, "," )
 			
@@ -109,7 +109,7 @@ function Editor:load()
 		end
 	end
 
-	self.gui.panel.tabs.info.orientationTextbox.onFinish = function( textbox )
+	self.gui.panel.tabs.info.orientationInputbox.textbox.onFinish = function( textbox )
 		if textbox.text:len() > 0 then
 			local components = split( textbox.text, "," )
 
@@ -129,7 +129,7 @@ function Editor:load()
 		end
 	end
 
-	self.gui.panel.tabs.info.scaleTextbox.onFinish = function( textbox )
+	self.gui.panel.tabs.info.scaleInputbox.textbox.onFinish = function( textbox )
 		if textbox.text:len() > 0 then
 			local components = split( textbox.text, "," )
 

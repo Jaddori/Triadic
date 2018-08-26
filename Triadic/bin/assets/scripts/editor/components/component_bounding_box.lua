@@ -186,6 +186,20 @@ function ComponentBoundingBoxWindow:show( component )
 		self.window.items[i] = nil
 	end
 
+	local typeLabel = EditorLabel.create( nil, "Type:" )
+	self.window:addItem( typeLabel )
+
+	local typeDropdown = EditorDropdown.create( {0,0}, {0, GUI_BUTTON_HEIGHT} )
+	typeDropdown:addItem( "Ray", BOUNDING_TYPE_RAY )
+	typeDropdown:addItem( "Sphere", BOUNDING_TYPE_SPHERE )
+	typeDropdown:addItem( "AABB", BOUNDING_TYPE_AABB )
+	typeDropdown.selectedIndex = self.component.type
+	typeDropdown.onItemSelected = function( dropdown, item )
+		self.component:changeType( item.tag )
+		self:show( self.component )
+	end
+	self.window:addItem( typeDropdown )
+
 	-- ray
 	if self.component.type == BOUNDING_TYPE_RAY then
 		local directionInputbox = EditorInputbox.create( nil, nil, "Direction:" )
@@ -230,19 +244,7 @@ function ComponentBoundingBoxWindow:show( component )
 		self.window:addItem( maxPositionInputbox )
 	end
 
-	local typeLabel = EditorLabel.create( nil, "Type:" )
-	self.window:addItem( typeLabel )
-
-	local typeDropdown = EditorDropdown.create( {0,0}, {0, GUI_BUTTON_HEIGHT} )
-	typeDropdown:addItem( "Ray", BOUNDING_TYPE_RAY )
-	typeDropdown:addItem( "Sphere", BOUNDING_TYPE_SPHERE )
-	typeDropdown:addItem( "AABB", BOUNDING_TYPE_AABB )
-	typeDropdown.selectedIndex = self.component.type
-	typeDropdown.onItemSelected = function( dropdown, item )
-		self.component:changeType( item.tag )
-		self:show( self.component )
-	end
-	self.window:addItem( typeDropdown )
+	
 end
 
 function ComponentBoundingBoxWindow:hide()

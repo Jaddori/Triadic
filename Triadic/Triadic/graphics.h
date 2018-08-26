@@ -16,7 +16,7 @@ namespace Rendering
 {
 	struct Glyph
 	{
-		glm::vec2 position;
+		glm::vec3 position;
 		glm::vec4 uv;
 		glm::vec2 size;
 		glm::vec4 color;
@@ -30,7 +30,7 @@ namespace Rendering
 
 	struct Quad
 	{
-		glm::vec2 position;
+		glm::vec3 position;
 		glm::vec2 size;
 		glm::vec2 uvStart, uvEnd;
 		glm::vec4 color;
@@ -61,8 +61,8 @@ namespace Rendering
 		void render( float deltaTime );
 
 		void queueMesh( int meshIndex, Transform* transform );
-		void queueQuad( int textureIndex, const glm::vec2& position, const glm::vec2& size, const glm::vec2& uvStart, const glm::vec2& uvEnd, const glm::vec4& color );
-		void queueText( int fontIndex, const char* text, const glm::vec2& position, const glm::vec4& color );
+		void queueQuad( int textureIndex, const glm::vec3& position, const glm::vec2& size, const glm::vec2& uvStart, const glm::vec2& uvEnd, const glm::vec4& color );
+		void queueText( int fontIndex, const char* text, const glm::vec3& position, const glm::vec4& color );
 		void queueBillboard( int textureIndex, int maskIndex, const glm::vec3& position, const glm::vec2& size, const glm::vec4& uv, bool spherical, const glm::vec3& scroll );
 		void queueDirectionalLight( const glm::vec3& direction, const glm::vec3& color, float intensity );
 		void queuePointLight( const glm::vec3& position, const glm::vec3& color, float intensity, float linear, float constant, float exponent );
@@ -111,6 +111,7 @@ namespace Rendering
 		GLuint quadVAO;
 		GLuint quadVBO;
 		Array<QuadCollection> quadCollections;
+		Array<QuadCollection> transparentQuadCollections;
 
 		Shader billboardShader;
 		GLint billboardProjectionLocation;

@@ -4,9 +4,9 @@ local DEFAULT_FONT_TEXTURE = "./assets/fonts/verdana12.dds"
 EditorLabel =
 {
 	fontIndex = -1,
-	fontHeight = -1,
 	position = {0,0},
 	size = {0,0},
+	depth = 0,
 	textColor = {1.0, 1.0, 1.0, 1.0},
 	text = "",
 }
@@ -14,8 +14,6 @@ EditorLabel =
 function EditorLabel.create( position, text )
 	if EditorLabel.fontIndex < 0 then
 		EditorLabel.fontIndex = Assets.loadFont( DEFAULT_FONT_INFO, DEFAULT_FONT_TEXTURE )
-		local font = Assets.getFont( EditorLabel.fontIndex )
-		EditorLabel.fontHeight = font:getHeight()
 	end
 	
 	local label = {}
@@ -23,6 +21,7 @@ function EditorLabel.create( position, text )
 	
 	label.position = position
 	label.text = text
+	label.depth = 0
 
 	local font = Assets.getFont( EditorLabel.fontIndex )
 	label.size = font:measureText( label.text )
@@ -38,6 +37,10 @@ end
 function EditorLabel:setSize( size )
 end
 
+function EditorLabel:setDepth( depth )
+	self.depth = depth
+end
+
 function EditorLabel:update( deltaTime )
 	local capture = { mouseCaptured = false, keyboardCapture = false }
 
@@ -45,13 +48,12 @@ function EditorLabel:update( deltaTime )
 end
 
 function EditorLabel:render()
-	Graphics.queueText( self.fontIndex,  self.text, self.position, self.textColor )
+	Graphics.queueText( self.fontIndex,  self.text, self.position, self.depth, self.textColor )
 end
 
 function EditorLabel:loadFont( info, texture )
 	self.fontIndex = Assets.loadFont( info, texture )
 	local font = Assets.getFont( self.fontIndex )
-	self.fontHeight = font:getHeight()
 
 	self.size = font:measureText( self.text )
 end
@@ -64,5 +66,6 @@ function EditorLabel:setText( text )
 end
 
 function EditorLabel:getHeight()
-	return self.fontHeight
+	local font = Assets.getFont( self.fontIndex )
+	return font:getHeight()
 end

@@ -13,6 +13,7 @@ EditorListbox =
 	visible = false,
 	position = {0,0},
 	size = {0,0},
+	depth = 0,
 	itemSize = {0,0},
 	backgroundColor = {0.25, 0.25, 0.25, 1.0},
 	itemColor = {0.5, 0.5, 0.5, 1.0},
@@ -24,6 +25,7 @@ EditorListbox =
 	{
 		position = {0,4},
 		size = {EDITOR_LISTBOX_SCROLLBAR_WIDTH, EDITOR_LISTBOX_SCROLLBAR_HEIGHT},
+		depth = 0,
 		color = { 0.5, 0.5, 0.5, 1.0 },
 		hoverColor = { 0.75, 0.75, 0.75, 1.0 },
 		pressColor = { 0.4, 0.4, 0.4, 1.0 },
@@ -33,6 +35,7 @@ EditorListbox =
 	{
 		position = {0,4},
 		size = {EDITOR_LISTBOX_SCROLLBAR_WIDTH, 0},
+		depth = 0,
 
 		color = { 0.15, 0.15, 0.15, 1.0 },
 	},
@@ -53,6 +56,7 @@ function EditorListbox.create( position, size )
 	{
 		position = position or {0,0},
 		size = size or {0,0},
+		depth = 0,
 		itemSize = {0,EDITOR_LISTBOX_ITEM_HEIGHT},
 		visible = true,
 		items = {},
@@ -79,6 +83,12 @@ function EditorListbox:setSize( size )
 	self.scrollbar.position[1] = self.size[1] - self.scrollbar.size[1] - self.padding
 	self.gutter.position[1] = self.size[1] - self.scrollbar.size[1] - self.padding
 	self.gutter.size[2] = self.size[2] - self.padding*2
+end
+
+function EditorListbox:setDepth( depth )
+	self.depth = depth
+	self.gutter.depth = depth + GUI_DEPTH_SMALL_INC
+	self.scrollbar.depth = self.gutter.depth + GUI_DEPTH_SMALL_INC
 end
 
 function EditorListbox:addItem( text, tag )
@@ -135,7 +145,7 @@ end
 
 function EditorListbox:render()
 	-- render background
-	Graphics.queueQuad( self.textureIndex, self.position, self.size, self.backgroundColor )
+	Graphics.queueQuad( self.textureIndex, self.position, self.size, self.depth, self.backgroundColor )
 
 	-- render items
 	for i=1, #self.items do
@@ -147,17 +157,17 @@ function EditorListbox:render()
 			itemColor = self.itemHoverColor
 		end
 
-		Graphics.queueQuad( self.textureIndex, position, self.itemSize, itemColor )
+		Graphics.queueQuad( self.textureIndex, position, self.itemSize, self.depth + GUI_DEPTH_SMALL_INC, itemColor )
 
 		position[1] = position[1] + self.padding
-		Graphics.queueText( self.fontIndex, self.items[i].text, position, self.textColor )
+		Graphics.queueText( self.fontIndex, self.items[i].text, position, self.depth + GUI_DEPTH_SMALL_INC*2, self.textColor )
 	end
 
 	-- render gutter
 	local position = { self.position[1] + self.gutter.position[1], self.position[2] + self.gutter.position[2] }
-	Graphics.queueQuad( self.textureIndex, position, self.gutter.size, self.gutter.color )
+	Graphics.queueQuad( self.textureIndex, position, self.gutter.size, self.gutter.depth, self.gutter.color )
 
 	-- render scrollbar
 	local position = { self.position[1] + self.scrollbar.position[1], self.position[2] + self.scrollbar.position[2] }
-	Graphics.queueQuad( self.textureIndex, position, self.scrollbar.size, self.scrollbar.color )
+	Graphics.queueQuad( self.textureIndex, position, self.scrollbar.size, self.scrollbar.depth, self.scrollbar.color )
 end

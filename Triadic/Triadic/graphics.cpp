@@ -52,10 +52,10 @@ void Graphics::load()
 	glBindBuffer( GL_ARRAY_BUFFER, textVBO );
 	glBufferData( GL_ARRAY_BUFFER, sizeof(Glyph)*GRAPHICS_MAX_GLYPHS, NULL, GL_DYNAMIC_DRAW );
 
-	glVertexAttribPointer( 0, 2, GL_FLOAT, GL_FALSE, sizeof(Glyph), 0 );
-	glVertexAttribPointer( 1, 4, GL_FLOAT, GL_FALSE, sizeof(Glyph), (void*)(sizeof(GLfloat)*2) );
-	glVertexAttribPointer( 2, 2, GL_FLOAT, GL_FALSE, sizeof(Glyph), (void*)(sizeof(GLfloat)*6) );
-	glVertexAttribPointer( 3, 4, GL_FLOAT, GL_FALSE, sizeof(Glyph), (void*)(sizeof(GLfloat)*8) );
+	glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, sizeof(Glyph), 0 );
+	glVertexAttribPointer( 1, 4, GL_FLOAT, GL_FALSE, sizeof(Glyph), (void*)(sizeof(GLfloat)*3) );
+	glVertexAttribPointer( 2, 2, GL_FLOAT, GL_FALSE, sizeof(Glyph), (void*)(sizeof(GLfloat)*7) );
+	glVertexAttribPointer( 3, 4, GL_FLOAT, GL_FALSE, sizeof(Glyph), (void*)(sizeof(GLfloat)*9) );
 
 	glBindVertexArray( 0 );
 
@@ -70,17 +70,19 @@ void Graphics::load()
 		glGenVertexArrays( 1, &quadVAO );
 		glBindVertexArray( quadVAO );
 
-		glEnableVertexAttribArray( 0 ); // position + size
-		glEnableVertexAttribArray( 1 ); // uv start + uv end
-		glEnableVertexAttribArray( 2 ); // color
+		glEnableVertexAttribArray( 0 ); // position
+		glEnableVertexAttribArray( 1 ); // size
+		glEnableVertexAttribArray( 2 ); // uv start + uv end
+		glEnableVertexAttribArray( 3 ); // color
 
 		glGenBuffers( 1, &quadVBO );
 		glBindBuffer( GL_ARRAY_BUFFER, quadVBO );
 		glBufferData( GL_ARRAY_BUFFER, sizeof(Quad)*GRAPHICS_MAX_QUADS, NULL, GL_DYNAMIC_DRAW );
 
-		glVertexAttribPointer( 0, 4, GL_FLOAT, GL_FALSE, sizeof(Quad), 0 );
-		glVertexAttribPointer( 1, 4, GL_FLOAT, GL_FALSE, sizeof(Quad), (void*)(sizeof(GLfloat)*4) );
-		glVertexAttribPointer( 2, 4, GL_FLOAT, GL_FALSE, sizeof(Quad), (void*)(sizeof(GLfloat)*8) );
+		glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, sizeof(Quad), 0 );
+		glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, sizeof(Quad), (void*)(sizeof(GLfloat)*3) );
+		glVertexAttribPointer( 2, 4, GL_FLOAT, GL_FALSE, sizeof(Quad), (void*)(sizeof(GLfloat)*5) );
+		glVertexAttribPointer( 3, 4, GL_FLOAT, GL_FALSE, sizeof(Quad), (void*)(sizeof(GLfloat)*9) );
 
 		glBindVertexArray( 0 );
 	}
@@ -147,6 +149,10 @@ void Graphics::finalize()
 	const int QUAD_COLLECTION_COUNT = quadCollections.getSize();
 	for( int i=0; i<QUAD_COLLECTION_COUNT; i++ )
 		quadCollections[i].quads[writeIndex].clear();
+
+	const int TRANSP_QUAD_COLLECTION_COUNT = transparentQuadCollections.getSize();
+	for( int i=0; i<TRANSP_QUAD_COLLECTION_COUNT; i++ )
+		transparentQuadCollections[i].quads[writeIndex].clear();
 
 	// swap billboards
 	const int BILLBOARD_COLLECTION_COUNT = billboardCollections.getSize();
@@ -457,8 +463,8 @@ void Graphics::renderBasic()
 	glDepthMask( GL_TRUE );
 	glBindVertexArray( 0 );
 
-	// render quads
-	glDisable( GL_DEPTH_TEST );
+	// render opaque quads
+	//glDisable( GL_DEPTH_TEST );
 
 	quadShader.bind();
 	quadShader.setMat4( quadProjectionLocation, orthographicCamera.getProjectionMatrix() );
@@ -527,7 +533,42 @@ void Graphics::renderBasic()
 
 	glBindVertexArray( 0 );
 
-	glEnable( GL_DEPTH_TEST );
+	//glEnable( GL_DEPTH_TEST );
+
+	// render transparent quads
+	quadShader.bind();
+	quadShader.setMat4( quadProjectionLocation, orthographicCamera.getProjectionMatrix() );
+
+	glBindVertexArray( quadVAO );
+	glBindBuffer( GL_ARRAY_BUFFER, quadVBO );
+
+	const int TRANSP_QUAD_COLLECTION_COUNT = transparentQuadCollections.getSize();
+	for( int curCollection = 0; curCollection < TRANSP_QUAD_COLLECTION_COUNT; curCollection++ )
+	{
+		QuadCollection& collection = transparentQuadCollections[curCollection];
+
+		if( collection.texture )
+			collection.texture->bind();
+		else
+			glBindTexture( GL_TEXTURE_2D, 0 );
+
+		const int QUAD_COUNT = collection.quads[readIndex].getSize();
+		int offset = 0;
+		while( offset < QUAD_COUNT )
+		{
+			int count = QUAD_COUNT - offset;
+			if( count > GRAPHICS_MAX_QUADS )
+				count = GRAPHICS_MAX_QUADS;
+
+			glBufferSubData( GL_ARRAY_BUFFER, 0, sizeof(Quad)*count, collection.quads[readIndex].getData()+offset );
+			glDrawArrays( GL_POINTS, 0, count );
+
+			offset += count;
+		}
+	}
+
+	glBindVertexArray( 0 );
+
 	glDisable( GL_BLEND );
 }
 
@@ -546,33 +587,61 @@ void Graphics::queueMesh( int meshIndex, Transform* transform )
 	transformQueue[index].add( transform );
 }
 
-void Graphics::queueQuad( int textureIndex, const glm::vec2& position, const glm::vec2& size, const glm::vec2& uvStart, const glm::vec2& uvEnd, const glm::vec4& color )
+void Graphics::queueQuad( int textureIndex, const glm::vec3& position, const glm::vec2& size, const glm::vec2& uvStart, const glm::vec2& uvEnd, const glm::vec4& color )
 {
-	const Texture* texture = NULL;
-	if( textureIndex >= 0 )
-		texture = assets.getTexture( textureIndex );
-
-	const int QUAD_COLLECTION_COUNT = quadCollections.getSize();
-	int collectionIndex = -1;
-	for( int i=0; i<QUAD_COLLECTION_COUNT && collectionIndex < 0; i++ )
-		if( quadCollections[i].texture == texture )
-			collectionIndex = i;
-
-	if( collectionIndex < 0 )
+	if( color.a < 1.0f - EPSILON ) // transparent
 	{
-		QuadCollection& collection = quadCollections.append();
-		collection.texture = texture;
-		collection.quads[writeIndex].expand( GRAPHICS_MAX_QUADS );
-		collection.quads[readIndex].expand( GRAPHICS_MAX_QUADS );
+		const Texture* texture = NULL;
+		if( textureIndex >= 0 )
+			texture = assets.getTexture( textureIndex );
 
-		collectionIndex = QUAD_COLLECTION_COUNT;
+		const int QUAD_COLLECTION_COUNT = transparentQuadCollections.getSize();
+		int collectionIndex = -1;
+		for( int i=0; i<QUAD_COLLECTION_COUNT && collectionIndex < 0; i++ )
+			if( transparentQuadCollections[i].texture == texture )
+				collectionIndex = i;
+
+		if( collectionIndex < 0 )
+		{
+			QuadCollection& collection = transparentQuadCollections.append();
+			collection.texture = texture;
+			collection.quads[writeIndex].expand( GRAPHICS_MAX_QUADS );
+			collection.quads[readIndex].expand( GRAPHICS_MAX_QUADS );
+
+			collectionIndex = QUAD_COLLECTION_COUNT;
+		}
+
+		QuadCollection& collection = transparentQuadCollections[collectionIndex];
+		collection.quads[writeIndex].add( { position, size, uvStart, uvEnd, color } );
 	}
+	else // opaque
+	{
+		const Texture* texture = NULL;
+		if( textureIndex >= 0 )
+			texture = assets.getTexture( textureIndex );
 
-	QuadCollection& collection = quadCollections[collectionIndex];
-	collection.quads[writeIndex].add( { position, size, uvStart, uvEnd, color } );
+		const int QUAD_COLLECTION_COUNT = quadCollections.getSize();
+		int collectionIndex = -1;
+		for( int i=0; i<QUAD_COLLECTION_COUNT && collectionIndex < 0; i++ )
+			if( quadCollections[i].texture == texture )
+				collectionIndex = i;
+
+		if( collectionIndex < 0 )
+		{
+			QuadCollection& collection = quadCollections.append();
+			collection.texture = texture;
+			collection.quads[writeIndex].expand( GRAPHICS_MAX_QUADS );
+			collection.quads[readIndex].expand( GRAPHICS_MAX_QUADS );
+
+			collectionIndex = QUAD_COLLECTION_COUNT;
+		}
+
+		QuadCollection& collection = quadCollections[collectionIndex];
+		collection.quads[writeIndex].add( { position, size, uvStart, uvEnd, color } );
+	}
 }
 
-void Graphics::queueText( int fontIndex, const char* text, const glm::vec2& position, const glm::vec4& color )
+void Graphics::queueText( int fontIndex, const char* text, const glm::vec3& position, const glm::vec4& color )
 {
 	const Font* font = assets.getFont( fontIndex );
 
@@ -594,7 +663,7 @@ void Graphics::queueText( int fontIndex, const char* text, const glm::vec2& posi
 
 	GlyphCollection& collection = glyphCollections[collectionIndex];
 
-	glm::vec2 offset;
+	glm::vec3 offset;
 	int index = 0;
 
 	const char* cur = text;

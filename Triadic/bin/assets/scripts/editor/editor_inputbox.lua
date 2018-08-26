@@ -4,6 +4,7 @@ EditorInputbox =
 	textbox = {},
 	position = {0,0},
 	size = {0,0},
+	depth = 0,
 }
 
 function EditorInputbox.create( position, width, text )
@@ -11,6 +12,7 @@ function EditorInputbox.create( position, width, text )
 	{
 		position = position or {0,0},
 		size = {0,0},
+		depth = 0,
 		label = {},
 		textbox = {},
 	}
@@ -39,6 +41,12 @@ end
 
 function EditorInputbox:setSize( size )
 	self.textbox.size[1] = size[1]
+end
+
+function EditorInputbox:setDepth( depth )
+	self.depth = depth
+	self.label.depth = depth
+	self.textbox.depth = depth
 end
 
 function EditorInputbox:update( deltaTime )

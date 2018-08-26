@@ -8,8 +8,9 @@ EditorCheckbox =
 	checkTextureIndex = -1,
 	position = {0,0},
 	size = {DEFAULT_SIZE, DEFAULT_SIZE},
+	depth = 0,
 	checkColor = {1,1,1,1},
-	color = {0.5, 0.5, 0.5, 1.0},
+	color = {0.4, 0.4, 0.4, 1.0},
 	hoverColor = {0.75, 0.75, 0.75, 1.0},
 	pressColor = {0.35, 0.35, 0.35, 1.0},
 
@@ -33,6 +34,7 @@ function EditorCheckbox.create( position, size )
 	{
 		position = position or {0,0},
 		size = size,
+		depth = 0,
 		hovered = false,
 		pressed = false,
 		checked = false,
@@ -48,6 +50,10 @@ function EditorCheckbox:setPosition( position )
 end
 
 function EditorCheckbox:setSize( size )
+end
+
+function EditorCheckbox:setDepth( depth )
+	self.depth = depth
 end
 
 function EditorCheckbox:update( deltaTime )
@@ -90,10 +96,10 @@ function EditorCheckbox:render()
 	end
 
 	-- draw background
-	Graphics.queueQuad( self.backgroundTextureIndex, self.position, self.size, color )
+	Graphics.queueQuad( self.backgroundTextureIndex, self.position, self.size, self.depth, color )
 
 	-- draw check
 	if self.checked then
-		Graphics.queueQuad( self.checkTextureIndex, self.position, self.size, self.checkColor )
+		Graphics.queueQuad( self.checkTextureIndex, self.position, self.size, self.depth + GUI_DEPTH_SMALL_INC, self.checkColor )
 	end
 end

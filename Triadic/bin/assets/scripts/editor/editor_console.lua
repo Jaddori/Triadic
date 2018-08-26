@@ -1,10 +1,12 @@
 local CONSOLE_MAX_HISTORY = 10
 
+CONSOLE_DEPTH = 0.8
 local console =
 {
 	textureIndex = -1,
 	position = {0,GUI_MENU_HEIGHT},
 	size = {WINDOW_WIDTH-GUI_PANEL_WIDTH,256},
+	depth = CONSOLE_DEPTH,
 	visible = false,
 	color = {0.25, 0.25, 0.25, 1.0},
 	textColor = {1,1,1,1},
@@ -82,7 +84,7 @@ end
 function console:render()
 	if self.visible then
 		-- background
-		Graphics.queueQuad( self.textureIndex, self.position, self.size, self.color )
+		Graphics.queueQuad( self.textureIndex, self.position, self.size, self.depth, self.color )
 		
 		-- textbox
 		self.inputTextbox:render()

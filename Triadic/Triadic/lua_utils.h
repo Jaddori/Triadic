@@ -11,6 +11,18 @@
 	if( args != expected ) \
 	{ \
 		LOG_ERROR( "Expected " #expected " argument(s). Got %d.", args ); \
+		lua_pushstring( lua, "Expected " #expected " argument(s)." ); \
+		lua_error( lua ); \
+	} \
+	else
+
+#define LUA_EXPECT_EXPRESSION( expr ) \
+	int args = lua_gettop( lua ); \
+	if( !(expr) ) \
+	{ \
+		LOG_ERROR( "Expression: " #expr " failed. Got %d arguments.", args ); \
+		lua_pushstring( lua, "Expression: " #expr " failed." ); \
+		lua_error( lua ); \
 	} \
 	else
 
@@ -28,10 +40,14 @@ inline bool isbool( lua_State* lua, int index )
 		if( lua_isnil( lua, index ) )
 		{
 			LOG_ERROR( "Expected bool as argument #%d, but it was nil.", index );
+			lua_pushstring( lua, "Expected bool as argument, but it was nil." );
+			lua_error( lua );
 		}
 		else
 		{
 			LOG_ERROR( "Expected bool as argument #%d.", index );
+			lua_pushstring( lua, "Expected bool as argument." );
+			lua_error( lua );
 		}
 	}
 	return result;
@@ -45,10 +61,14 @@ inline bool isnumber( lua_State* lua, int index )
 		if( lua_isnil( lua, index ) )
 		{
 			LOG_ERROR( "Expected number as argument #%d, but it was nil.", index );
+			lua_pushstring( lua, "Expected number as argument, but it was nil." );
+			lua_error( lua );
 		}
 		else
 		{
 			LOG_ERROR( "Expected number as argument #%d.", index );
+			lua_pushstring( lua, "Expected number as argument." );
+			lua_error( lua );
 		}
 	}
 	return result;
@@ -62,10 +82,14 @@ inline bool isstring( lua_State* lua, int index )
 		if( lua_isnil( lua, index ) )
 		{
 			LOG_ERROR( "Expected string as argument #%d, but it was nil.", index );
+			lua_pushstring( lua, "Expected string as argument, but it was nil." );
+			lua_error( lua );
 		}
 		else
 		{
 			LOG_ERROR( "Expected string as argument #%d.", index );
+			lua_pushstring( lua, "Expected string as argument." );
+			lua_error( lua );
 		}
 	}
 	return result;
@@ -79,10 +103,14 @@ inline bool isuserdata( lua_State* lua, int index )
 		if( lua_isnil( lua, index ) )
 		{
 			LOG_ERROR( "Expected userdata as argument #%d, but it was nil.", index );
+			lua_pushstring( lua, "Expected userdata as argument, but it was nil." );
+			lua_error( lua );
 		}
 		else
 		{
 			LOG_ERROR( "Expected userdata as argument #%d.", index );
+			lua_pushstring( lua, "Expected userdata as argument." );
+			lua_error( lua );
 		}
 	}
 	return result;
@@ -96,10 +124,14 @@ inline bool istable( lua_State* lua, int index )
 		if( lua_isnil( lua, index ) )
 		{
 			LOG_ERROR( "Expected table as argument #%d, but it was nil.", index );
+			lua_pushstring( lua, "Expected table as argument, but it was nil." );
+			lua_error( lua );
 		}
 		else
 		{
 			LOG_ERROR( "Expected table as argument #%d.", index );
+			lua_pushstring( lua, "Expected table as argument." );
+			lua_error( lua );
 		}
 	}
 	return result;

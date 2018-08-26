@@ -13,6 +13,7 @@ EditorWindow =
 	title = "",
 	position = {0,0},
 	size = {0,0},
+	depth = 0,
 	titlebarSize = {0,EDITOR_WINDOW_TITLEBAR_HEIGHT},
 
 	crossSize = {EDITOR_WINDOW_CROSS_SIZE, EDITOR_WINDOW_CROSS_SIZE},
@@ -53,6 +54,7 @@ function EditorWindow.create( title, position, size )
 		title = title,
 		position = position or {0,GUI_MENU_HEIGHT},
 		size = size or {EDITOR_WINDOW_DEFAULT_WIDTH, EDITOR_WINDOW_DEFAULT_HEIGHT},
+		depth = 0,
 		titlebarSize = {0, EDITOR_WINDOW_TITLEBAR_HEIGHT},
 
 		items = {},
@@ -73,6 +75,7 @@ function EditorWindow.create( title, position, size )
 end
 
 function EditorWindow:addItem( item )
+	item:setDepth( self.depth + GUI_DEPTH_SMALL_INC )
 	self.items[#self.items+1] = item
 
 	self:layout()
@@ -169,13 +172,13 @@ end
 function EditorWindow:render()
 	if self.visible then
 		-- render background
-		Graphics.queueQuad( self.textureIndex, self.position, self.size, self.backgroundColor )
-		Graphics.queueQuad( self.textureIndex, self.position, self.titlebarSize, self.titlebarColor )
+		Graphics.queueQuad( self.textureIndex, self.position, self.size, self.depth, self.backgroundColor )
+		Graphics.queueQuad( self.textureIndex, self.position, self.titlebarSize, self.depth + GUI_DEPTH_SMALL_INC, self.titlebarColor )
 
 		-- render title
 		local padding = 4
 		local textPosition = {self.position[1] + padding, self.position[2]}
-		Graphics.queueText( self.fontIndex, self.title, textPosition, self.titlebarTextColor )
+		Graphics.queueText( self.fontIndex, self.title, textPosition, self.depth + GUI_DEPTH_SMALL_INC*2, self.titlebarTextColor )
 
 		-- render cross
 		local crossColor = self.crossColor
@@ -188,7 +191,7 @@ function EditorWindow:render()
 		end
 		padding = ( EDITOR_WINDOW_TITLEBAR_HEIGHT - self.crossSize[1] ) * 0.5
 		local crossPosition = {self.position[1] + self.size[1] - self.crossSize[1] - padding, self.position[2] + padding }
-		Graphics.queueQuad( self.crossTextureIndex, crossPosition, self.crossSize, crossColor )
+		Graphics.queueQuad( self.crossTextureIndex, crossPosition, self.crossSize, self.depth + GUI_DEPTH_SMALL_INC*2, crossColor )
 
 		-- render items
 		for _,v in pairs(self.items) do

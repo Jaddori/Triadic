@@ -8,12 +8,13 @@ EditorTextbox =
 	textureIndex = -1,
 	position = {0,0},
 	size = {0,0},
-	color = {0.5, 0.5, 0.5, 0.5},
+	depth = 0,
+	color = {0.4, 0.4, 0.4, 1.0},
 	hoverColor = {0.75, 0.75, 0.75, 1},
-	pressColor = {0.35, 0.35, 0.35, 1},
+	pressColor = {0.3, 0.3, 0.3, 1},
 	focusColor = { 0.65, 0.65, 0.15, 1},
 	textColor = {1.0, 1.0, 1.0, 1.0},
-	selectionColor = { 0.35, 0.35, 0.35, 1.0 },
+	selectionColor = { 0.35, 0.35, 0.35, 0.5 },
 	disabledColor = {0.45, 0.45, 0.45, 1},
 	disabledTextColor = {0.75, 0.75, 0.75, 1.0},
 	text = "",
@@ -51,6 +52,7 @@ function EditorTextbox.create( position, size )
 	
 	textbox.position = position
 	textbox.size = size
+	textbox.depth = 0
 	textbox.hovered = false
 	textbox.pressed = false
 	textbox.focus = false
@@ -68,6 +70,10 @@ end
 function EditorTextbox:setSize( size )
 	self.size[1] = size[1]
 	self.size[2] = size[2]
+end
+
+function EditorTextbox:setDepth( depth )
+	self.depth = depth
 end
 
 function EditorTextbox:update( deltaTime )
@@ -310,14 +316,14 @@ function EditorTextbox:render()
 	local textPadding = 8
 	
 	-- draw background
-	Graphics.queueQuad( self.textureIndex, self.position, self.size, color )
+	Graphics.queueQuad( self.textureIndex, self.position, self.size, self.depth, color )
 	
 	-- draw text
 	local textPosition = {self.position[1] + textPadding, self.position[2]}
-	Graphics.queueText( self.fontIndex, self.text, textPosition, textColor )
+	Graphics.queueText( self.fontIndex, self.text, textPosition, self.depth + GUI_DEPTH_SMALL_INC, textColor )
 	if self.caretVisible then
 		local xoffset = self.font:measureText( self.text:sub(1, self.caretIndex) )[1] - 2
-		Graphics.queueText( self.fontIndex, "|", {textPosition[1]+xoffset, textPosition[2]}, self.textColor )
+		Graphics.queueText( self.fontIndex, "|", {textPosition[1]+xoffset, textPosition[2]}, self.depth + GUI_DEPTH_SMALL_INC*2, self.textColor )
 	end
 	
 	-- draw selection
@@ -342,7 +348,7 @@ function EditorTextbox:render()
 		local position = { self.position[1] + preSelectionWidth + textPadding, self.position[2]+2 }
 		local size = { selectionWidth, self.size[2]-4 }
 		
-		Graphics.queueQuad( self.textureIndex, position, size, self.selectionColor )
+		Graphics.queueQuad( self.textureIndex, position, size, self.depth + GUI_DEPTH_SMALL_INC*3, self.selectionColor )
 	end
 end
 

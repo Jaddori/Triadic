@@ -52,37 +52,41 @@ namespace LuaRendering
 
 	LDEC( queueQuad )
 	{
-		int args = lua_gettop( lua );
-		if( args != 4 && args != 6 )
-		{
-			LOG_ERROR( "Expected 3 or 5 argument(s). Got %d.", args );
-		}
-		else
+		//int args = lua_gettop( lua );
+		//if( args != 5 && args != 7 )
+		//{
+		//	LOG_ERROR( "Expected 5 or 7 argument(s). Got %d.", args );
+		//}
+		//else
+		LUA_EXPECT_EXPRESSION( args == 5 || args == 7 )
 		{
 			if( LUA_EXPECT_NUMBER( 1 ) &&
 				LUA_EXPECT_TABLE( 2 ) &&
 				LUA_EXPECT_TABLE( 3 ) &&
-				LUA_EXPECT_TABLE( 4 ) )
+				LUA_EXPECT_NUMBER( 4 ) &&
+				LUA_EXPECT_TABLE( 5 ) )
 			{
 				int textureIndex = lua_toint( lua, 1 );
 
-				glm::vec2 position, size;
+				glm::vec2 position;
+				glm::vec2 size;
 				glm::vec4 color;
 
 				lua_getvec2( lua, 2, position );
 				lua_getvec2( lua, 3, size );
-				lua_getvec4( lua, 4, color );
+				float depth = lua_tofloat( lua, 4 );
+				lua_getvec4( lua, 5, color );
 
 				glm::vec2 uvStart( 0, 0 ), uvEnd( 1, 1 );
-				if( args == 6 &&
-					LUA_EXPECT_TABLE( 5 ) &&
-					LUA_EXPECT_TABLE( 6 ) )
+				if( args == 7 &&
+					LUA_EXPECT_TABLE( 6 ) &&
+					LUA_EXPECT_TABLE( 7 ) )
 				{
-					lua_getvec2( lua, 5, uvStart );
-					lua_getvec2( lua, 6, uvEnd );
+					lua_getvec2( lua, 6, uvStart );
+					lua_getvec2( lua, 7, uvEnd );
 				}
 
-				g_coreData->graphics->queueQuad( textureIndex, position, size, uvStart, uvEnd, color );
+				g_coreData->graphics->queueQuad( textureIndex, glm::vec3( position.x, position.y, depth ), size, uvStart, uvEnd, color );
 			}
 		}
 
@@ -91,12 +95,13 @@ namespace LuaRendering
 
 	LDEC( queueText )
 	{
-		LUA_EXPECT_ARGS( 4 )
+		LUA_EXPECT_ARGS( 5 )
 		{
 			if( LUA_EXPECT_NUMBER( 1 ) &&
 				LUA_EXPECT_STRING( 2 ) &&
 				LUA_EXPECT_TABLE( 3 ) &&
-				LUA_EXPECT_TABLE( 4 ) )
+				LUA_EXPECT_NUMBER( 4 ) &&
+				LUA_EXPECT_TABLE( 5 ) )
 			{
 				glm::vec2 position;
 				glm::vec4 color;
@@ -104,9 +109,10 @@ namespace LuaRendering
 				int fontIndex = lua_toint( lua, 1 );
 				const char* text = lua_tostring( lua, 2 );
 				lua_getvec2( lua, 3, position );
-				lua_getvec4( lua, 4, color );
+				float depth = lua_tofloat( lua, 4 );
+				lua_getvec4( lua, 5, color );
 
-				g_coreData->graphics->queueText( fontIndex, text, position, color );
+				g_coreData->graphics->queueText( fontIndex, text, glm::vec3( position.x, position.y, depth ), color );
 			}
 		}
 

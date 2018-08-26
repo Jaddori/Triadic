@@ -1,11 +1,17 @@
 GUI_DEFAULT_BACKGROUND_TEXTURE = "./assets/textures/white.dds"
 GUI_DEFAULT_FONT_INFO = "./assets/fonts/verdana12.bin"
 GUI_DEFAULT_FONT_TEXTURE = "./assets/fonts/verdana12.dds"
+GUI_DEPTH_INC = 0.01
+GUI_DEPTH_SMALL_INC = 0.001
 
 GUI_MENU_HEIGHT = 0
+GUI_MENU_DEPTH = 0.5
 GUI_PANEL_WIDTH = 256
+GUI_PANEL_DEPTH = 0.5
 GUI_BUTTON_HEIGHT = 0
 GUI_COMPONENT_LIST_WIDTH = 128
+GUI_COMPONENT_LIST_DEPTH = 0.7
+GUI_CONTEXT_MENU_DEPTH = 0.7
 local MENU_SETTINGS_BUTTON_WIDTH = 128
 local MENU_FILE_BUTTON_WIDTH = 128
 
@@ -20,7 +26,8 @@ local gui =
 		items = {},
 		position = {0,0},
 		size = {0,0},
-		color = {0.5,0.5,0.5,0.75},
+		depth = GUI_MENU_DEPTH,
+		color = {0.5,0.5,0.5,1.0},
 		
 		file =
 		{
@@ -58,7 +65,8 @@ local gui =
 		textureIndex = -1,
 		position = {0,0},
 		size = {0,0},
-		color = {0.5, 0.5, 0.5, 0.75},
+		depth = GUI_PANEL_DEPTH,
+		color = {0.5, 0.5, 0.5, 1.0},
 		
 		contentPosition = {0,0},
 		contentSize = {0,0},
@@ -79,14 +87,10 @@ local gui =
 				entity = nil,
 				visibleLabel = {},
 				visibleCheckbox = {},
-				nameLabel = {},
-				nameTextbox = {},
-				positionLabel = {},
-				positionTextbox = {},
-				orientationLabel = {},
-				orientationTextbox = {},
-				scaleLabel = {},
-				scaleTextbox = {},
+				nameInputbox = {},
+				positionInputbox = {},
+				orientationInputbox = {},
+				scaleInputbox = {},
 				componentsLabel = {},
 			},
 			entities =
@@ -106,6 +110,7 @@ local gui =
 		textureIndex = -1,
 		position = {0,0},
 		size = {0,0},
+		depth = GUI_COMPONENT_LIST_DEPTH,
 		color = { 0.35, 0.35, 0.35, 1.0 },
 		items = {},
 
@@ -117,7 +122,8 @@ local gui =
 		textureIndex = -1,
 		position = {0,0},
 		size = {128,0},
-		color = {0.5, 0.5, 0.5, 0.75},
+		depth = GUI_CONTEXT_MENU_DEPTH,
+		color = {0.5, 0.5, 0.5, 1.0},
 		visible = false,
 		onClick = nil,
 		
@@ -153,7 +159,7 @@ function gui.menu:update( deltaTime )
 end
 
 function gui.menu:render()
-	Graphics.queueQuad( self.textureIndex, self.position, self.size, self.color )
+	Graphics.queueQuad( self.textureIndex, self.position, self.size, self.depth, self.color )
 
 	for _,v in pairs(self.items) do
 		v:render()
@@ -168,6 +174,7 @@ function gui.menu.file:load( xoffset )
 	local width = 64
 	
 	local fileButton = EditorButton.create( {xoffset, 0}, {width, GUI_MENU_HEIGHT}, "File" )
+	fileButton.depth = gui.menu.depth + GUI_DEPTH_INC
 	fileButton.onClick = function( self )
 		gui.menu.file.visible = true
 	end
@@ -176,6 +183,7 @@ function gui.menu.file:load( xoffset )
 	-- drop down menu
 	local yoffset = GUI_MENU_HEIGHT
 	self.newButton = EditorButton.create( {xoffset, yoffset}, {MENU_FILE_BUTTON_WIDTH, GUI_BUTTON_HEIGHT}, "New" )
+	self.newButton.depth = fileButton.depth + GUI_DEPTH_INC
 	self.newButton.onClick = function( button )
 		if self.onNew then
 			self.onNew()
@@ -184,6 +192,7 @@ function gui.menu.file:load( xoffset )
 	yoffset = yoffset + GUI_BUTTON_HEIGHT
 	
 	self.openButton = EditorButton.create( {xoffset, yoffset}, {MENU_FILE_BUTTON_WIDTH, GUI_BUTTON_HEIGHT}, "Open" )
+	self.openButton.depth = fileButton.depth + GUI_DEPTH_INC
 	self.openButton.onClick = function( button )
 		if self.onOpen then
 			self.onOpen()
@@ -192,6 +201,7 @@ function gui.menu.file:load( xoffset )
 	yoffset = yoffset + GUI_BUTTON_HEIGHT
 	
 	self.saveButton = EditorButton.create( {xoffset, yoffset}, {MENU_FILE_BUTTON_WIDTH, GUI_BUTTON_HEIGHT}, "Save" )
+	self.saveButton.depth = fileButton.depth + GUI_DEPTH_INC
 	self.saveButton.onClick = function( button )
 		if self.onSave then
 			self.onSave()
@@ -200,6 +210,7 @@ function gui.menu.file:load( xoffset )
 	yoffset = yoffset + GUI_BUTTON_HEIGHT
 	
 	self.saveAsButton = EditorButton.create( {xoffset, yoffset}, {MENU_FILE_BUTTON_WIDTH, GUI_BUTTON_HEIGHT}, "Save As" )
+	self.saveButton.depth = fileButton.depth + GUI_DEPTH_INC
 	self.saveAsButton.onClick = function( button )
 		if self.onSaveAs then
 			self.onSaveAs()
@@ -208,6 +219,7 @@ function gui.menu.file:load( xoffset )
 	yoffset = yoffset + GUI_BUTTON_HEIGHT
 
 	self.compileButton = EditorButton.create( {xoffset, yoffset}, {MENU_FILE_BUTTON_WIDTH, GUI_BUTTON_HEIGHT}, "Compile" )
+	self.compileButton.depth = fileButton.depth + GUI_DEPTH_INC
 	self.compileButton.onClick = function( button )
 		if self.onCompile then
 			self.onCompile()
@@ -216,6 +228,7 @@ function gui.menu.file:load( xoffset )
 	yoffset = yoffset + GUI_BUTTON_HEIGHT
 	
 	self.exitButton = EditorButton.create( {xoffset, yoffset}, {MENU_FILE_BUTTON_WIDTH, GUI_BUTTON_HEIGHT}, "Exit" )
+	self.exitButton.depth = fileButton.depth + GUI_DEPTH_INC
 	self.exitButton.onClick = function( self )
 		gui.menu.file.visible = false
 		
@@ -265,6 +278,7 @@ function gui.menu.settings:load( xoffset )
 	local width = 64
 	
 	local settingsButton = EditorButton.create( {xoffset, 0}, {width, GUI_MENU_HEIGHT}, "Settings" )
+	settingsButton.depth = gui.menu.depth + GUI_DEPTH_INC
 	settingsButton.onClick = function( self )
 		gui.menu.settings.visible = true
 	end
@@ -274,6 +288,7 @@ function gui.menu.settings:load( xoffset )
 	local yoffset = GUI_MENU_HEIGHT
 	
 	self.showGridButton = EditorButton.create( {pos[1], pos[2]+yoffset}, {MENU_SETTINGS_BUTTON_WIDTH, GUI_BUTTON_HEIGHT}, "Show grid" )
+	self.showGridButton.depth = settingsButton.depth + GUI_DEPTH_INC
 	self.showGridButton.onClick = function( self )
 		gui.menu.settings.visible = false
 		
@@ -284,6 +299,7 @@ function gui.menu.settings:load( xoffset )
 	yoffset = yoffset + GUI_BUTTON_HEIGHT
 	
 	self.showOrigoButton = EditorButton.create( {pos[1], pos[2]+yoffset}, {MENU_SETTINGS_BUTTON_WIDTH, GUI_BUTTON_HEIGHT}, "Show origo" )
+	self.showOrigoButton.depth = settingsButton.depth + GUI_DEPTH_INC
 	self.showOrigoButton.onClick = function( self )
 		gui.menu.settings.visible = false
 		
@@ -294,6 +310,7 @@ function gui.menu.settings:load( xoffset )
 	yoffset = yoffset + GUI_BUTTON_HEIGHT
 
 	self.enableLightingButton = EditorButton.create( {pos[1], pos[2]+yoffset}, {MENU_SETTINGS_BUTTON_WIDTH, GUI_BUTTON_HEIGHT}, "Toggle lighting" )
+	self.enableLightingButton.depth = settingsButton.depth + GUI_DEPTH_INC
 	self.enableLightingButton.onClick = function( button )
 		self.visible = false
 
@@ -349,6 +366,7 @@ function gui.componentList:addItem( text, tag )
 	local padding = 4
 
 	local button = EditorButton.create( {self.position[1]+padding, self.position[2]+padding+count*(GUI_BUTTON_HEIGHT+padding)}, {self.size[1]-padding*2, GUI_BUTTON_HEIGHT}, text )
+	button:setDepth( self.depth + GUI_DEPTH_SMALL_INC )
 	button.tag = tag
 	button.index = count + 1
 	button.onClick = function( button )
@@ -380,7 +398,7 @@ end
 
 function gui.componentList:render()
 	-- render background
-	Graphics.queueQuad( self.textureIndex, self.position, self.size, self.color )
+	Graphics.queueQuad( self.textureIndex, self.position, self.size, self.depth, self.color )
 
 	-- render items
 	for _,v in pairs(self.items) do
@@ -393,6 +411,7 @@ function gui.contextMenu:addItem( text, tag )
 	local count = #self.items
 	
 	local button = EditorButton.create( {0, count*GUI_BUTTON_HEIGHT}, {self.size[1], GUI_BUTTON_HEIGHT}, text )
+	button:setDepth( self.depth + GUI_DEPTH_SMALL_INC )
 	button.tag = tag
 	button.onClick = function( self )
 		if gui.contextMenu.onClick then
@@ -465,6 +484,8 @@ function gui.panel.tabBar:load()
 	local yoffset = gui.panel.position[2]
 	local buttonHeight = gui.fontHeight + 4
 	
+	local depth = gui.panel.depth + GUI_DEPTH_INC
+
 	-- items
 	self.items[1] = EditorButton.create
 	(
@@ -472,6 +493,7 @@ function gui.panel.tabBar:load()
 		{ 64, buttonHeight }, -- size
 		"Info"
 	)
+	self.items[1].depth = depth
 	self.items[1].onClick = function( self )
 		gui.panel.tabBar:onClick( 1 )
 	end
@@ -483,6 +505,7 @@ function gui.panel.tabBar:load()
 		{ 64, buttonHeight },
 		"Entities"
 	)
+	self.items[2].depth = depth
 	self.items[2].onClick = function( self )
 		gui.panel.tabBar:onClick( 2 )
 	end
@@ -494,6 +517,7 @@ function gui.panel.tabBar:load()
 		{ 64, buttonHeight },
 		"Prefabs"
 	)
+	self.items[3].depth = depth
 	self.items[3].onClick = function( self )
 		gui.panel.tabBar:onClick( 3 )
 	end
@@ -509,66 +533,48 @@ function gui.panel.tabs.info:load()
 	local padding = 4
 	local yoffset = 0
 
-	self.nameLabel = EditorLabel.create( {pos[1] + padding, pos[2] + padding + yoffset}, "Name:" )
-	yoffset = yoffset + self.nameLabel:getHeight() + padding
-	
-	self.nameTextbox = EditorTextbox.create( {pos[1] + padding, pos[2] + padding + yoffset}, {size[1]-padding*2, 24} )
-	self.nameTextbox.onFocus = function( textbox )
-		textbox:selectAll()
-	end
-	yoffset = yoffset + 24 + padding
-	
-	self.positionLabel = EditorLabel.create( {pos[1] + padding, pos[2] + padding + yoffset}, "Position:" )
-	yoffset = yoffset + self.nameLabel:getHeight() + padding
-	
-	self.positionTextbox = EditorTextbox.create( {pos[1] + padding, pos[2] + padding + yoffset}, {size[1]-padding*2, 24} )
-	self.positionTextbox.onFocus = function( textbox )
-		textbox:selectAll()
-	end
-	yoffset = yoffset + 24 + padding
-	
-	self.orientationLabel = EditorLabel.create( {pos[1] + padding, pos[2] + padding + yoffset}, "Orientation:" )
-	yoffset = yoffset + self.orientationLabel:getHeight() + padding
-	
-	self.orientationTextbox = EditorTextbox.create( {pos[1] + padding, pos[2] + padding + yoffset}, {size[1]-padding*2, 24} )
-	self.orientationTextbox.onFocus = function( textbox )
-		textbox:selectAll()
-	end
-	yoffset = yoffset + 24 + padding
-	
-	self.scaleLabel = EditorLabel.create( {pos[1] + padding, pos[2] + padding + yoffset}, "Scale:" )
-	yoffset = yoffset + self.scaleLabel:getHeight() + padding
-	
-	self.scaleTextbox = EditorTextbox.create( {pos[1] + padding, pos[2] + padding + yoffset}, {size[1]-padding*2, 24} )
-	self.scaleTextbox.onFocus = function( textbox )
-		textbox:selectAll()
-	end
-	yoffset = yoffset + 24 + padding
+	local depth = gui.panel.depth + GUI_DEPTH_INC
+
+	self.nameInputbox = EditorInputbox.create( {pos[1] + padding, pos[2] + padding + yoffset}, size[1]-padding*2, "Name:" )
+	self.nameInputbox:setDepth( depth )
+	yoffset = yoffset + self.nameInputbox.size[2] + padding
+
+	self.positionInputbox = EditorInputbox.create( {pos[1] + padding, pos[2] + padding + yoffset}, size[1]-padding*2, "Position:" )
+	self.positionInputbox:setDepth( depth )
+	yoffset = yoffset + self.positionInputbox.size[2] + padding
+
+	self.orientationInputbox = EditorInputbox.create( {pos[1] + padding, pos[2] + padding + yoffset}, size[1]-padding*2, "Orientation:" )
+	self.orientationInputbox:setDepth( depth )
+	yoffset = yoffset + self.orientationInputbox.size[2] + padding
+
+	self.scaleInputbox = EditorInputbox.create( {pos[1] + padding, pos[2] + padding + yoffset}, size[1]-padding*2, "Scale:" )
+	self.scaleInputbox:setDepth( depth )
+	yoffset = yoffset + self.scaleInputbox.size[2] + padding
 
 	self.visibleLabel = EditorLabel.create( {pos[1] + padding, pos[2] + padding + yoffset}, "Visible:" )
+	self.visibleLabel:setDepth( depth )
 	yoffset = yoffset + self.visibleLabel:getHeight() + padding
 
 	self.visibleCheckbox = EditorCheckbox.create( {pos[1] + padding, pos[2] + padding + yoffset} )
+	self.visibleCheckbox:setDepth( depth )
 	yoffset = yoffset + self.visibleCheckbox.size[2] + padding
 
 	self.componentsLabel = EditorLabel.create( {pos[1] + padding, pos[2] + padding + yoffset}, "Components:" )
+	self.componentsLabel:setDepth( depth )
 	yoffset = yoffset + self.componentsLabel:getHeight() + padding
 
 	self.addComponentButton = EditorButton.create( {pos[1] + padding, pos[2] + padding + yoffset}, {size[1]-padding*2, GUI_BUTTON_HEIGHT}, "Add Component" )
+	self.addComponentButton:setDepth( depth )
 	self.addComponentButton.onClick = function( button )
 		gui.componentList.visible = not gui.componentList.visible
 	end
 	yoffset = yoffset + GUI_BUTTON_HEIGHT + padding
 
 	-- add to items list
-	self.items[#self.items+1] = self.nameLabel
-	self.items[#self.items+1] = self.nameTextbox
-	self.items[#self.items+1] = self.positionLabel
-	self.items[#self.items+1] = self.positionTextbox
-	self.items[#self.items+1] = self.orientationLabel
-	self.items[#self.items+1] = self.orientationTextbox
-	self.items[#self.items+1] = self.scaleLabel
-	self.items[#self.items+1] = self.scaleTextbox
+	self.items[#self.items+1] = self.nameInputbox
+	self.items[#self.items+1] = self.positionInputbox
+	self.items[#self.items+1] = self.orientationInputbox
+	self.items[#self.items+1] = self.scaleInputbox
 	self.items[#self.items+1] = self.visibleLabel
 	self.items[#self.items+1] = self.visibleCheckbox
 	self.items[#self.items+1] = self.componentsLabel
@@ -610,10 +616,10 @@ function gui.panel.tabs.info:setEntity( entity )
 	if entity then
 		-- set name and position
 		self.visibleCheckbox.checked = entity.visible
-		self.nameTextbox.text = entity.name
-		self.positionTextbox:setText( stringVec( entity.position ) )
-		self.orientationTextbox:setText( stringVec( entity.orientation ) )
-		self.scaleTextbox:setText( stringVec( entity.scale ) )
+		self.nameInputbox.textbox:setText( entity.name )
+		self.positionInputbox.textbox:setText( stringVec( entity.position ) )
+		self.orientationInputbox.textbox:setText( stringVec( entity.orientation ) )
+		self.scaleInputbox.textbox:setText( stringVec( entity.scale ) )
 
 		-- create new items
 		self.entity = entity
@@ -624,14 +630,17 @@ function gui.panel.tabs.info:setEntity( entity )
 		local size = gui.panel.contentSize
 		local yoffset = self.addComponentButton.position[2] + self.addComponentButton.size[2] + 8
 		local removeSize = 16
+		local depth = gui.panel.depth + GUI_DEPTH_SMALL_INC
 		for _,v in pairs(self.entity.components) do
 			local button = EditorButton.create( {position[1]+padding, yoffset}, {size[1]-removeSize-padding*4, GUI_BUTTON_HEIGHT}, v.name )
+			button:setDepth( depth )
 			button.onClick = function( button )
 				v:showInfoWindow()
 			end
 
 			local removePadding = ( button.size[2] - removeSize ) * 0.5
 			local removeButton = EditorButton.create( {button.position[1]+button.size[1]+padding, yoffset+removePadding}, {removeSize,removeSize}, "" )
+			removeButton:setDepth( depth )
 			removeButton.textureIndex = crossTextureIndex
 			removeButton.color = {1,1,1,1}
 			removeButton.hoverColor = {1.0, 0.35, 0.35, 1.0}
@@ -649,19 +658,19 @@ function gui.panel.tabs.info:setEntity( entity )
 		self.addComponentButton.disabled = false
 	else
 		self.visibleCheckbox.checked = false
-		self.nameTextbox:setText( "" )
-		self.positionTextbox:setText( "" )
-		self.orientationTextbox:setText( "" )
-		self.scaleTextbox:setText( "" )
+		self.nameInputbox.textbox:setText( "" )
+		self.positionInputbox.textbox:setText( "" )
+		self.orientationInputbox.textbox:setText( "" )
+		self.scaleInputbox.textbox:setText( "" )
 		self.addComponentButton.disabled = true
 		gui.componentList.visible = false
 	end
 end
 
 function gui.panel.tabs.info:refresh()
-	self.positionTextbox:setText( stringVec( self.entity.position ) )
-	self.orientationTextbox:setText( stringVec( self.entity.orientation ) )
-	self.scaleTextbox:setText( stringVec( self.entity.scale ) )
+	self.positionInputbox.textbox:setText( stringVec( self.entity.position ) )
+	self.orientationInputbox.textbox:setText( stringVec( self.entity.orientation ) )
+	self.scaleInputbox.textbox:setText( stringVec( self.entity.scale ) )
 end
 
 -- entities
@@ -816,7 +825,7 @@ function gui:render()
 	self.menu:render()
 	
 	-- panel
-	Graphics.queueQuad( self.panel.textureIndex, self.panel.position, self.panel.size, self.panel.color )
+	Graphics.queueQuad( self.panel.textureIndex, self.panel.position, self.panel.size, self.panel.depth, self.panel.color )
 	
 	for _,v in pairs(self.panel.tabBar.items) do
 		v:render()

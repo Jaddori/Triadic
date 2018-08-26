@@ -3,7 +3,8 @@ EditorButton =
 	textureIndex = -1,
 	position = {0,0},
 	size = {0,0},
-	color = {0.5,0.5,0.5,1},
+	depth = 0,
+	color = {0.6,0.6,0.6,1},
 	hoverColor = { 0.75, 0.75, 0.75, 1 },
 	pressColor = { 0.35, 0.35, 0.35, 1 },
 	disabledColor = { 0.35, 0.35, 0.35, 1.0 },
@@ -32,6 +33,7 @@ function EditorButton.create( position, size, text )
 	
 	button.position = position
 	button.size = size
+	button.depth = 0
 	button.hovered = false
 	button.pressed = false
 	button.text = text or "Button"
@@ -48,6 +50,10 @@ end
 function EditorButton:setSize( size )
 	self.size[1] = size[1]
 	self.size[2] = size[2]
+end
+
+function EditorButton:setDepth( depth )
+	self.depth = depth
 end
 
 function EditorButton:update( deltaTime )
@@ -97,11 +103,11 @@ function EditorButton:render()
 	end
 	
 	-- render background
-	Graphics.queueQuad( self.textureIndex, self.position, self.size, color )
+	Graphics.queueQuad( self.textureIndex, self.position, self.size, self.depth, color )
 	
 	-- render text
 	local textPosition = { self.position[1] + 8, self.position[2] }
-	Graphics.queueText( self.fontIndex, self.text, textPosition, textColor )
+	Graphics.queueText( self.fontIndex, self.text, textPosition, self.depth+GUI_DEPTH_SMALL_INC, textColor )
 end
 
 function EditorButton:onClick()

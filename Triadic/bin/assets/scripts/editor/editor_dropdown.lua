@@ -9,6 +9,7 @@ EditorDropdown =
 	textureIndex = -1,
 	position = {0,0},
 	size = {0,0},
+	depth = 0,
 	color = {0.5, 0.5, 0.5, 1.0},
 	hoverColor = {0.75, 0.75, 0.75, 1.0},
 	pressColor = {0.35, 0.35, 0.35, 1.0},
@@ -54,6 +55,7 @@ function EditorDropdown.create( position, size )
 	{
 		position = position or {0,0},
 		size = size or {0,0},
+		depth = 0,
 		hovered = false,
 		pressed = false,
 		expanded = false,
@@ -116,6 +118,10 @@ function EditorDropdown:setSize( size )
 	self.size[2] = size[2]
 
 	self:updateArrowPosition()
+end
+
+function EditorDropdown:setDepth( depth )
+	self.depth = depth
 end
 
 function EditorDropdown:update( deltaTime )
@@ -200,12 +206,12 @@ function EditorDropdown:render()
 	local textPadding = 8
 
 	-- draw background
-	Graphics.queueQuad( self.textureIndex, self.position, self.size, color )
+	Graphics.queueQuad( self.textureIndex, self.position, self.size, self.depth, color )
 
 	-- draw selected item text
 	if self.selectedIndex > 0 then
 		local textPosition = { self.position[1] + textPadding, self.position[2] }
-		Graphics.queueText( self.fontIndex, self.menu.items[self.selectedIndex].text, textPosition, self.textColor )
+		Graphics.queueText( self.fontIndex, self.menu.items[self.selectedIndex].text, textPosition, self.depth + GUI_DEPTH_SMALL_INC, self.textColor )
 	end
 
 	-- draw arrow
@@ -213,7 +219,7 @@ function EditorDropdown:render()
 	if self.expanded then
 		arrowTextureIndex = self.arrowUpTextureIndex
 	end
-	Graphics.queueQuad( arrowTextureIndex, self.arrowPosition, self.arrowSize, self.arrowColor )
+	Graphics.queueQuad( arrowTextureIndex, self.arrowPosition, self.arrowSize, self.depth + GUI_DEPTH_SMALL_INC, self.arrowColor )
 
 	-- draw menu
 	if self.expanded then
@@ -232,10 +238,10 @@ function EditorDropdown:render()
 			end
 
 			-- draw background
-			Graphics.queueQuad( self.textureIndex, position, size, color )
+			Graphics.queueQuad( self.textureIndex, position, size, self.depth + GUI_DEPTH_SMALL_INC*3, color )
 
 			-- draw text
-			Graphics.queueText( self.fontIndex, v.text, {position[1]+textPadding, position[2]}, self.textColor )
+			Graphics.queueText( self.fontIndex, v.text, {position[1]+textPadding, position[2]}, self.depth + GUI_DEPTH_SMALL_INC*4, self.textColor )
 
 			position[2] = position[2] + self.size[2]
 		end
