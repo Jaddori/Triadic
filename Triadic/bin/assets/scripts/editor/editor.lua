@@ -68,7 +68,7 @@ function Editor:load()
 		if self.selectedEntity then
 			local newComponent = component.create( self.selectedEntity )
 			self.selectedEntity:addComponent( newComponent )
-			self.gui.panel.tabs.info:setEntity( self.selectedEntity )
+			self.gui.panel.tabs[GUI_TAB_INFO]:setEntity( self.selectedEntity )
 		end
 	end
 	
@@ -88,19 +88,19 @@ function Editor:load()
 	end
 	
 	-- gui info panel
-	self.gui.panel.tabs.info.visibleCheckbox.onCheck = function( checkbox )
+	self.gui.panel.tabs[GUI_TAB_INFO].visibleCheckbox.onCheck = function( checkbox )
 		if self.selectedEntity then
 			self.selectedEntity.visible = checkbox.checked
 		end
 	end
 
-	self.gui.panel.tabs.info.nameInputbox.textbox.onFinish = function( self )
+	self.gui.panel.tabs[GUI_TAB_INFO].nameInputbox.textbox.onFinish = function( self )
 		if self.text:len() > 0 then
 			Editor.selectedEntity.name = self.text
 		end
 	end
 	
-	self.gui.panel.tabs.info.positionInputbox.textbox.onFinish = function( textbox )
+	self.gui.panel.tabs[GUI_TAB_INFO].positionInputbox.textbox.onFinish = function( textbox )
 		if textbox.text:len() > 0 then
 			local components = split( textbox.text, "," )
 			
@@ -119,7 +119,7 @@ function Editor:load()
 		end
 	end
 
-	self.gui.panel.tabs.info.orientationInputbox.textbox.onFinish = function( textbox )
+	self.gui.panel.tabs[GUI_TAB_INFO].orientationInputbox.textbox.onFinish = function( textbox )
 		if textbox.text:len() > 0 then
 			local components = split( textbox.text, "," )
 
@@ -139,7 +139,7 @@ function Editor:load()
 		end
 	end
 
-	self.gui.panel.tabs.info.scaleInputbox.textbox.onFinish = function( textbox )
+	self.gui.panel.tabs[GUI_TAB_INFO].scaleInputbox.textbox.onFinish = function( textbox )
 		if textbox.text:len() > 0 then
 			local components = split( textbox.text, "," )
 
@@ -202,7 +202,7 @@ function Editor:update( deltaTime )
 				end
 
 				self.selectedEntity = self.hoveredEntity
-				self.gui.panel.tabs.info:setEntity( self.selectedEntity )
+				self.gui.panel.tabs[GUI_TAB_INFO]:setEntity( self.selectedEntity )
 
 				if self.selectedEntity then
 					self.selectedEntity.selected = true
@@ -389,11 +389,11 @@ function Editor:update( deltaTime )
 			-- update gizmo if entity was moved
 			if entityMoved then
 				self.gizmo:setPosition( self.selectedEntity.position )
-				self.gui.panel.tabs.info:refresh()
+				self.gui.panel.tabs[GUI_TAB_INFO]:refresh()
 			elseif entityOriented then
 			elseif entityScaled then
 				self.gizmo:setScale( self.selectedEntity.scale )
-				self.gui.panel.tabs.info:refresh()
+				self.gui.panel.tabs[GUI_TAB_INFO]:refresh()
 			end
 		end
 	end
@@ -434,7 +434,7 @@ function Editor:update( deltaTime )
 
 			if self.selectedEntity and undoRedo then
 				self.gizmo:setPosition( self.selectedEntity.position )
-				self.gui.panel.tabs.info:refresh()
+				self.gui.panel.tabs[GUI_TAB_INFO]:refresh()
 			end
 		end
 
@@ -487,7 +487,7 @@ function Editor:selectEntity( entity )
 		self.selectedEntity.selected = false
 	end
 
-	self.gui.panel.tabs.info:setEntity( entity )
+	self.gui.panel.tabs[GUI_TAB_INFO]:setEntity( entity )
 	self.selectedEntity = entity
 	entity.selected = true
 	
@@ -515,7 +515,7 @@ function Editor:copyEntity()
 	
 	self.entities[#self.entities+1] = entity
 	
-	self.gui.panel.tabs.entities:addEntity( entity, self.onEntitySelected )
+	self.gui.panel.tabs[GUI_TAB_ENTITIES]:addEntity( entity, self.onEntitySelected )
 
 	self:selectEntity( entity )
 
@@ -526,7 +526,7 @@ function Editor:createEntity( position )
 	local entity = Entity.create( "NewEntity", position )
 	self.entities[#self.entities+1] = entity
 	
-	self.gui.panel.tabs.entities:addEntity( entity, self.onEntitySelected )
+	self.gui.panel.tabs[GUI_TAB_ENTITIES]:addEntity( entity, self.onEntitySelected )
 
 	self:selectEntity( entity )
 end
@@ -548,9 +548,9 @@ function Editor:removeEntity( entity )
 
 	if index > 0 then
 		self.selectedEntity = nil
-		self.gui.panel.tabs.info:setEntity( self.selectedEntity )
+		self.gui.panel.tabs[GUI_TAB_INFO]:setEntity( self.selectedEntity )
 		self.gizmo.visible = false
-		self.gui.panel.tabs.entities:removeEntity( entity )
+		self.gui.panel.tabs[GUI_TAB_ENTITIES]:removeEntity( entity )
 
 		self.entities[index] = nil
 	end
@@ -563,7 +563,7 @@ function Editor:reset()
 	self.selectedEntity = nil
 	self.gizmo.visible = false
 
-	self.gui.panel.tabs.entities:clear()
+	self.gui.panel.tabs[GUI_TAB_ENTITIES]:clear()
 end
 
 function Editor:openLevel()
@@ -578,7 +578,7 @@ function Editor:openLevel()
 				self.entities = value
 
 				for _,v in pairs(self.entities) do
-					self.gui.panel.tabs.entities:addEntity( v, self.onEntitySelected )
+					self.gui.panel.tabs[GUI_TAB_ENTITIES]:addEntity( v, self.onEntitySelected )
 				end
 			else
 				Log.error( "Failed to load entities:" )
