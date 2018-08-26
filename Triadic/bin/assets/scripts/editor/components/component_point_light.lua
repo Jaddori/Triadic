@@ -98,6 +98,8 @@ end
 function ComponentPointLightWindow:show( component )
 	self.component = component
 	self.window.visible = true
+	self.window.focused = true
+	if self.window.onFocus then self.window:onFocus() end
 
 	-- update items
 	self.window.items[1].textbox:setText( stringVec( component.offset ) )

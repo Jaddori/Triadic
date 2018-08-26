@@ -12,6 +12,7 @@ GUI_BUTTON_HEIGHT = 0
 GUI_COMPONENT_LIST_WIDTH = 128
 GUI_COMPONENT_LIST_DEPTH = 0.7
 GUI_CONTEXT_MENU_DEPTH = 0.7
+GUI_WINDOW_BASE_DEPTH = 0.0
 local MENU_SETTINGS_BUTTON_WIDTH = 128
 local MENU_FILE_BUTTON_WIDTH = 128
 
@@ -129,6 +130,8 @@ local gui =
 		
 		items = {},
 	},
+
+	openWindows = {},
 }
 
 -- menu
@@ -739,6 +742,26 @@ function gui.panel.tabs.prefabs:update( deltaTime )
 	return capture
 end
 function gui.panel.tabs.prefabs:render() end
+
+-- windows
+function gui:focusWindow( window )
+	local openWindows = {}
+	if window and window.visible then
+		openWindows[1] = window
+	end
+
+	for i=1, #self.openWindows do
+		if self.openWindows[i] ~= window and self.openWindows[i].visible then
+			openWindows[#openWindows+1] = self.openWindows[i]
+		end
+	end
+
+	for i=1, #openWindows do
+		openWindows[i]:setDepth( GUI_WINDOW_BASE_DEPTH - GUI_DEPTH_INC*i )
+	end
+
+	self.openWindows = openWindows
+end
 
 function gui:load()
 	doscript( "editor/editor_button.lua" )

@@ -36,9 +36,12 @@ EditorWindow =
 
 	hovered = false,
 	pressed = false,
+	focused = false,
 	movementOffset = {0,0},
 
 	padding = 4,
+	onFocus = nil,
+	onClose = nil,
 }
 
 function EditorWindow.create( title, position, size )
@@ -61,6 +64,7 @@ function EditorWindow.create( title, position, size )
 
 		hovered = false,
 		pressed = false,
+		focused = false,
 		movementOffset = {0,0},
 
 		crossSize = {EDITOR_WINDOW_CROSS_SIZE, EDITOR_WINDOW_CROSS_SIZE},
@@ -72,6 +76,13 @@ function EditorWindow.create( title, position, size )
 	setmetatable( result, { __index = EditorWindow } )
 
 	return result
+end
+
+function EditorWindow:setDepth( depth )
+	self.depth = depth
+	for _,v in pairs(self.items) do
+		v:setDepth( self.depth + GUI_DEPTH_SMALL_INC )
+	end
 end
 
 function EditorWindow:addItem( item )
@@ -140,6 +151,10 @@ function EditorWindow:update( deltaTime )
 					local crossPosition = { self.position[1] + self.size[1] - self.crossSize[1], self.position[2] }
 					if insideRect( crossPosition, self.crossSize, mousePosition ) then
 						self.visible = false
+
+						if self.onClose then
+							self:onClose()
+						end
 					end
 
 					self.crossCaptured = false
@@ -157,6 +172,19 @@ function EditorWindow:update( deltaTime )
 			self.crossHovered = true
 		else
 			self.crossHovered = false
+		end
+
+		-- focus
+		if Input.buttonPressed( Buttons.Left ) then
+			if insideRect( self.position, self.size, mousePosition ) then
+				self.focused = true
+
+				if self.onFocus then
+					self:onFocus()
+				end
+			else
+				self.focused = false
+			end
 		end
 
 		-- update items

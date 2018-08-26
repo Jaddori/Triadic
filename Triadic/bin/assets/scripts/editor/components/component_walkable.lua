@@ -154,6 +154,8 @@ function ComponentWalkableWindow:load()
 	self.window.position[1] = WINDOW_WIDTH - GUI_PANEL_WIDTH - self.window.size[1] - 8
 	self.window.position[2] = GUI_MENU_HEIGHT + 8
 	self.window.visible = false
+	self.window.focused = true
+	if self.window.onFocus then self.window:onFocus() end
 
 	-- size
 	local sizeInput = EditorInputbox.create( {0,0}, 0, "Size:" )

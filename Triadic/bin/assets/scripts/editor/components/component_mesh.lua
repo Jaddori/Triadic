@@ -167,6 +167,8 @@ end
 function ComponentMeshWindow:show( component )
 	self.component = component
 	self.window.visible = true
+	self.window.focused = true
+	if self.window.onFocus then self.window:onFocus() end
 
 	-- update items
 	local meshName = "N/A"

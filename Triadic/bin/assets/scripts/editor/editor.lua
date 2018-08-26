@@ -51,6 +51,16 @@ function Editor:load()
 	
 	doscript( "editor/entity.lua" )
 
+	for _,v in pairs(Entity.windowList) do
+		v.window.onFocus = function( window )
+			self.gui:focusWindow( window )
+		end
+
+		v.window.onClose = function( window )
+			self.gui:focusWindow()
+		end
+	end
+
 	-- gui component list
 	self.gui.componentList.onClick = function( button )
 		local component = button.tag
