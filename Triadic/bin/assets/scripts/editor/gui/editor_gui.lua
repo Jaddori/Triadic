@@ -764,14 +764,11 @@ function gui:focusWindow( window )
 end
 
 function gui:load()
-	doscript( "editor/editor_button.lua" )
-	doscript( "editor/editor_label.lua" )
-	doscript( "editor/editor_textbox.lua" )
-	doscript( "editor/editor_checkbox.lua" )
-	doscript( "editor/editor_inputbox.lua" )
-	doscript( "editor/editor_window.lua" )
-	doscript( "editor/editor_listbox.lua" )
-	doscript( "editor/editor_dropdown.lua" )
+	-- load controls
+	local controlFiles = Filesystem.getFiles( "./assets/scripts/editor/controls/*" )
+	for _,v in pairs(controlFiles) do
+		doscript( "editor/controls/" .. v )
+	end
 	
 	self.fontIndex = Assets.loadFont( "./assets/fonts/verdana12.bin", "./assets/fonts/verdana12.dds" )
 	local font = Assets.getFont( self.fontIndex )

@@ -25,7 +25,7 @@ function Editor:load()
 	self.camera = doscript( "editor/editor_camera.lua" )
 	self.camera:load()
 	
-	self.gui = doscript( "editor/editor_gui.lua" )
+	self.gui = doscript( "editor/gui/editor_gui.lua" )
 	self.gui:load()
 	self.gui.menu.file.onNew = function() self:reset() end
 	self.gui.menu.file.onOpen = function() self:openLevel() end
