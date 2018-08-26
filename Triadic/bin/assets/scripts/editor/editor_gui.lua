@@ -618,16 +618,31 @@ function gui.panel.tabs.info:setEntity( entity )
 		-- create new items
 		self.entity = entity
 		
+		local crossTextureIndex = Assets.loadTexture( "./assets/textures/cross.dds" )
 		local padding = 4
 		local position = gui.panel.contentPosition
 		local size = gui.panel.contentSize
 		local yoffset = self.addComponentButton.position[2] + self.addComponentButton.size[2] + 8
+		local removeSize = 16
 		for _,v in pairs(self.entity.components) do
-			local button = EditorButton.create( {position[1]+padding, yoffset}, {size[1]-padding*2, GUI_BUTTON_HEIGHT}, v.name )
+			local button = EditorButton.create( {position[1]+padding, yoffset}, {size[1]-removeSize-padding*4, GUI_BUTTON_HEIGHT}, v.name )
 			button.onClick = function( button )
 				v:showInfoWindow()
 			end
+
+			local removePadding = ( button.size[2] - removeSize ) * 0.5
+			local removeButton = EditorButton.create( {button.position[1]+button.size[1]+padding, yoffset+removePadding}, {removeSize,removeSize}, "" )
+			removeButton.textureIndex = crossTextureIndex
+			removeButton.color = {1,1,1,1}
+			removeButton.hoverColor = {1.0, 0.35, 0.35, 1.0}
+			removeButton.onClick = function( button )
+				self.entity.components[v.name] = nil
+				self:setEntity( self.entity )
+			end
+
 			self.subItems[#self.subItems+1] = button
+			self.subItems[#self.subItems+1] = removeButton
+
 			yoffset = yoffset + GUI_BUTTON_HEIGHT + padding
 		end
 
