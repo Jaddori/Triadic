@@ -58,7 +58,7 @@ namespace Rendering
 
 		bool load( Assets* assets, int width, int height );
 
-		void begin();
+		void begin( float deltaTime );
 		void end();
 
 		void beginGeometryPass( Camera* camera );
@@ -164,6 +164,7 @@ namespace Rendering
 		GLint billboardDiffuseMap;
 		GLint billboardNormalMap;
 		GLint billboardSpecularMap;
+		GLint billboardMaskMap;
 		GLint billboardDepthTarget;
 		GLuint billboardVAO;
 		GLuint billboardVBO;
@@ -172,5 +173,7 @@ namespace Rendering
 		GLint finalLightTarget;
 		GLint finalBillboardTarget;
 		GLint finalBillboardAlphaTarget;
+
+		float elapsedTime;
 	};
 }

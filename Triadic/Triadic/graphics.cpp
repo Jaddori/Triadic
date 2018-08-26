@@ -199,7 +199,7 @@ void Graphics::render( float deltaTime )
 
 	if( lightingEnabled )
 	{
-		renderDeferred();
+		renderDeferred( deltaTime );
 		renderForward();
 	}
 	else
@@ -208,9 +208,9 @@ void Graphics::render( float deltaTime )
 	}
 }
 
-void Graphics::renderDeferred()
+void Graphics::renderDeferred( float deltaTime )
 {
-	gbuffer.begin();
+	gbuffer.begin( deltaTime );
 
 	// GEOMETRY PASS
 	gbuffer.beginGeometryPass( &perspectiveCamera );
@@ -291,20 +291,31 @@ void Graphics::renderDeferred()
 
 	// BILLBOARDS
 	gbuffer.beginBillboardPass( &perspectiveCamera );
+	
+	const int BILLBOARD_COLLECTION_COUNT = billboardCollections.getSize();
+	for( int curCollection = 0; curCollection < BILLBOARD_COLLECTION_COUNT; curCollection++ )
+	{
+		BillboardCollection& collection = billboardCollections[curCollection];
 
-	Array<Billboard> bbs;
-	Billboard& bb = bbs.append();
-	bb.position = glm::vec3( 0.0f, 0.0f, 0.0f );
-	bb.size = glm::vec2( 2.0f, 2.0f );
-	bb.spherical = 1.0f;
-	bb.uv = glm::vec4( 0.0f, 0.0f, 1.0f, 1.0f );
-	bb.scroll = glm::vec3( 0.0f, 0.0f, 0.0f );
+		collection.diffuseMap->bind( GL_TEXTURE0 );
+		collection.normalMap->bind( GL_TEXTURE1 );
+		collection.specularMap->bind( GL_TEXTURE2 );
+		collection.maskMap->bind( GL_TEXTURE3 );
 
-	texture.bind( GL_TEXTURE0 );
-	normalMap->bind( GL_TEXTURE1 );
-	specularMap->bind( GL_TEXTURE2 );
+		const int BILLBOARD_COUNT = collection.billboards[readIndex].getSize();
+		int offset = 0;
+		while( offset < BILLBOARD_COUNT )
+		{
+			int count = BILLBOARD_COUNT - offset;
+			if( count > GRAPHICS_MAX_BILLBOARDS )
+				count = GRAPHICS_MAX_BILLBOARDS;
 
-	gbuffer.renderBillboards( bbs );
+			glBufferSubData( GL_ARRAY_BUFFER, 0, sizeof(Billboard)*count, collection.billboards[readIndex].getData()+offset );
+			glDrawArrays( GL_POINTS, 0, count );
+
+			offset += count;
+		}
+	}
 
 	gbuffer.endBillboardPass();
 
@@ -442,8 +453,10 @@ void Graphics::renderBasic()
 	{
 		BillboardCollection& collection = billboardCollections[curCollection];
 
-		collection.texture->bind( GL_TEXTURE0 );
-		collection.mask->bind( GL_TEXTURE1 );
+		collection.diffuseMap->bind( GL_TEXTURE0 );
+		collection.normalMap->bind( GL_TEXTURE1 );
+		collection.specularMap->bind( GL_TEXTURE2 );
+		collection.maskMap->bind( GL_TEXTURE3 );
 
 		const int BILLBOARD_COUNT = collection.billboards[readIndex].getSize();
 		int offset = 0;
@@ -704,24 +717,34 @@ void Graphics::queueText( int fontIndex, const char* text, const glm::vec3& posi
 	}
 }
 
-void Graphics::queueBillboard( int textureIndex, int maskIndex, const glm::vec3& position, const glm::vec2& size, const glm::vec4& uv, bool spherical, const glm::vec3& scroll )
+void Graphics::queueBillboard( int diffuseIndex, int normalIndex, int specularIndex, int maskIndex, const glm::vec3& position, const glm::vec2& size, const glm::vec4& uv, bool spherical, const glm::vec3& scroll )
 {
-	const Texture* texture = assets.getTexture( textureIndex );
-	const Texture* mask = assets.getTexture( maskIndex );
+	const Texture* diffuseMap = assets.getTexture( diffuseIndex );
+	const Texture* normalMap = assets.getTexture( normalIndex );
+	const Texture* specularMap = assets.getTexture( specularIndex );
+	const Texture* maskMap = assets.getTexture( maskIndex );
 
 	const int BILLBOARD_COLLECTION_COUNT = billboardCollections.getSize();
 
 	int index = -1;
 	for( int i=0; i<BILLBOARD_COLLECTION_COUNT && index < 0; i++ )
-		if( billboardCollections[i].texture == texture &&
-			billboardCollections[i].mask == mask )
+	{
+		if( billboardCollections[i].diffuseMap == diffuseMap &&
+			billboardCollections[i].normalMap == normalMap &&
+			billboardCollections[i].specularMap == specularMap &&
+			billboardCollections[i].maskMap == maskMap )
+		{
 			index = i;
+		}
+	}
 
-	if( index < 0 ) // this is a new texture
+	if( index < 0 ) // these are new textures
 	{
 		BillboardCollection& collection = billboardCollections.append();
-		collection.texture = texture;
-		collection.mask = mask;
+		collection.diffuseMap = diffuseMap;
+		collection.normalMap = normalMap;
+		collection.specularMap = specularMap;
+		collection.maskMap = maskMap;
 		collection.billboards[writeIndex].expand( GRAPHICS_MAX_BILLBOARDS );
 		collection.billboards[readIndex].expand( GRAPHICS_MAX_BILLBOARDS );
 

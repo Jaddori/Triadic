@@ -151,6 +151,7 @@ bool Gbuffer::load( Assets* a, int w, int h )
 		billboardDiffuseMap = billboardPass.getLocation( "diffuseMap" );
 		billboardNormalMap = billboardPass.getLocation( "normalMap" );
 		billboardSpecularMap = billboardPass.getLocation( "specularMap" );
+		billboardMaskMap = billboardPass.getLocation( "maskMap" );
 		billboardDepthTarget = billboardPass.getLocation( "depthTarget" );
 
 		LOG_INFO( "Generating vertex data for billboard shader." );
@@ -279,8 +280,10 @@ bool Gbuffer::load( Assets* a, int w, int h )
 	return result;
 }
 
-void Gbuffer::begin()
+void Gbuffer::begin( float deltaTime )
 {
+	elapsedTime += deltaTime;
+
 	glBindFramebuffer( GL_FRAMEBUFFER, fbo );
 
 	// clear geometry targets
@@ -610,26 +613,34 @@ void Gbuffer::beginBillboardPass( Camera* camera )
 	glClear( GL_DEPTH_BUFFER_BIT );
 	glEnable( GL_BLEND );
 	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+	glDepthMask( GL_FALSE );
 
 	billboardPass.bind();
 	billboardPass.setMat4( billboardProjectionMatrix, camera->getProjectionMatrix() );
 	billboardPass.setMat4( billboardViewMatrix, camera->getViewMatrix() );
 	billboardPass.setVec2( billboardScreenSize, glm::vec2( WINDOW_WIDTH, WINDOW_HEIGHT ) );
-	billboardPass.setFloat( billboardDeltaTime, 0.0f );
-
-	glActiveTexture( GL_TEXTURE3 );
-	glBindTexture( GL_TEXTURE_2D, targets[TARGET_DEPTH] );
+	billboardPass.setFloat( billboardDeltaTime, elapsedTime );
 
 	billboardPass.setInt( billboardDiffuseMap, 0 );
 	billboardPass.setInt( billboardNormalMap, 1 );
 	billboardPass.setInt( billboardSpecularMap, 2 );
-	billboardPass.setInt( billboardDepthTarget, 3 );
+	billboardPass.setInt( billboardMaskMap, 3 );
+
+	glActiveTexture( GL_TEXTURE4 );
+	glBindTexture( GL_TEXTURE_2D, targets[TARGET_DEPTH] );
+	billboardPass.setInt( billboardDepthTarget, 4 );
+
+	glBindVertexArray( billboardVAO );
+	glBindBuffer( GL_ARRAY_BUFFER, billboardVBO );
 }
 
 void Gbuffer::endBillboardPass()
 {
+	glBindVertexArray( 0 );
+
 	glEnable( GL_DEPTH_TEST );
 	glDisable( GL_BLEND );
+	glDepthMask( GL_TRUE );
 }
 
 void Gbuffer::renderBillboards( Array<Billboard>& billboards )

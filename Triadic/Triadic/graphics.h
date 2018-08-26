@@ -44,8 +44,10 @@ namespace Rendering
 
 	struct BillboardCollection
 	{
-		const Texture* texture;
-		const Texture* mask;
+		const Texture* diffuseMap;
+		const Texture* normalMap;
+		const Texture* specularMap;
+		const Texture* maskMap;
 		Array<Billboard> billboards[2];
 	};
 
@@ -63,7 +65,7 @@ namespace Rendering
 		void queueMesh( int meshIndex, Transform* transform );
 		void queueQuad( int textureIndex, const glm::vec3& position, const glm::vec2& size, const glm::vec2& uvStart, const glm::vec2& uvEnd, const glm::vec4& color );
 		void queueText( int fontIndex, const char* text, const glm::vec3& position, const glm::vec4& color );
-		void queueBillboard( int textureIndex, int maskIndex, const glm::vec3& position, const glm::vec2& size, const glm::vec4& uv, bool spherical, const glm::vec3& scroll );
+		void queueBillboard( int diffuseIndex, int normalIndex, int specularIndex, int maskIndex, const glm::vec3& position, const glm::vec2& size, const glm::vec4& uv, bool spherical, const glm::vec3& scroll );
 		void queueDirectionalLight( const glm::vec3& direction, const glm::vec3& color, float intensity );
 		void queuePointLight( const glm::vec3& position, const glm::vec3& color, float intensity, float linear, float constant, float exponent );
 
@@ -77,7 +79,7 @@ namespace Rendering
 		bool getLightingEnabled();
 
 	private:
-		void renderDeferred();
+		void renderDeferred( float deltaTime );
 		void renderForward();
 		void renderBasic();
 

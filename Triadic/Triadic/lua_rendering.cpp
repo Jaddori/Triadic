@@ -121,29 +121,33 @@ namespace LuaRendering
 
 	LDEC( queueBillboard )
 	{
-		LUA_EXPECT_ARGS( 7 )
+		LUA_EXPECT_ARGS( 9 )
 		{
 			if( LUA_EXPECT_NUMBER( 1 ) &&
 				LUA_EXPECT_NUMBER( 2 ) &&
-				LUA_EXPECT_TABLE( 3 ) &&
-				LUA_EXPECT_TABLE( 4 ) &&
+				LUA_EXPECT_NUMBER( 3 ) &&
+				LUA_EXPECT_NUMBER( 4 ) &&
 				LUA_EXPECT_TABLE( 5 ) &&
-				LUA_EXPECT_BOOL( 6 ) && 
-				LUA_EXPECT_TABLE( 7 ) )
+				LUA_EXPECT_TABLE( 6 ) &&
+				LUA_EXPECT_TABLE( 7 ) &&
+				LUA_EXPECT_BOOL( 8 ) && 
+				LUA_EXPECT_TABLE( 9 ) )
 			{
 				glm::vec3 position, scroll;
 				glm::vec2 size;
 				glm::vec4 uv;
 
-				int textureIndex = lua_toint( lua, 1 );
-				int maskIndex = lua_toint( lua, 2 );
-				lua_getvec3( lua, 3, position );
-				lua_getvec2( lua, 4, size );
-				lua_getvec4( lua, 5, uv );
-				bool spherical = lua_tobool( lua, 6 );
-				lua_getvec3( lua, 7, scroll );
+				int diffuseIndex = lua_toint( lua, 1 );
+				int normalIndex = lua_toint( lua, 2 );
+				int specularIndex = lua_toint( lua, 3 );
+				int maskIndex = lua_toint( lua, 4 );
+				lua_getvec3( lua, 5, position );
+				lua_getvec2( lua, 6, size );
+				lua_getvec4( lua, 7, uv );
+				bool spherical = lua_tobool( lua, 8 );
+				lua_getvec3( lua, 9, scroll );
 
-				g_coreData->graphics->queueBillboard( textureIndex, maskIndex, position, size, uv, spherical, scroll );
+				g_coreData->graphics->queueBillboard( diffuseIndex, normalIndex, specularIndex, maskIndex, position, size, uv, spherical, scroll );
 			}
 		}
 

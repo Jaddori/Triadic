@@ -1,11 +1,16 @@
 local DEFAULT_PARTICLE_TEXTURE = "./assets/textures/cloud.dds"
+local DEFAULT_PARTICLE_NORMAL = "./assets/textures/normal.dds"
+local DEFAULT_PARTICLE_SPECULAR = "./assets/textures/specular.dds"
 local DEFAULT_PARTICLE_MASK = "./assets/textures/mask.dds"
 
 ComponentParticleEmitter =
 {
 	name = "Particle Emitter",
 	textureIndex = -1,
+	normalIndex = -1,
+	specularIndex = -1,
 	maskIndex = -1,
+
 	particles = {},
 	parent = nil,
 	spherical = true,
@@ -35,6 +40,8 @@ ComponentParticleEmitterWindow =
 function ComponentParticleEmitter.create( parent )
 	if ComponentParticleEmitter.textureIndex < 0 then
 		ComponentParticleEmitter.textureIndex = Assets.loadTexture( DEFAULT_PARTICLE_TEXTURE )
+		ComponentParticleEmitter.normalIndex = Assets.loadTexture( DEFAULT_PARTICLE_NORMAL )
+		ComponentParticleEmitter.specularIndex = Assets.loadTexture( DEFAULT_PARTICLE_SPECULAR )
 		ComponentParticleEmitter.maskIndex = Assets.loadTexture( DEFAULT_PARTICLE_MASK )
 	end
 
@@ -184,7 +191,7 @@ end
 function ComponentParticleEmitter:render()
 	for _,v in pairs(self.particles) do
 		if v.alive then
-			Graphics.queueBillboard( self.textureIndex, self.maskIndex, v.position, {v.size,v.size}, {0,0,1,1}, self.spherical, v.scroll )
+			Graphics.queueBillboard( self.textureIndex, self.normalIndex, self.specularIndex, self.maskIndex, v.position, {v.size,v.size}, {0,0,1,1}, self.spherical, v.scroll )
 		end
 	end
 

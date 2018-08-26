@@ -34,7 +34,9 @@ uniform vec2 screenSize;
 uniform sampler2D diffuseMap;
 uniform sampler2D normalMap;
 uniform sampler2D specularMap;
+uniform sampler2D maskMap;
 uniform sampler2D depthTarget;
+uniform float deltaTime;
 
 void main()
 {
@@ -47,6 +49,16 @@ void main()
 		discard;
 		
 	// color fragment
+	//finalColor = texture( diffuseMap, fragUV );
+	//finalAlpha = vec4( finalColor.a, finalColor.a, finalColor.a, 1.0 );
+	
+	float a1 = texture( diffuseMap, fragUV + fragScroll.xy + deltaTime * fragScroll.z ).a;
+	float a2 = texture( diffuseMap, (fragUV*0.5) + fragScroll.xy + deltaTime * fragScroll.z*0.5 ).a;
+	float a3 = texture( diffuseMap, (fragUV*2.0) + fragScroll.xy + deltaTime * fragScroll.z*1.5 ).a;
+	float mask = texture( maskMap, fragUV ).r;
+	
 	finalColor = texture( diffuseMap, fragUV );
+	finalColor.a = ((a1*a2*2)*a3*2)*mask;
+	
 	finalAlpha = vec4( finalColor.a, finalColor.a, finalColor.a, 1.0 );
 }
