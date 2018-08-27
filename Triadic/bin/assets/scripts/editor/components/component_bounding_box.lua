@@ -13,6 +13,7 @@ ComponentBoundingBox =
 	-- ray
 	ray =
 	{
+		start = {0,0,0},
 		length = 1.0,
 		direction = normalizeVec({1,1,1}),
 	},
@@ -20,6 +21,7 @@ ComponentBoundingBox =
 	-- sphere
 	sphere =
 	{
+		center = {0,0,0},
 		radius = 2.0,
 	},
 
@@ -74,6 +76,32 @@ function ComponentBoundingBox.create( parent )
 end
 
 function ComponentBoundingBox:write( file, level )
+	local componentName = self.parent.name .. "_component"
+
+	writeIndent( file, level, "local " .. componentName .. " = ComponentBoundingBox.create( " .. self.parent.name .. " )\n" )
+	
+	writeIndent( file, level, componentName .. ".type = " .. tostring( self.type ) .. "\n" )
+	if not equalsVec( self.color, ComponentBoundingBox.color ) then
+		writeIndent( file, level, componentName .. ".color = {" .. stringVec( self.color ) .. "}\n" )
+	end
+	writeIndent( file, level, componentName .. ".offset = {" .. stringVec( self.offset ) .. "}\n" )
+
+	-- ray
+	writeIndent( file, level, componentName .. ".ray.start = {" .. stringVec( self.ray.start ) .. "}\n" )
+	writeIndent( file, level, componentName .. ".ray.length = " .. tostring( self.ray.length ) .. "\n" )
+	writeIndent( file, level, componentName .. ".ray.direction = {" .. stringVec( self.ray.direction ) .. "}\n" )
+
+	-- sphere
+	writeIndent( file, level, componentName .. ".sphere.center = {" .. stringVec( self.sphere.center ) .. "}\n" )
+	writeIndent( file, level, componentName .. ".sphere.radius = " .. tostring( self.sphere.radius ) .. "\n" )
+
+	-- aabb
+	writeIndent( file, level, componentName .. ".aabb.minPosition = {" .. stringVec( self.aabb.minPosition ) .. "}\n" )
+	writeIndent( file, level, componentName .. ".aabb.maxPosition = {" .. stringVec( self.aabb.maxPosition ) .. "}\n" )
+	writeIndent( file, level, componentName .. ".aabb.minOffset = {" .. stringVec( self.aabb.minOffset ) .. "}\n" )
+	writeIndent( file, level, componentName .. ".aabb.maxOffset = {" .. stringVec( self.aabb.maxOffset ) .. "}\n" )
+
+	writeIndent( file, level, self.parent.name .. ":addComponent( " .. componentName .. " )\n" )
 end
 
 function ComponentBoundingBox:read( file )

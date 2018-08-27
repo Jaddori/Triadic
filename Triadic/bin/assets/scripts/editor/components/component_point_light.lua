@@ -26,9 +26,6 @@ function ComponentPointLight.create( parent )
 		offset = {0,0,0},
 		color = {1,1,1},
 		intensity = 2,
-		linear = 1,
-		constant = 0,
-		exponent = 1,
 		size = 1,
 	}
 
@@ -40,6 +37,30 @@ function ComponentPointLight.create( parent )
 end
 
 function ComponentPointLight:write( file, level )
+	local componentName = self.parent.name .. "_component"
+
+	writeIndent( file, level, "local " .. componentName .. " = ComponentPointLight.create( " .. self.parent.name .. " )\n" )
+
+	writeIndent( file, level, componentName .. ".position = {" .. stringVec( self.position ) .. "}\n" )
+	writeIndent( file, level, componentName .. ".offset = {" .. stringVec( self.offset ) .. "}\n" )
+	writeIndent( file, level, componentName .. ".color = {" .. stringVec( self.color ) .. "}\n" )
+	writeIndent( file, level, componentName .. ".intensity = " .. tostring( self.intensity ) .. "\n" )
+
+	if self.linear ~= ComponentPointLight.linear then
+		writeIndent( file, level, componentName .. ".linear = " .. tostring( self.linear ) .. "\n" )
+	end
+
+	if self.constant ~= ComponentPointLight.constant then
+		writeIndent( file, level, componentName .. ".constant = " .. tostring( self.constant ) .. "\n" )
+	end
+
+	if self.exponent ~= ComponentPointLight.exponent then
+		writeIndent( file, level, componentName .. ".exponent = " .. tostring( self.exponent ) .. "\n" )
+	end
+
+	writeIndent( file, level, componentName .. ".size = " .. tostring( self.size ) .. "\n" )
+
+	writeIndent( file, level, self.parent.name .. ":addComponent( " .. componentName .. " )\n" )
 end
 
 function ComponentPointLight:read( file )
