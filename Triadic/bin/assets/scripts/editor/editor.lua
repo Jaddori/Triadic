@@ -157,6 +157,11 @@ function Editor:load()
 			self.gizmo:setScale( self.selectedEntity.scale )
 		end
 	end
+
+	-- gui entities panel
+	self.gui.panel.tabs[GUI_TAB_ENTITIES].onSelect = function( button )
+		self:selectEntity( button.tag )
+	end
 end
 
 function Editor:unload()

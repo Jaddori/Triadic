@@ -48,10 +48,15 @@ function panel:update( deltaTime )
 	local capture = { mouseCaptured = false, keyboardCaptured = false }
 
 	-- update tab bar
+	local currentTab = self.tabBar.currentTab
 	local result = self.tabBar:update( deltaTime )
 	setCapture( result, capture )
 
 	-- update tabs
+	if currentTab ~= self.tabBar.currentTab and self.tabBar.currentTab == GUI_TAB_ENTITIES then
+		self.tabs[GUI_TAB_ENTITIES]:onShow()
+	end
+
 	result = self.tabs[self.tabBar.currentTab]:update( deltaTime )
 	setCapture( result, capture )
 
