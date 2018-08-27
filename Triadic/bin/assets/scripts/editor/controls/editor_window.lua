@@ -78,6 +78,18 @@ function EditorWindow.create( title, position, size )
 	return result
 end
 
+function EditorWindow:setPosition( position )
+	copyVec( position, self.position )
+
+	self:layout()
+end
+
+function EditorWindow:setSize( size )
+	copyVec( size, self.size )
+
+	self:layout()
+end
+
 function EditorWindow:setDepth( depth )
 	self.depth = depth
 	for _,v in pairs(self.items) do

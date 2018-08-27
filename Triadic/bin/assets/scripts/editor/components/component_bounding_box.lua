@@ -70,7 +70,9 @@ function ComponentBoundingBox.create( parent )
 
 	setmetatable( result, { __index = ComponentBoundingBox} )
 
-	result:parentMoved()
+	if result.parent then
+		result:parentMoved()
+	end
 
 	return result
 end
@@ -121,7 +123,9 @@ function ComponentBoundingBox:copy( parent )
 	copyVec( self.aabb.minPosition, result.aabb.minPosition )
 	copyVec( self.aabb.maxPosition, result.aabb.maxPosition )
 
-	self:parentMoved()
+	if self.parent then
+		self:parentMoved()
+	end
 
 	return result
 end

@@ -31,7 +31,9 @@ function ComponentPointLight.create( parent )
 
 	setmetatable( result, { __index = ComponentPointLight } )
 
-	result:parentMoved()
+	if result.parent then
+		result:parentMoved()
+	end
 
 	return result
 end

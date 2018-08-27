@@ -19,6 +19,8 @@ Editor =
 
 	mode = MODE_TRANSLATE,
 	command = { old = {}, new = {} },
+
+	selectedPrefab = {},
 }
 
 function Editor:load()
@@ -50,6 +52,7 @@ function Editor:load()
 	self.commandHistory:load()
 	
 	doscript( "editor/entity.lua" )
+	doscript( "editor/prefab.lua" )
 
 	for _,v in pairs(Entity.windowList) do
 		v.window.onFocus = function( window )
@@ -74,7 +77,9 @@ function Editor:load()
 	
 	-- gui context menu
 	self.gui.contextMenu:addItem( "New Entity", { index = 1 } )
+	self.gui.contextMenu:addItem( "Place Prefab", { index = 2 } )
 	self.gui.contextMenu.onClick = function( button )
+		-- new entity
 		if button.tag.index == 1 then
 			local ray = self.camera.camera:createRay()
 			local plane = Physics.createPlane( {0,1,0}, 0 )
@@ -83,6 +88,17 @@ function Editor:load()
 			if Physics.rayPlane( ray, plane, hit ) then
 				hit.position[2] = 0
 				self:createEntity( hit.position )
+			end
+		-- place prefab
+		elseif button.tag.index == 2 then
+			local ray = self.camera.camera:createRay()
+			local plane = Physics.createPlane( {0,1,0}, 0 )
+
+			local hit = {}
+			if Physics.rayPlane( ray, plane, hit ) then
+				hit.position[2] = 0
+				local entity = self.selectedPrefab:instantiate( hit.position )
+				self:addEntity( entity )
 			end
 		end
 	end
@@ -158,9 +174,28 @@ function Editor:load()
 		end
 	end
 
+	self.gui.panel.tabs[GUI_TAB_INFO].createPrefabButton.onClick = function( button )
+		self.gui.panel.tabs[GUI_TAB_INFO]:showPrefabNameWindow()
+	end
+
+	self.gui.panel.tabs[GUI_TAB_INFO].prefabNameWindow.onCreate = function( name )
+		if self.selectedEntity then
+			local prefab = Prefab.create( name, self.selectedEntity )
+
+			self.gui.panel.tabs[GUI_TAB_PREFABS]:addPrefab( prefab )
+
+			self.selectedPrefab = prefab
+		end
+	end
+
 	-- gui entities panel
 	self.gui.panel.tabs[GUI_TAB_ENTITIES].onSelect = function( button )
 		self:selectEntity( button.tag )
+	end
+
+	-- gui prefabs panel
+	self.gui.panel.tabs[GUI_TAB_PREFABS].onSelect = function( button )
+		self.selectedPrefab = button.tag
 	end
 end
 

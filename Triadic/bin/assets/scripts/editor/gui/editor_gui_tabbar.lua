@@ -56,7 +56,7 @@ function bar:load( position, depth )
 	prefabsButton.onClick = function( button )
 		self:onClick( 3 )
 	end
-	self.items[#self.items+1] = entitiesButton
+	self.items[#self.items+1] = prefabsButton
 	xoffset = xoffset + GUI_TAB_BUTTON_WIDTH
 
 	self:onClick( 1 )

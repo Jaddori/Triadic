@@ -34,6 +34,7 @@ EditorTextbox =
 
 	onFocus = nil,
 	onFinish = nil,
+	onTextChanged = nil,
 }
 
 function EditorTextbox.create( position, size )
@@ -118,6 +119,8 @@ function EditorTextbox:update( deltaTime )
 		end
 		
 		if self.focus then
+			local textChanged = false
+
 			-- get text input
 			local textInput = Input.getTextInput()
 			
@@ -153,6 +156,8 @@ function EditorTextbox:update( deltaTime )
 				
 				self.selectionStart = self.caretIndex
 				self.selectionEnd = self.caretIndex
+
+				textChanged = true
 			end
 			
 			-- delete input if Backspace is pressed
@@ -190,6 +195,7 @@ function EditorTextbox:update( deltaTime )
 				end
 				
 				textLength = self.text:len()
+				textChanged = true
 			end
 			
 			-- delete input if Delete is pressed
@@ -210,6 +216,8 @@ function EditorTextbox:update( deltaTime )
 					self.caretIndex = first
 					self.selectionStart = first
 					self.selectionEnd = first
+
+					textChanged = true
 				
 				-- delete from caret index
 				elseif self.caretIndex < textLength then
@@ -217,6 +225,8 @@ function EditorTextbox:update( deltaTime )
 					local postText = self.text:sub( self.caretIndex+2 )
 					
 					self.text = preText .. postText
+
+					textChanged = true
 				end
 			end
 			
@@ -289,6 +299,10 @@ function EditorTextbox:update( deltaTime )
 				if Input.keyPressed( Keys.A ) then
 					self:selectAll()
 				end
+			end
+
+			if textChanged and self.onTextChanged then
+				self:onTextChanged()
 			end
 
 			capture.keyboardCaptured = true

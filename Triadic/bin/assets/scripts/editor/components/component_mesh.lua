@@ -24,19 +24,21 @@ function ComponentMesh.create( parent )
 	local result =
 	{
 		parent = parent,
-		transform = Transform.create(),
 		meshIndex = -1,
 		boundingBox = nil,
 		meshName = "",
 	}
+
+	if result.parent then
+		result.transform = Transform.create()
+		result.transform:setPosition( parent.position )
+	end
 
 	if #ComponentMeshWindow.meshIndices > 0 then
 		result.meshIndex = ComponentMeshWindow.meshIndices[1]
 		result.meshName = "./assets/models/" .. ComponentMeshWindow.meshNames[1]
 		result.boundingBox = ComponentMeshWindow.meshBoundingBoxes[1]
 	end
-	
-	result.transform:setPosition( parent.position )
 	
 	setmetatable( result, { __index = ComponentMesh } )
 	

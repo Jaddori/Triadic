@@ -17,8 +17,11 @@ local info =
 	scaleInputbox = {},
 	visibleLabel = {},
 	visibleCheckbox = {},
+	createPrefabButton = {},
 	componentsLabel = {},
 	addComponentButton = {},
+
+	prefabNameWindow = {},
 
 	onAddComponent = nil,
 }
@@ -69,6 +72,33 @@ function info:load( position, size, depth )
 	self.items[#self.items+1] = self.visibleCheckbox
 	yoffset = yoffset + self.visibleCheckbox.size[2] + padding
 
+	-- create prefab
+	self.createPrefabButton = EditorButton.create( {position[1] + padding, position[2] + padding + yoffset}, {size[1]-padding*2, GUI_BUTTON_HEIGHT}, "Create Prefab" )
+	self.createPrefabButton:setDepth( self.depth )
+	self.items[#self.items+1] = self.createPrefabButton
+	yoffset = yoffset + self.createPrefabButton.size[2] + padding
+
+	-- prefab name window
+	self.prefabNameWindow = EditorWindow.create( "Create Prefab" )
+	self.prefabNameWindow.visible = false
+
+	local prefabNameInputbox = EditorInputbox.create( nil, nil, "Name:" )
+	prefabNameInputbox.textbox.onTextChanged = function( textbox )
+		local len = textbox.text:len()
+		self.prefabNameWindow.items[2].disabled = not (len > 0)
+	end
+	self.prefabNameWindow:addItem( prefabNameInputbox )
+
+	local prefabNameCreateButton = EditorButton.create( nil, {0, GUI_BUTTON_HEIGHT}, "Create" )
+	prefabNameCreateButton.onClick = function( button )
+		self.prefabNameWindow.visible = false
+
+		if self.prefabNameWindow.onCreate then
+			self.prefabNameWindow.onCreate( self.prefabNameWindow.items[1].textbox.text )
+		end
+	end
+	self.prefabNameWindow:addItem( prefabNameCreateButton )
+
 	-- components
 	self.componentsLabel = EditorLabel.create( {position[1] + padding, position[2] + padding + yoffset}, "Components:" )
 	self.componentsLabel:setDepth( self.depth )
@@ -85,6 +115,21 @@ function info:load( position, size, depth )
 	end
 	self.items[#self.items+1] = self.addComponentButton
 	yoffset = yoffset + GUI_BUTTON_HEIGHT + padding
+end
+
+function info:showPrefabNameWindow()
+	local s = self.prefabNameWindow.size
+
+	local view = { WINDOW_WIDTH - GUI_PANEL_WIDTH, WINDOW_HEIGHT - GUI_MENU_HEIGHT }
+
+	local x = view[1]*0.5 - s[1]*0.5
+	local y = view[2]*0.5 - s[2]*0.5
+
+	self.prefabNameWindow.items[1].textbox:setText("")
+	self.prefabNameWindow.items[2].disabled = true
+
+	self.prefabNameWindow:setPosition( {x,y} )
+	self.prefabNameWindow.visible = true
 end
 
 function info:setEntity( entity )
@@ -150,27 +195,38 @@ end
 function info:update( deltaTime )
 	local capture = { mouseCaptured = false, keyboardCaptured = false }
 
+	-- update items
 	for _,v in pairs(self.items) do
 		local result = v:update( deltaTime )
 		setCapture( result, capture )
 	end
 
+	-- update sub items
 	for _,v in pairs(self.subItems) do
 		local result = v:update( deltaTime )
 		setCapture( result, capture )
 	end
+
+	-- update prefab name window
+	local result = self.prefabNameWindow:update( deltaTime )
+	setCapture( result, capture )
 	
 	return capture
 end
 
 function info:render()
+	-- render items
 	for _,v in pairs(self.items) do
 		v:render()
 	end
 
+	-- render sub items
 	for _,v in pairs(self.subItems) do
 		v:render()
 	end
+
+	-- render prefab name window
+	self.prefabNameWindow:render()
 end
 
 return info
