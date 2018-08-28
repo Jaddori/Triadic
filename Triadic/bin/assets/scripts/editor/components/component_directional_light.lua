@@ -27,16 +27,24 @@ function ComponentDirectionalLight.create( parent )
 	return result
 end
 
-function ComponentDirectionalLight:write( file, level )
-	local componentName = self.parent.name .. "_component"
+function ComponentDirectionalLight:write( file, level, prefabName )
+	local location = ""
 
-	writeIndent( file, level, "local " .. componentName .. " = ComponentDirectionalLight.create( " .. self.parent.name .. " )\n" )
+	if self.parent then -- entity
+		location = self.parent.name .. "_component"
+		writeIndent( file, level, "local " .. location .. " = ComponentDirectionalLight.create( " .. self.parent.name .. " )\n" )
+	else -- prefab
+		location = "Prefabs[\"" .. prefabName .. "\"].components[\"" .. self.name .. "\"]"
+		writeIndent( file, level, location .. " = ComponentDirectionalLight.create()\n" )
+	end
 
-	writeIndent( file, level, componentName .. ".direction = {" .. stringVec( self.direction ) .. "}\n" )
-	writeIndent( file, level, componentName .. ".color = {" .. stringVec( self.color ) .. "}\n" )
-	writeIndent( file, level, componentName .. ".intensity = " .. tostring( self.intensity ) .. "\n" )
+	writeIndent( file, level, location .. ".direction = {" .. stringVec( self.direction ) .. "}\n" )
+	writeIndent( file, level, location .. ".color = {" .. stringVec( self.color ) .. "}\n" )
+	writeIndent( file, level, location .. ".intensity = " .. tostring( self.intensity ) .. "\n" )
 
-	writeIndent( file, level, self.parent.name .. ":addComponent( " .. componentName .. " )\n" )
+	if self.parent then
+		writeIndent( file, level, self.parent.name .. ":addComponent( " .. location .. " )\n" )
+	end
 end
 
 function ComponentDirectionalLight:read( file )

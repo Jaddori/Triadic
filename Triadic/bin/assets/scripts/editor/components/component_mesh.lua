@@ -36,7 +36,7 @@ function ComponentMesh.create( parent )
 
 	if #ComponentMeshWindow.meshIndices > 0 then
 		result.meshIndex = ComponentMeshWindow.meshIndices[1]
-		result.meshName = "./assets/models/" .. ComponentMeshWindow.meshNames[1]
+		result.meshName = ComponentMeshWindow.meshNames[1]
 		result.boundingBox = ComponentMeshWindow.meshBoundingBoxes[1]
 	end
 	
@@ -45,13 +45,22 @@ function ComponentMesh.create( parent )
 	return result
 end
 
-function ComponentMesh:write( file, level )
-	local componentName = self.parent.name .. "_component"
-	writeIndent( file, level, "local " .. componentName .. " = ComponentMesh.create( " .. self.parent.name .. " )\n" )
-	
-	writeIndent( file, level, componentName .. ":loadMesh( \"" .. self.meshName .. "\" )\n" )
+function ComponentMesh:write( file, level, prefabName )
+	local location = ""
 
-	writeIndent( file, level, self.parent.name .. ":addComponent( " .. componentName .. " )\n" )
+	if self.parent then -- entity
+		location = self.parent.name .. "_component"
+		writeIndent( file, level, "local " .. location .. " = ComponentMesh.create( " .. self.parent.name .. " )\n" )
+	else -- prefab
+		location = "Prefabs[\"" .. prefabName .. "\"].components[\"" .. self.name .. "\"]"
+		writeIndent( file, level, location .. " = ComponentMesh.create()\n" )
+	end
+
+	writeIndent( file, level, location .. ":loadMesh( \"" .. self.meshName .. "\" )\n" )
+
+	if self.parent then
+		writeIndent( file, level, self.parent.name .. ":addComponent( " .. location .. " )\n" )
+	end
 end
 
 function ComponentMesh:read( file )

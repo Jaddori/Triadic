@@ -38,31 +38,39 @@ function ComponentPointLight.create( parent )
 	return result
 end
 
-function ComponentPointLight:write( file, level )
-	local componentName = self.parent.name .. "_component"
+function ComponentPointLight:write( file, level, prefabName )
+	local location = ""
 
-	writeIndent( file, level, "local " .. componentName .. " = ComponentPointLight.create( " .. self.parent.name .. " )\n" )
+	if self.parent then -- entity
+		location = self.parent.name .. "_component"
+		writeIndent( file, level, "local " .. location .. " = ComponentPointLight.create( " .. self.parent.name .. " )\n" )
+	else -- prefab
+		location = "Prefabs[\"" .. prefabName .. "\"].components[\"" .. self.name .. "\"]"
+		writeIndent( file, level, location .. " = ComponentPointLight.create()\n" )
+	end
 
-	writeIndent( file, level, componentName .. ".position = {" .. stringVec( self.position ) .. "}\n" )
-	writeIndent( file, level, componentName .. ".offset = {" .. stringVec( self.offset ) .. "}\n" )
-	writeIndent( file, level, componentName .. ".color = {" .. stringVec( self.color ) .. "}\n" )
-	writeIndent( file, level, componentName .. ".intensity = " .. tostring( self.intensity ) .. "\n" )
+	writeIndent( file, level, location .. ".position = {" .. stringVec( self.position ) .. "}\n" )
+	writeIndent( file, level, location .. ".offset = {" .. stringVec( self.offset ) .. "}\n" )
+	writeIndent( file, level, location .. ".color = {" .. stringVec( self.color ) .. "}\n" )
+	writeIndent( file, level, location .. ".intensity = " .. tostring( self.intensity ) .. "\n" )
 
 	if self.linear ~= ComponentPointLight.linear then
-		writeIndent( file, level, componentName .. ".linear = " .. tostring( self.linear ) .. "\n" )
+		writeIndent( file, level, location .. ".linear = " .. tostring( self.linear ) .. "\n" )
 	end
 
 	if self.constant ~= ComponentPointLight.constant then
-		writeIndent( file, level, componentName .. ".constant = " .. tostring( self.constant ) .. "\n" )
+		writeIndent( file, level, location .. ".constant = " .. tostring( self.constant ) .. "\n" )
 	end
 
 	if self.exponent ~= ComponentPointLight.exponent then
-		writeIndent( file, level, componentName .. ".exponent = " .. tostring( self.exponent ) .. "\n" )
+		writeIndent( file, level, location .. ".exponent = " .. tostring( self.exponent ) .. "\n" )
 	end
 
-	writeIndent( file, level, componentName .. ".size = " .. tostring( self.size ) .. "\n" )
+	writeIndent( file, level, location .. ".size = " .. tostring( self.size ) .. "\n" )
 
-	writeIndent( file, level, self.parent.name .. ":addComponent( " .. componentName .. " )\n" )
+	if self.parent then
+		writeIndent( file, level, self.parent.name .. ":addComponent( " .. location .. " )\n" )
+	end
 end
 
 function ComponentPointLight:read( file )

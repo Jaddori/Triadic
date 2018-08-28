@@ -76,6 +76,11 @@ function Entity:write( file, level )
 	writeIndent( file, level, "local " .. self.name .. " = Entity.create( \"" .. self.name .. "\", {" .. stringVec( self.position ) .. "}, {" .. stringVec( self.orientation ) .. "}, {" .. stringVec( self.scale ) .. "} )\n" )
 	writeIndent( file, level, self.name .. ".visible = " .. tostring( self.visible ) .. "\n" )
 
+	if self.prefab then
+		writeIndent( file, level, self.name .. ".prefab = Prefabs[\"" .. self.prefab.name .. "\"]\n" )
+		writeIndent( file, level, "Prefabs[\"" .. self.prefab.name .. "\"].instances[#Prefabs[\"" .. self.prefab.name .. "\"].instances+1] = " .. self.name .. "\n" )
+	end
+
 	for _,v in pairs(self.components) do
 		v:write( file, level )
 	end

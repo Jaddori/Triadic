@@ -33,6 +33,26 @@ function Prefab.create( name, entity )
 	return result
 end
 
+function Prefab:write( file, level )
+	level = level or 0
+
+	writeIndent( file, level, "Prefabs[\"" .. self.name .. "\"] =\n" )
+	writeIndent( file, level, "{\n" )
+
+	level = level + 1
+	writeIndent( file, level, "name = \"" .. self.name .. "\",\n" )
+	writeIndent( file, level, "instances = {},\n" )
+	writeIndent( file, level, "components = {},\n" )
+
+	level = level - 1
+	writeIndent( file, level, "}\n" )
+	writeIndent( file, level, "setmetatable( Prefabs[\"" .. self.name .. "\"], { __index = Prefab } )\n\n" )
+
+	for _,v in pairs(self.components) do
+		v:write( file, level, self.name )
+	end
+end
+
 function Prefab:instantiate( position )
 	local entity = Entity.create( self.name, position )
 

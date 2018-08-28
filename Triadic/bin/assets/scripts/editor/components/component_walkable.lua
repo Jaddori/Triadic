@@ -51,14 +51,23 @@ function ComponentWalkable:calculate()
 	end
 end
 
-function ComponentWalkable:write( file, level )
-	local componentName = self.parent.name .. "_component"
-	writeIndent( file, level, "local " .. componentName .. " = ComponentWalkable.create( " .. self.parent.name .. " )\n" )
+function ComponentWalkable:write( file, level, prefabName )
+	local location = ""
 
-	writeIndent( file, level, componentName .. ".size = {" .. stringVec( self.size ) .. "}\n" )
-	writeIndent( file, level, componentName .. ".interval = " .. tostring( self.interval ) .. "\n" )
+	if self.parent then -- entity
+		location = self.parent.name .. "_component"
+		writeIndent( file, level, "local " .. location .. " = ComponentWalkable.create( " .. self.parent.name .. " )\n" )
+	else -- prefab
+		location = "Prefabs[\"" .. prefabName .. "\"].components[\"" .. self.name .. "\"]"
+		writeIndent( file, level, location .. " = ComponentWalkable.create()\n" )
+	end
 
-	writeIndent( file, level, self.parent.name .. ":addComponent( " .. componentName .. " )\n" )
+	writeIndent( file, level, location .. ".size = {" .. stringVec( self.size ) .. "}\n" )
+	writeIndent( file, level, location .. ".interval = " .. tostring( self.interval ) .. "\n" )
+
+	if self.parent then
+		writeIndent( file, level, self.parent.name .. ":addComponent( " .. location .. " )\n" )
+	end
 end
 
 function ComponentWalkable:read( file )

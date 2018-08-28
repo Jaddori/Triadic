@@ -5,6 +5,8 @@ MODE_ROTATE = 3
 Editor =
 {
 	name = "Editor",
+
+	camera = {},
 	
 	gui = nil,	
 	entities = {},
@@ -640,10 +642,16 @@ function Editor:reset()
 	local count = #self.entities
 	for i=1, count do self.entities[i] = nil end
 
+	for k,_ in pairs(Prefabs) do
+		Prefabs[k] = nil
+	end
+	Prefabs = {}
+
 	self.selectedEntity = nil
 	self.gizmo.visible = false
 
 	self.gui.panel.tabs[GUI_TAB_ENTITIES]:clear()
+	self.gui.panel.tabs[GUI_TAB_PREFABS]:clear()
 end
 
 function Editor:openLevel()
@@ -660,6 +668,11 @@ function Editor:openLevel()
 				for _,v in pairs(self.entities) do
 					self.gui.panel.tabs[GUI_TAB_ENTITIES]:addEntity( v, self.onEntitySelected )
 				end
+
+				for _,v in pairs(Prefabs) do
+					Log.debug( "ADDING PREFAB" )
+					self.gui.panel.tabs[GUI_TAB_PREFABS]:addPrefab( v )
+				end
 			else
 				Log.error( "Failed to load entities:" )
 				Log.error( value )
@@ -675,6 +688,22 @@ function Editor:saveLevel()
 	if self.currentLevelPath then
 		local file = io.open( self.currentLevelPath, "w" )
 		if file then
+			-- write camera position
+			local cameraPositionText = "{" .. stringVec( self.camera.camera:getPosition() ) .. "}"
+			local cameraDirectionText = "{" .. stringVec( self.camera.camera:getDirection() ) .. "}"
+			writeIndent( file, 0, "-- camera\n" )
+			writeIndent( file, 0, "Editor.camera.camera:setPosition( " .. cameraPositionText .. " )\n" )
+			writeIndent( file, 0, "Editor.camera.camera:setDirection( " .. cameraDirectionText .. " )\n\n" )
+
+			-- write prefabs
+			writeIndent( file, 0, "-- prefabs\n" )
+			for _,v in pairs(Prefabs) do
+				v:write( file )
+			end
+
+			writeIndent( file, 0, "\n--entities\n" )
+
+			-- write entities
 			writeIndent( file, 0, "local entities = {}\n\n" )
 
 			for _,v in pairs(self.entities) do
