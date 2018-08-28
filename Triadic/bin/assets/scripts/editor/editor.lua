@@ -21,6 +21,8 @@ Editor =
 	command = { old = {}, new = {} },
 
 	selectedPrefab = {},
+
+	priorityQueue = {},
 }
 
 function Editor:load()
@@ -174,17 +176,46 @@ function Editor:load()
 		end
 	end
 
-	self.gui.panel.tabs[GUI_TAB_INFO].createPrefabButton.onClick = function( button )
+	self.gui.panel.tabs[GUI_TAB_INFO].onCreatePrefab = function()
 		self.gui.panel.tabs[GUI_TAB_INFO]:showPrefabNameWindow()
+
+		local window = self.gui.panel.tabs[GUI_TAB_INFO].prefabNameWindow
+		self:pushPriorityItem( window )
 	end
 
-	self.gui.panel.tabs[GUI_TAB_INFO].prefabNameWindow.onCreate = function( name )
+	self.gui.panel.tabs[GUI_TAB_INFO].onUpdatePrefab = function()
+		if self.selectedEntity and self.selectedEntity.prefab then
+			self.selectedEntity.prefab:update( self.selectedEntity )
+		end
+	end
+
+	self.gui.panel.tabs[GUI_TAB_INFO].onRevertToPrefab = function()
+		if self.selectedEntity and self.selectedEntity.prefab then
+			self.selectedEntity.prefab:revert( self.selectedEntity )
+		end
+	end
+
+	self.gui.panel.tabs[GUI_TAB_INFO].prefabNameWindow.onConfirm = function( name )
 		if self.selectedEntity then
 			local prefab = Prefab.create( name, self.selectedEntity )
 
 			self.gui.panel.tabs[GUI_TAB_PREFABS]:addPrefab( prefab )
+			self.gui.panel.tabs[GUI_TAB_INFO]:setEntity( self.selectedEntity )
 
 			self.selectedPrefab = prefab
+		end
+	end
+
+	self.gui.panel.tabs[GUI_TAB_INFO].prefabNameWindow.onClose = function( window )
+		self:popPriorityItem()
+	end
+
+	self.gui.panel.tabs[GUI_TAB_INFO].onDetachPrefab = function()
+		if self.selectedEntity then
+			self.selectedEntity.prefab:removeInstance( self.selectedEntity )
+			self.selectedEntity.prefab = nil
+
+			self.gui.panel.tabs[GUI_TAB_INFO]:setEntity( self.selectedEntity )
 		end
 	end
 
@@ -204,6 +235,15 @@ end
 
 function Editor:update( deltaTime )
 	local capture = { mouseCaptured = false, keyboardCaptured = false }
+
+	-- only update prioritized items
+	if #self.priorityQueue > 0 then
+		self.priorityQueue[#self.priorityQueue]:update( deltaTime )
+		capture.mouseCaptured = true
+		capture.keyboardCaptured = true
+
+		return capture
+	end
 
 	local captureResult = self.camera:update( deltaTime )
 	setCapture( captureResult, capture )
@@ -671,4 +711,12 @@ function Editor:compileLevel()
 			file:close()
 		end
 	end
+end
+
+function Editor:pushPriorityItem( item )
+	self.priorityQueue[#self.priorityQueue+1] = item
+end
+
+function Editor:popPriorityItem()
+	self.priorityQueue[#self.priorityQueue] = nil
 end

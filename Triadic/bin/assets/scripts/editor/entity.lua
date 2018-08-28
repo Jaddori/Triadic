@@ -17,6 +17,8 @@ Entity =
 
 	componentList = {},
 	windowList = {},
+
+	prefab = nil,
 }
 
 function Entity.create( name, position, orientation, scale)
@@ -52,6 +54,12 @@ end
 
 function Entity:removeComponent( name )
 	self.components[name] = nil
+end
+
+function Entity:clearComponents()
+	for k,_ in pairs(self.components) do
+		self.components[k] = nil
+	end
 end
 
 function Entity:refreshInfoWindows()

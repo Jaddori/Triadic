@@ -118,6 +118,14 @@ function EditorWindow:layout()
 	self.size[2] = penultimateHeight
 end
 
+function EditorWindow:close()
+	self.visible = false
+	
+	if self.onClose then
+		self:onClose()
+	end
+end
+
 function EditorWindow:update( deltaTime )
 	local capture = { mouseCaptured = false, keyboardCaptured = false }
 
@@ -162,11 +170,13 @@ function EditorWindow:update( deltaTime )
 				else
 					local crossPosition = { self.position[1] + self.size[1] - self.crossSize[1], self.position[2] }
 					if insideRect( crossPosition, self.crossSize, mousePosition ) then
-						self.visible = false
+						--self.visible = false
+--
+						--if self.onClose then
+						--	self:onClose()
+						--end
 
-						if self.onClose then
-							self:onClose()
-						end
+						self:close()
 					end
 
 					self.crossCaptured = false

@@ -1,4 +1,6 @@
 local GUI_DEFAULT_CROSS_TEXTURE = "./assets/textures/cross.dds"
+local PREFAB_BUTTON_CREATE = 1
+local PREFAB_BUTTON_UPDATE = 2
 
 local info =
 {
@@ -12,18 +14,25 @@ local info =
 	size = {0,0},
 
 	nameInputbox = {},
+	prefabInputbox = {},
+	prefabDetachButton = {},
 	positionInputbox = {},
 	orientationInputbox = {},
 	scaleInputbox = {},
 	visibleLabel = {},
 	visibleCheckbox = {},
 	createPrefabButton = {},
+	revertPrefabButton = {},
 	componentsLabel = {},
 	addComponentButton = {},
 
 	prefabNameWindow = {},
 
+	onCreatePrefab = nil,
+	onUpdatePrefab = nil,
+	onRevertToPrefab = nil,
 	onAddComponent = nil,
+	onDetachPrefab = nil,
 }
 
 function info:load( position, size, depth )
@@ -42,6 +51,31 @@ function info:load( position, size, depth )
 	self.nameInputbox:setDepth( self.depth )
 	self.items[#self.items+1] = self.nameInputbox
 	yoffset = yoffset + self.nameInputbox.size[2] + padding
+
+	-- prefab name
+	local detachBounds = GUI_BUTTON_HEIGHT
+	self.prefabInputbox = EditorInputbox.create( {position[1] + padding, position[2] + padding + yoffset}, size[1]-padding*3-detachBounds, "Prefab:" )
+	self.prefabInputbox.textbox.readOnly = true
+	self.prefabInputbox:setDepth( self.depth )
+	self.items[#self.items+1] = self.prefabInputbox
+	yoffset = yoffset + self.prefabInputbox.size[2] + padding
+	
+	-- prefab detach button
+	local prefabPosition = self.prefabInputbox.textbox.position
+	local prefabSize = self.prefabInputbox.textbox.size
+	local detachSize = 16
+	self.prefabDetachButton = EditorButton.create( {prefabPosition[1] + prefabSize[1] + padding, prefabPosition[2] + (detachBounds-detachSize)*0.5}, {detachSize, detachSize}, "" )
+	self.prefabDetachButton.disabled = true
+	self.prefabDetachButton.textureIndex = Assets.loadTexture( GUI_DEFAULT_CROSS_TEXTURE )
+	self.prefabDetachButton.color = {1,1,1,1}
+	self.prefabDetachButton.hoverColor = {1.0, 0.35, 0.35, 1.0}
+	self.prefabDetachButton:setDepth( self.depth )
+	self.prefabDetachButton.onClick = function( button )
+		if self.onDetachPrefab then
+			self.onDetachPrefab()
+		end
+	end
+	self.items[#self.items+1] = self.prefabDetachButton
 
 	-- position
 	self.positionInputbox = EditorInputbox.create( {position[1] + padding, position[2] + padding + yoffset}, size[1]-padding*2, "Position:" )
@@ -74,9 +108,36 @@ function info:load( position, size, depth )
 
 	-- create prefab
 	self.createPrefabButton = EditorButton.create( {position[1] + padding, position[2] + padding + yoffset}, {size[1]-padding*2, GUI_BUTTON_HEIGHT}, "Create Prefab" )
+	self.createPrefabButton.disabled = true
+	self.createPrefabButton.mode = PREFAB_BUTTON_CREATE
 	self.createPrefabButton:setDepth( self.depth )
+	self.createPrefabButton.onClick = function( button )
+		-- create
+		if button.mode == PREFAB_BUTTON_CREATE then
+			if self.onCreatePrefab then
+				self.onCreatePrefab()
+			end
+		-- update
+		elseif button.mode == PREFAB_BUTTON_UPDATE then
+			if self.onUpdatePrefab then
+				self.onUpdatePrefab()
+			end
+		end
+	end
 	self.items[#self.items+1] = self.createPrefabButton
 	yoffset = yoffset + self.createPrefabButton.size[2] + padding
+
+	-- revert to prefab
+	self.revertPrefabButton = EditorButton.create( {position[1] + padding, position[2] + padding + yoffset}, {size[1]-padding*2, GUI_BUTTON_HEIGHT}, "Revert to Prefab" )
+	self.revertPrefabButton.disabled = true
+	self.revertPrefabButton:setDepth( self.depth )
+	self.revertPrefabButton.onClick = function( button )
+		if self.onRevertToPrefab then
+			self.onRevertToPrefab()
+		end
+	end
+	self.items[#self.items+1] = self.revertPrefabButton
+	yoffset = yoffset + self.revertPrefabButton.size[2] + padding
 
 	-- prefab name window
 	self.prefabNameWindow = EditorWindow.create( "Create Prefab" )
@@ -91,10 +152,10 @@ function info:load( position, size, depth )
 
 	local prefabNameCreateButton = EditorButton.create( nil, {0, GUI_BUTTON_HEIGHT}, "Create" )
 	prefabNameCreateButton.onClick = function( button )
-		self.prefabNameWindow.visible = false
+		self.prefabNameWindow:close()
 
-		if self.prefabNameWindow.onCreate then
-			self.prefabNameWindow.onCreate( self.prefabNameWindow.items[1].textbox.text )
+		if self.prefabNameWindow.onConfirm then
+			self.prefabNameWindow.onConfirm( self.prefabNameWindow.items[1].textbox.text )
 		end
 	end
 	self.prefabNameWindow:addItem( prefabNameCreateButton )
@@ -107,6 +168,7 @@ function info:load( position, size, depth )
 
 	-- add component
 	self.addComponentButton = EditorButton.create( {position[1] + padding, position[2] + padding + yoffset}, {size[1]-padding*2, GUI_BUTTON_HEIGHT}, "Add Component" )
+	self.addComponentButton.disabled = true
 	self.addComponentButton:setDepth( self.depth )
 	self.addComponentButton.onClick = function( button )
 		if self.onAddComponent then
@@ -139,11 +201,26 @@ function info:setEntity( entity )
 	
 	if entity then
 		-- set name and position
-		self.visibleCheckbox.checked = entity.visible
 		self.nameInputbox.textbox:setText( entity.name )
+		if entity.prefab then
+			self.prefabInputbox.textbox:setText( entity.prefab.name )
+			self.prefabDetachButton.disabled = false
+			self.revertPrefabButton.disabled = false
+
+			self.createPrefabButton.text = "Update Prefab"
+			self.createPrefabButton.mode = PREFAB_BUTTON_UPDATE
+		else
+			self.prefabInputbox.textbox:setText( "" )
+			self.prefabDetachButton.disabled = true
+			self.revertPrefabButton.disabled = true
+
+			self.createPrefabButton.text = "Create Prefab"
+			self.createPrefabButton.mode = PREFAB_BUTTON_CREATE
+		end
 		self.positionInputbox.textbox:setText( stringVec( entity.position ) )
 		self.orientationInputbox.textbox:setText( stringVec( entity.orientation ) )
 		self.scaleInputbox.textbox:setText( stringVec( entity.scale ) )
+		self.visibleCheckbox.checked = entity.visible
 
 		-- create new items
 		self.entity = entity
@@ -176,13 +253,21 @@ function info:setEntity( entity )
 		end
 
 		self.addComponentButton.disabled = false
+		self.createPrefabButton.disabled = false
 	else
-		self.visibleCheckbox.checked = false
 		self.nameInputbox.textbox:setText( "" )
+		self.prefabInputbox.textbox:setText( "" )
+		self.prefabDetachButton.disabled = true
 		self.positionInputbox.textbox:setText( "" )
 		self.orientationInputbox.textbox:setText( "" )
 		self.scaleInputbox.textbox:setText( "" )
 		self.addComponentButton.disabled = true
+		self.visibleCheckbox.checked = false
+
+		self.createPrefabButton.disabled = true
+		self.createPrefabButton.text = "Create Prefab"
+		self.createPrefabButton.mode = PREFAB_BUTTON_CREATE
+		self.revertPrefabButton.disabled = true
 	end
 end
 
