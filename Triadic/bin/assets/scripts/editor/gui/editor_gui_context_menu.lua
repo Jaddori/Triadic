@@ -23,6 +23,7 @@ function menu:addItem( text, tag )
 	
 	local button = EditorButton.create( {0, count*GUI_BUTTON_HEIGHT}, {self.size[1], GUI_BUTTON_HEIGHT}, text )
 	button:setDepth( self.depth + GUI_DEPTH_SMALL_INC )
+	button:setTextAlignment( ALIGN_NEAR, ALIGN_NEAR )
 	button.tag = tag
 	button.onClick = function( button )
 		if self.onClick then
@@ -42,8 +43,8 @@ function menu:show( position )
 	self.visible = true
 	
 	for i=1, #self.items do
-		self.items[i].position[1] = self.position[1]
-		self.items[i].position[2] = self.position[2] + (i-1) * GUI_BUTTON_HEIGHT
+		local position = {self.position[1], self.position[2] + (i-1) * GUI_BUTTON_HEIGHT}
+		self.items[i]:setPosition( position )
 	end
 end
 

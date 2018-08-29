@@ -2,6 +2,7 @@ local settings =
 {
 	visible = false,
 	items = {},
+	settingButton = nil,
 	showGridButton = nil,
 	showOrigoButton = nil,
 	enableLightingButton = nil,
@@ -14,18 +15,21 @@ local settings =
 function settings:load( xoffset, items, depth )
 	local width = 64
 	
-	local settingsButton = EditorButton.create( {xoffset, 0}, {width, GUI_MENU_HEIGHT}, "Settings" )
-	settingsButton.depth = depth + GUI_DEPTH_INC
-	settingsButton.onClick = function( button )
+	self.settingsButton = EditorButton.create( {xoffset, 0}, {width, GUI_MENU_HEIGHT}, "Settings" )
+	self.settingsButton.depth = depth + GUI_DEPTH_INC
+	self.settingsButton:setTextAlignment( ALIGN_NEAR, ALIGN_NEAR )
+	self.settingsButton.onClick = function( button )
 		self.visible = true
+		self.settingsButton.color = {0.4, 0.4, 0.4, 1.0}
 	end
-	items[#items+1] = settingsButton
+	items[#items+1] = self.settingsButton
 
 	local pos = {xoffset, 0}
 	local yoffset = GUI_MENU_HEIGHT
 	
 	self.showGridButton = EditorButton.create( {pos[1], pos[2]+yoffset}, {GUI_MENU_SETTINGS_BUTTON_WIDTH, GUI_BUTTON_HEIGHT}, "Show grid" )
-	self.showGridButton.depth = settingsButton.depth + GUI_DEPTH_INC
+	self.showGridButton.depth = self.settingsButton.depth + GUI_DEPTH_INC
+	self.showGridButton:setTextAlignment( ALIGN_NEAR, ALIGN_NEAR )
 	self.showGridButton.onClick = function( button )
 		self.visible = false
 		
@@ -36,7 +40,8 @@ function settings:load( xoffset, items, depth )
 	yoffset = yoffset + GUI_BUTTON_HEIGHT
 	
 	self.showOrigoButton = EditorButton.create( {pos[1], pos[2]+yoffset}, {GUI_MENU_SETTINGS_BUTTON_WIDTH, GUI_BUTTON_HEIGHT}, "Show origo" )
-	self.showOrigoButton.depth = settingsButton.depth + GUI_DEPTH_INC
+	self.showOrigoButton.depth = self.settingsButton.depth + GUI_DEPTH_INC
+	self.showOrigoButton:setTextAlignment( ALIGN_NEAR, ALIGN_NEAR )
 	self.showOrigoButton.onClick = function( button )
 		self.visible = false
 		
@@ -47,7 +52,8 @@ function settings:load( xoffset, items, depth )
 	yoffset = yoffset + GUI_BUTTON_HEIGHT
 
 	self.enableLightingButton = EditorButton.create( {pos[1], pos[2]+yoffset}, {GUI_MENU_SETTINGS_BUTTON_WIDTH, GUI_BUTTON_HEIGHT}, "Toggle lighting" )
-	self.enableLightingButton.depth = settingsButton.depth + GUI_DEPTH_INC
+	self.enableLightingButton.depth = self.settingsButton.depth + GUI_DEPTH_INC
+	self.enableLightingButton:setTextAlignment( ALIGN_NEAR, ALIGN_NEAR )
 	self.enableLightingButton.onClick = function( button )
 		self.visible = false
 
@@ -75,6 +81,7 @@ function settings:update( deltaTime )
 		
 		if Input.buttonReleased( Buttons.Left ) then
 			self.visible = false
+			self.settingsButton.color = nil
 		end
 	end
 

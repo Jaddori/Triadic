@@ -1,4 +1,5 @@
 local padding = 4
+GUI_PREFABS_EDIT_PANEL_WIDTH = 128
 
 local prefabs = 
 {
@@ -7,6 +8,7 @@ local prefabs =
 	position = {0,0},
 	size = {0,0},
 	depth = 0,
+	selectedIndex = 0,
 
 	items = {},
 
@@ -14,6 +16,13 @@ local prefabs =
 	listSize = {0,0},
 	listColor = {0.35, 0.35, 0.35, 1.0},
 	prefabItems = {},
+
+	editPanelPosition = {0,0},
+	editPanelSize = {0,0},
+	editPanelColor = {0.4, 0.4, 0.4, 1.0},
+	editPanelVisible = false,
+	editPanelComponentsLabel = {},
+	editPanelItems = {},
 
 	onSelect = nil,
 }
@@ -34,6 +43,16 @@ function prefabs:load( position, size, depth )
 	self.items[#self.items+1] = nameInputbox
 	yoffset = yoffset + nameInputbox.size[2] + padding
 
+	-- edit
+	local editButton = EditorButton.create( {self.position[1] + padding, yoffset}, {self.size[1] - padding*2, GUI_BUTTON_HEIGHT}, "Edit" )
+	editButton:setDepth( self.depth + GUI_DEPTH_SMALL_INC )
+	editButton.disabled = true
+	editButton.onClick = function( button )
+		self:showEditPanel()
+	end
+	self.items[#self.items+1] = editButton
+	yoffset = yoffset + editButton.size[2] + padding
+
 	-- prefabs
 	local componentsLabel = EditorLabel.create( {self.position[1] + padding, yoffset}, "Prefabs:" )
 	componentsLabel:setDepth( self.depth + GUI_DEPTH_SMALL_INC )
@@ -43,10 +62,42 @@ function prefabs:load( position, size, depth )
 	-- list
 	self.listPosition = {self.position[1]+padding, yoffset}
 	self.listSize = {self.size[1]-padding*2, self.size[2] - yoffset - padding}
+
+	-- edit panel
+	self.editPanelPosition = {WINDOW_WIDTH - GUI_PANEL_WIDTH - GUI_PREFABS_EDIT_PANEL_WIDTH, GUI_MENU_HEIGHT}
+	self.editPanelSize = { GUI_PREFABS_EDIT_PANEL_WIDTH, WINDOW_HEIGHT - GUI_MENU_HEIGHT }
+
+	self.editPanelComponentsLabel = EditorLabel.create( {self.editPanelPosition[1] + padding, self.editPanelPosition[2] + padding }, "Components:" )
+	self.editPanelComponentsLabel:setDepth( self.depth + GUI_DEPTH_SMALL_INC )
+end
+
+function prefabs:showEditPanel()
+	-- clear edit panel items
+	local count = #self.editPanelItems
+	for i=1, count do
+		self.editPanelItems[i] = nil
+	end
+
+	-- add current items
+	local yoffset = self.editPanelComponentsLabel.position[2] + self.editPanelComponentsLabel.size[2] + padding
+	local button = self.prefabItems[self.selectedIndex]
+	for _,v in pairs(button.tag.components) do
+		local componentButton = EditorButton.create( {self.editPanelPosition[1] + padding, yoffset}, {self.editPanelSize[1]-padding*2, GUI_BUTTON_HEIGHT}, v.name )
+		componentButton:setDepth( self.depth + GUI_DEPTH_SMALL_INC )
+		componentButton:setTextAlignment( ALIGN_NEAR, ALIGN_NEAR )
+		self.editPanelItems[#self.editPanelItems+1] = componentButton
+		yoffset = yoffset + componentButton.size[2] + padding
+	end
+
+	-- show edit panel
+	self.editPanelVisible = true
 end
 
 function prefabs:onClick( button )
+	self.selectedIndex = button.index
 	self.items[1].textbox:setText( button.tag.name )
+	self.items[2].disabled = false
+	self.editPanelVisible = false
 
 	if self.onSelect then
 		self.onSelect( button )
@@ -57,13 +108,17 @@ function prefabs:addPrefab( prefab )
 	local yoffset = #self.prefabItems * (GUI_BUTTON_HEIGHT + padding)
 
 	local button = EditorButton.create( {self.listPosition[1] + padding, self.listPosition[2] + padding + yoffset}, {self.listSize[1] - padding*2, GUI_BUTTON_HEIGHT}, prefab.name )
+	button:setTextAlignment( ALIGN_NEAR, ALIGN_NEAR )
 	button.depth = self.depth + GUI_DEPTH_SMALL_INC
 	button.tag = prefab
 	button.onClick = function( button )
 		self:onClick( button )
 	end
 
-	self.prefabItems[#self.prefabItems+1] = button
+	local index = #self.prefabItems+1
+	button.index = index
+
+	self.prefabItems[index] = button
 end
 
 function prefabs:removePrefab( prefab )
@@ -90,6 +145,16 @@ end
 function prefabs:update( deltaTime )
 	local capture = { mouseCaptured = false, keyboardCaptured = false }
 
+	-- hide edit panel if user clicks outside of it
+	if self.editPanelVisible then
+		if Input.buttonReleased( Buttons.Left ) then
+			local mousePosition = Input.getMousePosition()
+			if not insideRect( self.editPanelPosition, self.editPanelSize, mousePosition ) then
+				self.editPanelVisible = false
+			end
+		end
+	end
+
 	-- update items
 	for _,v in pairs(self.items) do
 		local result = v:update( deltaTime )
@@ -100,6 +165,15 @@ function prefabs:update( deltaTime )
 	for _,v in pairs(self.prefabItems) do
 		local result = v:update( deltaTime )
 		setCapture( result, capture )
+	end
+
+	-- update edit panel
+	if self.editPanelVisible then
+		-- update panel items
+		for _,v in pairs(self.editPanelItems) do
+			local result = v:update( deltaTime )
+			setCapture( result, capture )
+		end
 	end
 
 	return capture
@@ -117,6 +191,20 @@ function prefabs:render()
 	-- render prefab items
 	for _,v in pairs(self.prefabItems) do
 		v:render()
+	end
+
+	-- render edit panel
+	if self.editPanelVisible then
+		-- render background
+		Graphics.queueQuad( self.textureIndex, self.editPanelPosition, self.editPanelSize, self.depth, self.editPanelColor )
+
+		-- render components label
+		self.editPanelComponentsLabel:render()
+
+		-- render items
+		for _,v in pairs(self.editPanelItems) do
+			v:render()
+		end
 	end
 end
 

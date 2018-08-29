@@ -28,6 +28,7 @@ function list:addItem( text, tag )
 	local padding = 4
 
 	local button = EditorButton.create( {self.position[1]+padding, self.position[2]+padding+count*(GUI_BUTTON_HEIGHT+padding)}, {self.size[1]-padding*2, GUI_BUTTON_HEIGHT}, text )
+	button:setTextAlignment( ALIGN_NEAR, ALIGN_NEAR )
 	button:setDepth( self.depth + GUI_DEPTH_SMALL_INC )
 	button.tag = tag
 	button.index = count + 1

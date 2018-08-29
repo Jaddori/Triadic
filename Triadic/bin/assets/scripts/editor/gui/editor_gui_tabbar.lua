@@ -35,6 +35,7 @@ function bar:load( position, depth )
 	-- info
 	local infoButton = EditorButton.create( {xoffset, yoffset}, { GUI_TAB_BUTTON_WIDTH, GUI_BUTTON_HEIGHT }, "Info" )
 	infoButton.depth = self.depth
+	infoButton:setTextAlignment( ALIGN_NEAR, ALIGN_NEAR )
 	infoButton.onClick = function( button )
 		self:onClick( 1 )
 	end
@@ -44,6 +45,7 @@ function bar:load( position, depth )
 	-- entities
 	local entitiesButton = EditorButton.create( {xoffset, yoffset}, {GUI_TAB_BUTTON_WIDTH, GUI_BUTTON_HEIGHT}, "Entities" )
 	entitiesButton.depth = self.depth
+	entitiesButton:setTextAlignment( ALIGN_NEAR, ALIGN_NEAR )
 	entitiesButton.onClick = function( button )
 		self:onClick( 2 )
 	end
@@ -53,6 +55,7 @@ function bar:load( position, depth )
 	-- prefabs
 	local prefabsButton = EditorButton.create( {xoffset, yoffset}, {GUI_TAB_BUTTON_WIDTH, GUI_BUTTON_HEIGHT}, "Prefabs" )
 	prefabsButton.depth = self.depth
+	prefabsButton:setTextAlignment( ALIGN_NEAR, ALIGN_NEAR )
 	prefabsButton.onClick = function( button )
 		self:onClick( 3 )
 	end

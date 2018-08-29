@@ -25,6 +25,7 @@ function ent:addEntity( entity )
 	local yoffset = #self.items * (GUI_BUTTON_HEIGHT + padding)
 
 	local button = EditorButton.create( {self.position[1] + padding, self.position[2] + padding + yoffset}, {self.size[1] - padding*2, GUI_BUTTON_HEIGHT}, entity.name )
+	button:setTextAlignment( ALIGN_NEAR, ALIGN_NEAR )
 	button.depth = self.depth + GUI_DEPTH_SMALL_INC
 	button.tag = entity
 	button.onClick = self.onSelect

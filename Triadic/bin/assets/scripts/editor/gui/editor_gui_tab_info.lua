@@ -207,14 +207,14 @@ function info:setEntity( entity )
 			self.prefabDetachButton.disabled = false
 			self.revertPrefabButton.disabled = false
 
-			self.createPrefabButton.text = "Update Prefab"
+			self.createPrefabButton:setText( "Update Prefab" )
 			self.createPrefabButton.mode = PREFAB_BUTTON_UPDATE
 		else
 			self.prefabInputbox.textbox:setText( "" )
 			self.prefabDetachButton.disabled = true
 			self.revertPrefabButton.disabled = true
 
-			self.createPrefabButton.text = "Create Prefab"
+			self.createPrefabButton:setText( "Create Prefab" )
 			self.createPrefabButton.mode = PREFAB_BUTTON_CREATE
 		end
 		self.positionInputbox.textbox:setText( stringVec( entity.position ) )
@@ -231,6 +231,7 @@ function info:setEntity( entity )
 		for _,v in pairs(self.entity.components) do
 			local button = EditorButton.create( {self.position[1]+padding, yoffset}, {self.size[1]-removeSize-padding*4, GUI_BUTTON_HEIGHT}, v.name )
 			button:setDepth( self.depth )
+			button:setTextAlignment( ALIGN_NEAR, ALIGN_NEAR )
 			button.onClick = function( button )
 				v:showInfoWindow()
 			end
@@ -265,7 +266,7 @@ function info:setEntity( entity )
 		self.visibleCheckbox.checked = false
 
 		self.createPrefabButton.disabled = true
-		self.createPrefabButton.text = "Create Prefab"
+		self.createPrefabButton:setText( "Create Prefab" )
 		self.createPrefabButton.mode = PREFAB_BUTTON_CREATE
 		self.revertPrefabButton.disabled = true
 	end
