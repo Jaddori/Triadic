@@ -51,8 +51,8 @@ function EditorTextbox.create( position, size )
 	local textbox = {}
 	setmetatable( textbox, { __index = EditorTextbox } )
 	
-	textbox.position = position
-	textbox.size = size
+	textbox.position = tableVal( position )
+	textbox.size = tableVal( size )
 	textbox.depth = 0
 	textbox.hovered = false
 	textbox.pressed = false

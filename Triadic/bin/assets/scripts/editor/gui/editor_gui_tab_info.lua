@@ -96,10 +96,10 @@ function info:load( position, size, depth )
 	yoffset = yoffset + self.scaleInputbox.size[2] + padding
 
 	-- visible
-	self.visibleLabel = EditorLabel.create( {position[1] + padding, position[2] + padding + yoffset}, "Visible:" )
+	self.visibleLabel = EditorLabel.create( {position[1] + padding, position[2] + padding + yoffset}, {size[1]-padding*2, GUI_BUTTON_HEIGHT}, "Visible:" )
 	self.visibleLabel:setDepth( self.depth )
 	self.items[#self.items+1] = self.visibleLabel
-	yoffset = yoffset + self.visibleLabel:getHeight() + padding
+	yoffset = yoffset + self.visibleLabel.size[2] + padding
 
 	self.visibleCheckbox = EditorCheckbox.create( {position[1] + padding, position[2] + padding + yoffset} )
 	self.visibleCheckbox:setDepth( self.depth )
@@ -161,10 +161,10 @@ function info:load( position, size, depth )
 	self.prefabNameWindow:addItem( prefabNameCreateButton )
 
 	-- components
-	self.componentsLabel = EditorLabel.create( {position[1] + padding, position[2] + padding + yoffset}, "Components:" )
+	self.componentsLabel = EditorLabel.create( {position[1] + padding, position[2] + padding + yoffset}, {size[1]-padding*2, GUI_BUTTON_HEIGHT}, "Components:" )
 	self.componentsLabel:setDepth( self.depth )
 	self.items[#self.items+1] = self.componentsLabel
-	yoffset = yoffset + self.componentsLabel:getHeight() + padding
+	yoffset = yoffset + self.componentsLabel.size[2] + padding
 
 	-- add component
 	self.addComponentButton = EditorButton.create( {position[1] + padding, position[2] + padding + yoffset}, {size[1]-padding*2, GUI_BUTTON_HEIGHT}, "Add Component" )

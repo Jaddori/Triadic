@@ -55,8 +55,6 @@ function EditorWindow.create( title, position, size )
 	{
 		visible = true,
 		title = title,
-		position = position or {0,GUI_MENU_HEIGHT},
-		size = size or {EDITOR_WINDOW_DEFAULT_WIDTH, EDITOR_WINDOW_DEFAULT_HEIGHT},
 		depth = 0,
 		titlebarSize = {0, EDITOR_WINDOW_TITLEBAR_HEIGHT},
 
@@ -70,6 +68,18 @@ function EditorWindow.create( title, position, size )
 		crossSize = {EDITOR_WINDOW_CROSS_SIZE, EDITOR_WINDOW_CROSS_SIZE},
 		crossCaptured = false,
 	}
+
+	if position then
+		result.position = tableVal( position )
+	else
+		result.position = {0, GUI_MENU_HEIGHT}
+	end
+
+	if size then
+		result.size = tableVal( size )
+	else
+		result.size = {EDITOR_WINDOW_DEFAULT_WIDTH, EDITOR_WINDOW_DEFAULT_HEIGHT}
+	end
 
 	result.titlebarSize[1] = result.size[1]
 

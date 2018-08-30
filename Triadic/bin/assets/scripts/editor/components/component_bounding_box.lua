@@ -230,7 +230,7 @@ function ComponentBoundingBoxWindow:show( component )
 		self.window.items[i] = nil
 	end
 
-	local typeLabel = EditorLabel.create( nil, "Type:" )
+	local typeLabel = EditorLabel.create( nil, {0, GUI_BUTTON_HEIGHT}, "Type:" )
 	self.window:addItem( typeLabel )
 
 	local typeDropdown = EditorDropdown.create( {0,0}, {0, GUI_BUTTON_HEIGHT} )
@@ -312,7 +312,7 @@ function ComponentBoundingBoxWindow:load()
 	self.window.visible = false
 
 	-- add items
-	local typeLabel = EditorLabel.create( nil, "Type:" )
+	local typeLabel = EditorLabel.create( nil, {0, GUI_BUTTON_HEIGHT}, "Type:" )
 	self.window:addItem( typeLabel )
 
 	local typeDropdown = EditorDropdown.create( {0,0}, {0, GUI_BUTTON_HEIGHT} )

@@ -54,8 +54,8 @@ function EditorListbox.create( position, size )
 
 	local result =
 	{
-		position = position or {0,0},
-		size = size or {0,0},
+		position = tableVal( position ),
+		size = tableVal( size ),
 		depth = 0,
 		itemSize = {0,EDITOR_LISTBOX_ITEM_HEIGHT},
 		visible = true,

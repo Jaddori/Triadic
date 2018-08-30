@@ -32,13 +32,14 @@ function EditorCheckbox.create( position, size )
 
 	local checkbox =
 	{
-		position = position or {0,0},
-		size = size,
+		position = tableVal( position ),
+		size = tableVal( size ),
 		depth = 0,
 		hovered = false,
 		pressed = false,
 		checked = false,
 	}
+
 	setmetatable( checkbox, { __index = EditorCheckbox } )
 
 	return checkbox

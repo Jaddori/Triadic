@@ -53,8 +53,8 @@ function EditorDropdown.create( position, size )
 
 	local result = 
 	{
-		position = position or {0,0},
-		size = size or {0,0},
+		position = tableVal( position ),
+		size = tableVal( size ),
 		depth = 0,
 		hovered = false,
 		pressed = false,

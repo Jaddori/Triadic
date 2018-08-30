@@ -54,7 +54,7 @@ function prefabs:load( position, size, depth )
 	yoffset = yoffset + editButton.size[2] + padding
 
 	-- prefabs
-	local componentsLabel = EditorLabel.create( {self.position[1] + padding, yoffset}, "Prefabs:" )
+	local componentsLabel = EditorLabel.create( {self.position[1] + padding, yoffset}, {self.size[1] - padding*2, GUI_BUTTON_HEIGHT}, "Prefabs:" )
 	componentsLabel:setDepth( self.depth + GUI_DEPTH_SMALL_INC )
 	self.items[#self.items+1] = componentsLabel
 	yoffset = yoffset + componentsLabel.size[2] + padding

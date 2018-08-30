@@ -114,3 +114,21 @@ function easeOutCubic( t, b, c, d )
 	t = t / d - 1
 	return c * (math.pow(t, 3) + 1) + b
 end
+
+function tableVal( t, size, default )
+	local result = {}
+
+	if t then
+		for i=1, #t do
+			result[i] = t[i]
+		end
+	else
+		size = size or 2
+		default = default or 0
+		for i=1, size do
+			result[i] = default
+		end
+	end
+
+	return result
+end

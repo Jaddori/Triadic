@@ -330,7 +330,7 @@ function ComponentParticleEmitterWindow:load()
 	self.window:addItem( endSize )
 
 	-- spherical
-	local sphericalLabel = EditorLabel.create( {0,0}, "Spherical:" )
+	local sphericalLabel = EditorLabel.create( {0,0}, {0, GUI_BUTTON_HEIGHT}, "Spherical:" )
 	self.window:addItem( sphericalLabel )
 
 	local sphericalCheckbox = EditorCheckbox.create()

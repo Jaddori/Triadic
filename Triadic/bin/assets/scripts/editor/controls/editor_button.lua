@@ -31,8 +31,18 @@ function EditorButton.create( position, size, text )
 	local button = {}
 	setmetatable( button, { __index = EditorButton } )
 	
-	button.position = position or {0,0}
-	button.size = size or {0,0}
+	if position then
+		button.position = {position[1], position[2]}
+	else
+		button.position = {0,0}
+	end
+
+	if size then
+		button.size = {size[1], size[2]}
+	else
+		button.size = {0,0}
+	end
+	
 	button.depth = 0
 	button.hovered = false
 	button.pressed = false

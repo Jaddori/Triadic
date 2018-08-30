@@ -10,7 +10,7 @@ EditorInputbox =
 function EditorInputbox.create( position, width, text )
 	local result = 
 	{
-		position = position or {0,0},
+		position = tableVal( position ),
 		size = {0,0},
 		depth = 0,
 		label = {},
@@ -20,8 +20,8 @@ function EditorInputbox.create( position, width, text )
 	setmetatable( result, { __index = EditorInputbox } )
 
 	local yoffset = 0
-	result.label = EditorLabel.create( {result.position[1], result.position[2] + yoffset}, text )
-	yoffset = yoffset + result.label:getHeight()
+	result.label = EditorLabel.create( {result.position[1], result.position[2] + yoffset}, {width, GUI_BUTTON_HEIGHT}, text )
+	yoffset = yoffset + GUI_BUTTON_HEIGHT
 
 	result.textbox = EditorTextbox.create( {result.position[1], result.position[2] + yoffset}, {width, GUI_BUTTON_HEIGHT} )
 	result.textbox.onFocus = function( textbox )
@@ -35,12 +35,13 @@ function EditorInputbox.create( position, width, text )
 end
 
 function EditorInputbox:setPosition( position )
-	self.label.position = {position[1], position[2]}
-	self.textbox.position = {position[1], position[2] + self.label:getHeight()}
+	self.label:setPosition( position )
+	self.textbox:setPosition( {position[1], position[2] + self.label.size[2]} )
 end
 
 function EditorInputbox:setSize( size )
-	self.textbox.size[1] = size[1]
+	self.label:setSize( {size[1], GUI_BUTTON_HEIGHT} )
+	self.textbox:setSize( {size[1], GUI_BUTTON_HEIGHT} )
 end
 
 function EditorInputbox:setDepth( depth )
