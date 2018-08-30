@@ -6,11 +6,22 @@ function insideRect( position, size, point )
 end
 
 function addVec( a, b )
-	if #a ~= #b then return nil end
+	if #a ~= #b then return error( "Mismatch in table size." ) end
 
 	local result = {}
 	for i=1, #a do
 		result[i] = a[i] + b[i]
+	end
+	
+	return result
+end
+
+function subVec( a, b )
+	if #a ~= #b then error( "Mismatch in table size." ) end
+
+	local result = {}
+	for i=1, #a do
+		result[i] = a[i] - b[i]
 	end
 	
 	return result

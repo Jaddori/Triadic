@@ -1,5 +1,6 @@
 local DEFAULT_TEXTURE = "./assets/textures/white.dds"
 local MESH_LIST_PANEL_WIDTH = 128
+local MESH_LIST_PANEL_HEIGHT = 512
 
 ComponentMesh =
 {
@@ -228,7 +229,7 @@ function ComponentMeshWindow:load()
 	meshInput.textbox.readOnly = true
 	self.window:addItem( meshInput )
 
-	local meshList = EditorListbox.create( nil, {0, 256} )
+	local meshList = EditorListbox.create( nil, {0, MESH_LIST_PANEL_HEIGHT} )
 	for i=1, #self.meshNames do
 		meshList:addItem( self.meshNames[i], i )
 	end
