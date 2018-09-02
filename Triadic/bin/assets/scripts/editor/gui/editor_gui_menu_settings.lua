@@ -70,22 +70,37 @@ function settings:load( xoffset, items, depth )
 	return width
 end
 
-function settings:update( deltaTime )
-	local capture = { mouseCaptured = false, keyboardCaptured = false }
-
+function settings:checkCapture( capture, mousePosition )
 	if self.visible then
+		local localCapture =
+		{
+			depth = capture.depth,
+			button = capture.button,
+			item = nil,
+			focusItem = nil
+		}
+
 		for _,v in pairs(self.items) do
-			local result = v:update( deltaTime )
-			setCapture( result, capture )
+			v:checkCapture( localCapture, mousePosition )
 		end
-		
-		if Input.buttonReleased( Buttons.Left ) then
+
+		if localCapture.item then
+			capture.depth = localCapture.depth
+			capture.item = localCapture.item
+			capture.focusItem = localCapture.focusItem
+		else
 			self.visible = false
 			self.settingsButton.color = nil
 		end
 	end
+end
 
-	return capture
+function settings:update( deltaTime, mousePosition )
+	if self.visible then
+		for _,v in pairs(self.items) do
+			v:update( deltaTime, mousePosition )
+		end
+	end
 end
 
 function settings:render()

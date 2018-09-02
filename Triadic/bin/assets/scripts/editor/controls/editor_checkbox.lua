@@ -57,7 +57,42 @@ function EditorCheckbox:setDepth( depth )
 	self.depth = depth
 end
 
-function EditorCheckbox:update( deltaTime )
+function EditorCheckbox:checkCapture( capture, mousePosition )
+	if capture.depth < self.depth then
+		if insideRect( self.position, self.size, mousePosition ) then
+			capture.depth = self.depth
+			capture.item = self
+		end
+	end
+end
+
+function EditorCheckbox:updateMouseInput( deltaTime, mousePosition )
+	if insideRect( self.position, self.size, mousePosition ) then
+		self.pressed = true
+	end
+end
+
+function EditorCheckbox:press( mousePosition )
+	self.hovered = true
+end
+
+function EditorCheckbox:release( mousePosition )
+	if insideRect( self.position, self.size, mousePosition ) then
+		self.checked = not self.checked
+
+		if self.onCheck then
+			self:onCheck()
+		end
+	end
+
+	self.hovered = false
+	self.pressed = false
+end
+
+function EditorCheckbox:update( deltaTime, mousePosition )
+	self.hovered = insideRect( self.position, self.size, mousePosition )
+
+	--[[
 	local capture = { mouseCaptured = false, keyboardCaptured = false }
 
 	local mousePosition = Input.getMousePosition()
@@ -85,7 +120,7 @@ function EditorCheckbox:update( deltaTime )
 		self.pressed = false
 	end
 
-	return capture
+	return capture--]]
 end
 
 function EditorCheckbox:render()

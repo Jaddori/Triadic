@@ -50,7 +50,15 @@ function EditorInputbox:setDepth( depth )
 	self.textbox.depth = depth
 end
 
-function EditorInputbox:update( deltaTime )
+function EditorInputbox:checkCapture( capture, mousePosition )
+	self.textbox:checkCapture( capture, mousePosition )
+end
+
+function EditorInputbox:update( deltaTime, mousePosition )
+	self.label:update( deltaTime, mousePosition )
+	self.textbox:update( deltaTime, mousePosition )
+
+	--[[
 	local capture = { mouseCaptured = false, keyboardCaptured = false }
 	
 	local result = self.label:update( deltaTime )
@@ -59,7 +67,7 @@ function EditorInputbox:update( deltaTime )
 	result = self.textbox:update( deltaTime )
 	setCapture( result, capture )
 
-	return capture
+	return capture--]]
 end
 
 function EditorInputbox:render()

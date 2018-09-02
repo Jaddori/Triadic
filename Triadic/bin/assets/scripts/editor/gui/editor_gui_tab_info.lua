@@ -278,7 +278,36 @@ function info:refresh()
 	self.scaleInputbox.textbox:setText( stringVec( self.entity.scale ) )
 end
 
-function info:update( deltaTime )
+function info:checkCapture( capture, mousePosition )
+	-- check items
+	for _,v in pairs(self.items) do
+		v:checkCapture( capture, mousePosition )
+	end
+
+	-- check sub items
+	for _,v in pairs(self.subItems) do
+		v:checkCapture( capture, mousePosition )
+	end
+
+	-- check prefab name window
+	self.prefabNameWindow:checkCapture( capture, mousePosition )
+end
+
+function info:update( deltaTime, mousePosition )
+	-- update items
+	for _,v in pairs(self.items) do
+		v:update( deltaTime, mousePosition )
+	end
+
+	-- update sub items
+	for _,v in pairs(self.subItems) do
+		v:update( deltaTime, mousePosition )
+	end
+
+	-- update prefab name window
+	self.prefabNameWindow:update( deltaTime, mousePosition )
+
+	--[[
 	local capture = { mouseCaptured = false, keyboardCaptured = false }
 
 	-- update items
@@ -297,7 +326,7 @@ function info:update( deltaTime )
 	local result = self.prefabNameWindow:update( deltaTime )
 	setCapture( result, capture )
 	
-	return capture
+	return capture--]]
 end
 
 function info:render()

@@ -142,7 +142,44 @@ function prefabs:clear()
 	end
 end
 
-function prefabs:update( deltaTime )
+function prefabs:checkCapture( capture, mousePosition )
+	-- check items
+	for _,v in pairs(self.items) do
+		v:checkCapture( capture, mousePosition )
+	end
+
+	-- check prefab items
+	for _,v in pairs(self.prefabItems) do
+		v:checkCapture( capture, mousePosition )
+	end
+
+	-- check edit panel
+	if self.editPanelVisible then
+		for _,v in pairs(self.editPanelItems) do
+			v:checkCapture( capture, mousePosition )
+		end
+	end
+end
+
+function prefabs:update( deltaTime, mousePosition )
+	-- update items
+	for _,v in pairs(self.items) do
+		v:update( deltaTime, mousePosition )
+	end
+
+	-- update prefab items
+	for _,v in pairs(self.prefabItems) do
+		v:update( deltaTime, mousePosition )
+	end
+
+	-- update edit panel
+	if self.editPanelVisible then
+		for _,v in pairs(self.editPanelItems) do
+			v:update( deltaTime, mousePosition )
+		end
+	end
+
+	--[[
 	local capture = { mouseCaptured = false, keyboardCaptured = false }
 
 	-- hide edit panel if user clicks outside of it
@@ -176,7 +213,7 @@ function prefabs:update( deltaTime )
 		end
 	end
 
-	return capture
+	return capture--]]
 end
 
 function prefabs:render()

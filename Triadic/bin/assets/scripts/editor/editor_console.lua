@@ -40,7 +40,76 @@ function console:load()
 	end
 end
 
-function console:update( deltaTime )
+function console:checkCapture( capture, mousePosition )
+	if self.visible then
+		capture.depth = self.depth
+		capture.item = self
+		capture.focusItem = self
+	end
+end
+
+function console:updateMouseInput( deltaTime, mousePosition )
+end
+
+function console:press( mousePosition )
+end
+
+function console:release( mousePosition )
+end
+
+function console:setFocus()
+	self.inputTextbox:setFocus()
+end
+
+function console:unsetFocus()
+end
+
+function console:updateKeyboardInput()
+	local stillFocused = self.visible
+
+	self.inputTextbox:updateKeyboardInput()
+
+	-- manipulate command history
+	if Input.keyRepeated( Keys.Up ) then
+		self.curHistory = self.curHistory - 1
+		if self.curHistory < 1 then
+			self.curHistory = #self.history
+		end
+		
+		self.inputTextbox:setText( self.history[self.curHistory] )
+
+		capture.mouseCaptured = true
+	end
+	
+	if Input.keyRepeated( Keys.Down ) then
+		self.curHistory = self.curHistory + 1
+		if self.curHistory > #self.history then
+			self.curHistory = 1
+		end
+		
+		self.inputTextbox:setText( self.history[self.curHistory] )
+
+		capture.mouseCaptured = true
+	end
+
+	return stillFocused
+end
+
+function console:update( deltaTime, mousePosition )
+	if Input.keyReleased( Keys.Tilde ) then
+		self.visible = not self.visible
+		self.inputTextbox.focus = self.visible
+
+		if self.visible then
+			self.inputTextbox:setFocus()
+		end
+	end
+
+	if self.visible then
+		self.inputTextbox:update( deltaTime, mousePosition )
+	end
+
+	--[[
 	local capture = { mouseCaptured = false, keyboardCaptured = false }
 
 	if Input.keyReleased( Keys.Tilde ) then
@@ -78,7 +147,7 @@ function console:update( deltaTime )
 		end
 	end
 
-	return capture
+	return capture--]]
 end
 
 function console:render()

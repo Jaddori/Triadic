@@ -25,6 +25,8 @@ Editor =
 	selectedPrefab = {},
 
 	priorityQueue = {},
+
+	capture = { depth = -1, button = -1, item = nil, focusItem = nil },
 }
 
 function Editor:load()
@@ -105,6 +107,8 @@ function Editor:load()
 				self:addEntity( entity )
 			end
 		end
+
+		self.gui.contextMenu.visible = false
 	end
 	
 	-- gui info panel
@@ -236,34 +240,90 @@ function Editor:unload()
 end
 
 function Editor:update( deltaTime )
-	local capture = { mouseCaptured = false, keyboardCaptured = false }
+	--local capture = { mouseCaptured = false, keyboardCaptured = false }
 
 	-- only update prioritized items
 	if #self.priorityQueue > 0 then
 		self.priorityQueue[#self.priorityQueue]:update( deltaTime )
-		capture.mouseCaptured = true
-		capture.keyboardCaptured = true
+		--capture.mouseCaptured = true
+		--capture.keyboardCaptured = true
 
-		return capture
+		--return capture
+		return
 	end
 
-	local captureResult = self.camera:update( deltaTime )
-	setCapture( captureResult, capture )
+	--local captureResult = self.camera:update( deltaTime )
+	--setCapture( captureResult, capture )
 
 	self.gizmo:update( deltaTime )
 
-	captureResult = self.console:update( deltaTime )
-	setCapture( captureResult, capture )
+	--captureResult = self.console:update( deltaTime )
+	--setCapture( captureResult, capture )
 	
-	captureResult = self.gui:update( deltaTime )
-	setCapture( captureResult, capture )
+	--captureResult = self.gui:update( deltaTime )
+	--setCapture( captureResult, capture )
 
-	if not capture.mouseCaptured then
-		-- context menu
-		if Input.buttonReleased( Buttons.Right ) then
-			local mousePosition = Input.getMousePosition()
-			self.gui.contextMenu:show( mousePosition )
+	--local capture = { depth = -1, item = nil }
+
+	local mousePosition = Input.getMousePosition()
+	if self.capture.button == -1 then
+		if Input.buttonPressed( Buttons.Left ) then
+			self.capture.button = Buttons.Left
+		elseif Input.buttonPressed( Buttons.Right ) then
+			self.capture.button = Buttons.Right
 		end
+
+		if self.capture.button > -1 then
+			local prevFocusItem = self.capture.focusItem
+
+			self.console:checkCapture( self.capture, mousePosition )
+			self.gui:checkCapture( self.capture, mousePosition )
+
+			if self.capture.focusItem ~= self.capture.item then
+				self.capture.focusItem = nil
+			end
+
+			if prevFocusItem and prevFocusItem ~= self.capture.focusItem then
+				prevFocusItem:unsetFocus()
+				self.capture.focusItem:setFocus()
+			end
+
+			if self.capture.item then
+				self.capture.item:press( mousePosition )
+			end
+		end
+	else
+		if Input.buttonReleased( self.capture.button ) then
+			if self.capture.item then
+				self.capture.item:release( mousePosition )
+			end
+	
+			self.capture.depth = -1
+			self.capture.item = nil
+			self.capture.button = -1
+		end
+	end
+
+	if self.capture.item then
+		self.capture.item:updateMouseInput( deltaTime, mousePosition )
+	else
+		if self.capture.focusItem then
+			local stillFocused = self.capture.focusItem:updateKeyboardInput()
+			if not stillFocused then
+				self.capture.focusItem = nil
+			end
+		end
+
+		self.console:update( deltaTime, mousePosition )
+		if self.console.visible then
+			self.capture.focusItem = self.console
+		end
+
+		self.gui:update( deltaTime, mousePosition )
+	end
+
+	if not self.capture.item then
+		self.camera:update( deltaTime )
 
 		-- hovering and selecting entities
 		if self.hoveredEntity then
@@ -480,7 +540,7 @@ function Editor:update( deltaTime )
 		end
 	end
 	
-	if not capture.keyboardCaptured then
+	if not self.capture.focusItem then
 		-- copy current entity
 		if self.selectedEntity then
 			if Input.keyReleased( Keys.D ) and Input.keyDown( Keys.LeftControl ) then

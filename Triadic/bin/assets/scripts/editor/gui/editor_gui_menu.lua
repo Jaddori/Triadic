@@ -29,7 +29,24 @@ function menu:load()
 	xoffset = xoffset + self.settings:load( xoffset, self.items, self.depth )
 end
 
-function menu:update( deltaTime )
+function menu:checkCapture( capture, mousePosition )
+	self.file:checkCapture( capture, mousePosition )
+	self.settings:checkCapture( capture, mousePosition )
+
+	for _,v in pairs(self.items) do
+		v:checkCapture( capture, mousePosition )
+	end
+end
+
+function menu:update( deltaTime, mousePosition )
+	self.file:update( deltaTime, mousePosition )
+	self.settings:update( deltaTime, mousePosition )
+
+	for _,v in pairs(self.items) do
+		v:update( deltaTime, mousePosition )
+	end
+
+	--[[
 	local capture = { mouseCaptured = false, keyboardCaptured = false }
 
 	local result = self.file:update( deltaTime )
@@ -43,7 +60,7 @@ function menu:update( deltaTime )
 		setCapture( result, capture )
 	end
 
-	return capture
+	return capture--]]
 end
 
 function menu:render()

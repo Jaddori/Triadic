@@ -44,7 +44,16 @@ function panel:load()
 	self.tabs[GUI_TAB_PREFABS]:load( self.contentPosition, self.contentSize, self.depth )
 end
 
-function panel:update( deltaTime )
+function panel:checkCapture( capture, mousePosition )
+	self.tabBar:checkCapture( capture, mousePosition )
+	self.tabs[self.tabBar.currentTab]:checkCapture( capture, mousePosition )
+end
+
+function panel:update( deltaTime, mousePosition )
+	self.tabBar:update( deltaTime, mousePosition )
+	self.tabs[self.tabBar.currentTab]:update( deltaTime, mousePosition )
+
+	--[[
 	local capture = { mouseCaptured = false, keyboardCaptured = false }
 
 	-- update tab bar
@@ -60,7 +69,7 @@ function panel:update( deltaTime )
 	result = self.tabs[self.tabBar.currentTab]:update( deltaTime )
 	setCapture( result, capture )
 
-	return capture
+	return capture--]]
 end
 
 function panel:render()

@@ -78,7 +78,44 @@ function EditorButton:setTextAlignment( horizontal, vertical )
 	self.alignText:align( horizontal, vertical )
 end
 
-function EditorButton:update( deltaTime )
+function EditorButton:checkCapture( capture, mousePosition )
+	if capture.depth < self.depth then
+		if insideRect( self.position, self.size, mousePosition ) then
+			capture.depth = self.depth
+			capture.item = self
+		end
+	end
+end
+
+function EditorButton:updateMouseInput( deltaTime, mousePosition )
+	if not self.disabled then
+		self.pressed = insideRect( self.position, self.size, mousePosition ) 
+	end
+end
+
+function EditorButton:press( mousePosition )
+	self.hovered = true
+end
+
+function EditorButton:release( mousePosition )
+	if not self.disabled then
+		if insideRect( self.position, self.size, mousePosition ) then
+			self:onClick()
+		else
+			self:onUnclicked()
+		end
+
+		self.hovered = false
+		self.pressed = false
+	end
+end
+
+function EditorButton:update( deltaTime, mousePosition )
+	if not self.disabled then
+		self.hovered = insideRect( self.position, self.size, mousePosition )
+	end
+
+	--[[
 	local capture = { mouseCaptured = false, keyboardCaptured = false }
 
 	local mousePosition = Input.getMousePosition()
@@ -108,7 +145,7 @@ function EditorButton:update( deltaTime )
 		end
 	end
 	
-	return capture
+	return capture--]]
 end
 
 function EditorButton:render()

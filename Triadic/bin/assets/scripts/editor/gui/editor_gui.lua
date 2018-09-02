@@ -74,40 +74,54 @@ function gui:load()
 	self.contextMenu:load()
 end
 
-function gui:update( deltaTime )
-	local capture = { mouseCaptured = false, keyboardCaptured = false }
-
+function gui:checkCapture( capture, mousePosition )
 	-- menu
-	local result = self.menu:update( deltaTime )
-	setCapture( result, capture )
-	
-	result = self.panel:update( deltaTime )
-	setCapture( result, capture )
+	self.menu:checkCapture( capture, mousePosition )
+
+	-- panel
+	self.panel:checkCapture( capture, mousePosition )
 
 	-- component list
 	if self.componentList.visible then
-		result = self.componentList:update( deltaTime )
-		setCapture( result, capture )
+		self.componentList:checkCapture( capture, mousePosition )
+	end
+
+	-- context menu
+	self.contextMenu:checkCapture( capture, mousePosition )
+
+	-- component info windows
+	for _,v in pairs(Entity.windowList) do
+		v.window:checkCapture( capture, mousePosition )
+	end
+
+	if capture.depth < self.panel.depth then
+		if insideRect( self.panel.position, self.panel.size, mousePosition ) then
+			capture.depth = self.panel.depth
+		end
+	end
+end
+
+function gui:update( deltaTime, mousePosition )
+	-- menu
+	self.menu:update( deltaTime, mousePosition )
+
+	-- panel
+	self.panel:update( deltaTime, mousePosition )
+
+	-- component list
+	if self.componentList.visible then
+		self.componentList:update( deltaTime, mousePosition )
+	end
+
+	-- context menu
+	if self.contextMenu.visible then
+		self.contextMenu:update( deltaTime, mousePosition )
 	end
 
 	-- component info windows
 	for _,v in pairs(Entity.windowList) do
-		result = v:update( deltaTime )
-		setCapture( result, capture )
+		v:update( deltaTime, mousePosition )
 	end
-	
-	-- context menu
-	if self.contextMenu.visible then
-		result = self.contextMenu:update( deltaTime )
-		setCapture( result, capture )
-	end
-	
-	if not capture.mouseCaptured then
-		local mousePosition = Input.getMousePosition()
-		capture.mouseCaptured = insideRect( self.panel.position, self.panel.size, mousePosition ) 
-	end
-	
-	return capture
 end
 
 function gui:render()

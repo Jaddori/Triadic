@@ -65,7 +65,18 @@ function bar:load( position, depth )
 	self:onClick( 1 )
 end
 
-function bar:update( deltaTime )
+function bar:checkCapture( capture, mousePosition )
+	for _,v in pairs(self.items) do
+		v:checkCapture( capture, mousePosition )
+	end
+end
+
+function bar:update( deltaTime, mousePosition )
+	for _,v in pairs(self.items) do
+		v:update( deltaTime, mousePosition )
+	end
+	
+	--[[
 	local capture = { mouseCaptured = false, keyboardCaptured = false }
 
 	for _,v in pairs(self.items) do
@@ -73,7 +84,7 @@ function bar:update( deltaTime )
 		setCapture( result, capture )
 	end
 
-	return capture
+	return capture--]]
 end
 
 function bar:render()

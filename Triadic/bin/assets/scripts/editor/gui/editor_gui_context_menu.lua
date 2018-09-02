@@ -1,5 +1,5 @@
 GUI_CONTEXT_MENU_WIDTH = 128
-GUI_CONTEXT_MENU_DEPTH = 0.7
+GUI_CONTEXT_MENU_DEPTH = -0.9
 
 local menu =
 {
@@ -48,7 +48,48 @@ function menu:show( position )
 	end
 end
 
-function menu:update( deltaTime )
+function menu:checkCapture( capture, mousePosition )
+	local itemCaptured = false
+	if self.visible then
+		for _,v in pairs(self.items) do
+			v:checkCapture( capture, mousePosition )
+
+			if capture.item == v then
+				itemCaptured = true
+			end
+		end
+	end
+
+	if capture.button == Buttons.Right then
+		if capture.depth < self.depth then
+			capture.depth = self.depth
+			capture.item = self
+		end
+	elseif capture.button == Buttons.Left then
+		if not itemCaptured then
+			self.visible = false
+		end
+	end
+end
+
+function menu:updateMouseInput( deltaTime, mousePosition )
+end
+
+function menu:press( mousePosition )
+end
+
+function menu:release( mousePosition )
+	self:show( mousePosition )
+end
+
+function menu:update( deltaTime, mousePosition )
+	if self.visible then
+		for _,v in pairs(self.items) do
+			v:update( deltaTime, mousePosition )
+		end
+	end
+
+	--[[
 	local capture = { mouseCaptured = false, keyboardCaptured = false }
 
 	for _,v in pairs(self.items) do
@@ -60,7 +101,7 @@ function menu:update( deltaTime )
 		self.visible = false
 	end
 	
-	return capture
+	return capture--]]
 end
 
 function menu:render()

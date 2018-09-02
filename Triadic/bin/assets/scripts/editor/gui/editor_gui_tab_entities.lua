@@ -54,7 +54,18 @@ function ent:clear()
 	end
 end
 
-function ent:update( deltaTime )
+function ent:checkCapture( capture, mousePosition )
+	for _,v in pairs(self.items) do
+		v:checkCapture( capture, mousePosition )
+	end
+end
+
+function ent:update( deltaTime, mousePosition )
+	for _,v in pairs(self.items) do
+		v:update( deltaTime, mousePosition )
+	end
+
+	--[[
 	local capture = { mouseCaptured = false, keyboardCaptured = false }
 	
 	for _,v in pairs(self.items) do
@@ -62,7 +73,7 @@ function ent:update( deltaTime )
 		setCapture( result, capture )
 	end
 	
-	return capture
+	return capture--]]
 end
 
 function ent:render()

@@ -160,7 +160,33 @@ function EditorListbox:calculateItemOffset()
 	end
 end
 
+function EditorListbox:checkCapture( capture, mousePosition )
+	if capture.depth < self.depth + GUI_DEPTH_SMALL_INC*2 then
+		if insideRect( self.position, self.size, mousePosition ) then
+			for i=1, self.visibleItems do
+				local position = self.getItemPosition( i )
+				local itemIndex = i + self.itemOffset
+
+				if insideRect( position, self.itemSize, mousePosition ) then
+					capture.depth = self.depth + GUI_DEPTH_SMALL_INC*2
+					capture.item = self
+					break
+				end
+			end
+
+			if capture.depth < self.depth then
+				capture.depth = self.depth
+				capture.item = self
+			end
+		end
+	end
+end
+
+function EditorListbox:updateMouseInput( deltaTime )
+end
+
 function EditorListbox:update( deltaTime )
+	--[[
 	local capture = { mouseCaptured = false, keyboardCaptured = false }
 
 	local mousePosition = Input.getMousePosition()
@@ -228,7 +254,7 @@ function EditorListbox:update( deltaTime )
 		capture.mouseCaptured = true
 	end
 
-	return capture
+	return capture--]]
 end
 
 function EditorListbox:render()

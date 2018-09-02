@@ -124,7 +124,52 @@ function EditorDropdown:setDepth( depth )
 	self.depth = depth
 end
 
+function EditorDropdown:checkCapture( capture, mousePosition )
+	if capture.depth < self.depth + GUI_DEPTH_SMALL_INC*4 then
+		if self.expanded then
+			local position = {self.position[1], self.position[2] + self.size[2]}
+			local size = {self.size[1], self.size[2]}
+			if self.menu.itemSize > size[1] then
+				size[1] = self.menu.itemSize
+			end
+
+			for _,v in pairs(self.menu.items) do
+				if insideRect( position, size, mousePosition ) then
+					capture.depth = self.depth + GUI_DEPTH_SMALL_INC*4
+					capture.item = self
+					break
+				end
+			end
+		end
+
+		if capture.depth < self.depth then
+			if insideRect( self.position, self.size, mousePosition ) then
+				capture.depth = self.depth
+				capture.item = self
+			end
+		end
+	end
+end
+
+function EditorDropdown:updateMouseInput( deltaTime, mousePosition )
+	self.pressed = insideRect( self.position, self.size, mousePosition )
+end
+
+function EditorDropdown:press( mousePosition )
+	self.hovered = true
+end
+
+function EditorDropdown:release( mousePosition )
+	if insideRect( self.position, self.size, mousePosition ) then
+		self.expanded = not self.expanded
+	end
+
+	self.hovered = false
+	self.pressed = false
+end
+
 function EditorDropdown:update( deltaTime )
+	--[[
 	local capture = { mouseCaptured = false, keyboardCaptured = false }
 
 	local mousePosition = Input.getMousePosition()
@@ -192,7 +237,7 @@ function EditorDropdown:update( deltaTime )
 		end
 	end
 
-	return capture
+	return capture--]]
 end
 
 function EditorDropdown:render()

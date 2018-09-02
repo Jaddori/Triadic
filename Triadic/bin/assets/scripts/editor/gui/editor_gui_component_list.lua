@@ -45,7 +45,25 @@ function list:addItem( text, tag )
 	return button
 end
 
-function list:update( deltaTime )
+function list:checkCapture( capture, mousePosition )
+	for _,v in pairs(self.items) do
+		v:checkCapture( capture, mousePosition )
+	end
+
+	if capture.depth < self.depth then
+		if insideRect( self.position, self.size, mousePosition ) then
+			capture.depth = self.depth
+			capture.item = self
+		end
+	end
+end
+
+function list:update( deltaTime, mousePosition )
+	for _,v in pairs(self.items) do
+		v:update( deltaTime, mousePosition )
+	end
+
+	--[[
 	local capture = { mouseCaptured = false, keyboardCaptured = false }
 
 	local mousePosition = Input.getMousePosition()
@@ -56,7 +74,7 @@ function list:update( deltaTime )
 		setCapture( result, capture )
 	end
 
-	return capture
+	return capture--]]
 end
 
 function list:render()

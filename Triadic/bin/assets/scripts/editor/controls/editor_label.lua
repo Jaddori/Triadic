@@ -55,10 +55,17 @@ function EditorLabel:setTextAlignment( horizontal, vertical )
 	self.alignText:align( horizontal, vertical )
 end
 
+function EditorLabel:checkCapture( capture, mousePosition )
+end
+
+function EditorLabel:updateMouseInput( deltaTime )
+end
+
 function EditorLabel:update( deltaTime )
+	--[[
 	local capture = { mouseCaptured = false, keyboardCapture = false }
 
-	return capture
+	return capture--]]
 end
 
 function EditorLabel:render()
