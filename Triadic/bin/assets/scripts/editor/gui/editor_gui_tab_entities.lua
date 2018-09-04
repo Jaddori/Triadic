@@ -15,6 +15,7 @@ function ent:load( position, size, depth )
 end
 
 function ent:onShow()
+	Log.debug( "ON SHOW" )
 	for _,v in pairs(self.items) do
 		v.text = v.tag.name
 	end

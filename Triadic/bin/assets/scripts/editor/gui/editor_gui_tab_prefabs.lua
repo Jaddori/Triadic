@@ -67,7 +67,12 @@ function prefabs:load( position, size, depth )
 	self.editPanelPosition = {WINDOW_WIDTH - GUI_PANEL_WIDTH - GUI_PREFABS_EDIT_PANEL_WIDTH, GUI_MENU_HEIGHT}
 	self.editPanelSize = { GUI_PREFABS_EDIT_PANEL_WIDTH, WINDOW_HEIGHT - GUI_MENU_HEIGHT }
 
-	self.editPanelComponentsLabel = EditorLabel.create( {self.editPanelPosition[1] + padding, self.editPanelPosition[2] + padding }, "Components:" )
+	self.editPanelComponentsLabel = EditorLabel.create
+	(
+		{self.editPanelPosition[1] + padding, self.editPanelPosition[2] + padding },
+		{ GUI_PREFABS_EDIT_PANEL_WIDTH, GUI_BUTTON_HEIGHT},
+		"Components:"
+	)
 	self.editPanelComponentsLabel:setDepth( self.depth + GUI_DEPTH_SMALL_INC )
 end
 
@@ -109,7 +114,7 @@ function prefabs:addPrefab( prefab )
 
 	local button = EditorButton.create( {self.listPosition[1] + padding, self.listPosition[2] + padding + yoffset}, {self.listSize[1] - padding*2, GUI_BUTTON_HEIGHT}, prefab.name )
 	button:setTextAlignment( ALIGN_NEAR, ALIGN_NEAR )
-	button.depth = self.depth + GUI_DEPTH_SMALL_INC
+	button:setDepth( self.depth + GUI_DEPTH_SMALL_INC )
 	button.tag = prefab
 	button.onClick = function( button )
 		self:onClick( button )
@@ -178,42 +183,6 @@ function prefabs:update( deltaTime, mousePosition )
 			v:update( deltaTime, mousePosition )
 		end
 	end
-
-	--[[
-	local capture = { mouseCaptured = false, keyboardCaptured = false }
-
-	-- hide edit panel if user clicks outside of it
-	if self.editPanelVisible then
-		if Input.buttonReleased( Buttons.Left ) then
-			local mousePosition = Input.getMousePosition()
-			if not insideRect( self.editPanelPosition, self.editPanelSize, mousePosition ) then
-				self.editPanelVisible = false
-			end
-		end
-	end
-
-	-- update items
-	for _,v in pairs(self.items) do
-		local result = v:update( deltaTime )
-		setCapture( result, capture )
-	end
-
-	-- update prefab items
-	for _,v in pairs(self.prefabItems) do
-		local result = v:update( deltaTime )
-		setCapture( result, capture )
-	end
-
-	-- update edit panel
-	if self.editPanelVisible then
-		-- update panel items
-		for _,v in pairs(self.editPanelItems) do
-			local result = v:update( deltaTime )
-			setCapture( result, capture )
-		end
-	end
-
-	return capture--]]
 end
 
 function prefabs:render()

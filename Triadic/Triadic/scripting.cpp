@@ -180,6 +180,7 @@ void Script::run( int functionReference, const char* debugName )
 
 void Script::reload()
 {
+	system( "cls" );
 	LOG_DEBUG( "RELOADING" );
 
 	if( lua )

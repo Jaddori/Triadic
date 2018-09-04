@@ -177,23 +177,27 @@ function Entity:update( deltaTime )
 end
 
 function Entity:render()
+	local rendered = false
+
 	if self.visible then
-		local rendered = false
-		
 		for _,v in pairs(self.components) do
 			if v:render() then
 				rendered = true
 			end
 		end
-		
-		if not rendered or self.hovered or self.selected then
-			local color = {0,1,0,1}
-			if self.hovered then
-				color[1] = 1
-			end
+	end
 
-			DebugShapes.addSphere( self.position, 1.0, color )
+	if not rendered or self.hovered or self.selected then
+		local color = {0,1,0,1}
+		if self.hovered then
+			color[1] = 1
 		end
+
+		if not self.visible then
+			color[4] = 0.25
+		end
+
+		DebugShapes.addSphere( self.position, 1.0, color )
 	end
 end
 

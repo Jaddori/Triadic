@@ -221,6 +221,7 @@ function Editor:load()
 	end
 
 	self.gui.panel.tabs[GUI_TAB_INFO].prefabNameWindow.onClose = function( window )
+		Log.debug( "POPPPING" )
 		self:popPriorityItem()
 	end
 
@@ -248,8 +249,6 @@ function Editor:unload()
 end
 
 function Editor:update( deltaTime )
-	--local capture = { mouseCaptured = false, keyboardCaptured = false }
-
 	-- only update prioritized items
 	if #self.priorityQueue > 0 then
 		local mousePosition = Input.getMousePosition()
@@ -263,6 +262,10 @@ function Editor:update( deltaTime )
 
 			if self.capture.button > -1 then
 				self.priorityQueue[#self.priorityQueue]:checkCapture( self.capture, mousePosition )
+
+				if self.capture.item then
+					self.capture.item:press( mousePosition )
+				end
 			end
 		else
 			if Input.buttonReleased( self.capture.button ) then
@@ -293,19 +296,9 @@ function Editor:update( deltaTime )
 
 		return
 	end
-
-	--local captureResult = self.camera:update( deltaTime )
-	--setCapture( captureResult, capture )
-
-	self.gizmo:update( deltaTime )
-
-	--captureResult = self.console:update( deltaTime )
-	--setCapture( captureResult, capture )
 	
-	--captureResult = self.gui:update( deltaTime )
-	--setCapture( captureResult, capture )
-
-	--local capture = { depth = -1, item = nil }
+	self.gizmo:update( deltaTime )
+	
 	local mousePosition = Input.getMousePosition()
 	local guiCaptured = false
 
@@ -467,6 +460,7 @@ function Editor:update( deltaTime )
 
 				if self.capture.entity and self.capture.entity == self.hoveredEntity then
 					self.selectedEntity = self.capture.entity
+					self.selectedEntity.selected = true
 					self.selectedEntity:refreshInfoWindows()
 
 					self.gizmo:setPosition( self.selectedEntity.position )
