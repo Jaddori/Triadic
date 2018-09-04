@@ -45,6 +45,7 @@ EditorListbox =
 	padding = 4,
 	items = {},
 	itemOffset = 0,
+	itemCaptured = -1,
 	visibleItems = 0,
 
 	onItemSelected = nil,
@@ -163,8 +164,9 @@ end
 function EditorListbox:checkCapture( capture, mousePosition )
 	if capture.depth < self.depth + GUI_DEPTH_SMALL_INC*2 then
 		if insideRect( self.position, self.size, mousePosition ) then
+			-- check against items
 			for i=1, self.visibleItems do
-				local position = self.getItemPosition( i )
+				local position = self:getItemPosition( i )
 				local itemIndex = i + self.itemOffset
 
 				if insideRect( position, self.itemSize, mousePosition ) then
@@ -174,6 +176,7 @@ function EditorListbox:checkCapture( capture, mousePosition )
 				end
 			end
 
+			-- if not items captured, check against background
 			if capture.depth < self.depth then
 				capture.depth = self.depth
 				capture.item = self
@@ -182,79 +185,82 @@ function EditorListbox:checkCapture( capture, mousePosition )
 	end
 end
 
-function EditorListbox:updateMouseInput( deltaTime )
+function EditorListbox:updateMouseInput( deltaTime, mousePosition )
+	if self.scrollbar.captured then
+		local localMousePosition = subVec( mousePosition, self.position )
+		self.scrollbar.position[2] = localMousePosition[2] - self.scrollbar.captureOffset[2]
+
+		-- make sure scrollbar is inside the gutter
+		local miny = self.gutter.position[2]
+		local maxy = miny + self.gutter.size[2] - self.scrollbar.size[2]
+
+		if self.scrollbar.position[2] < miny then
+			self.scrollbar.position[2] = miny
+		elseif self.scrollbar.position[2] > maxy then
+			self.scrollbar.position[2] = maxy
+		end
+
+		-- update items
+		self:calculateItemOffset()
+	elseif self.itemCaptured > 0 then
+		local position = self:getItemPosition( self.itemCaptured - self.itemOffset )
+
+		self.items[self.itemCaptured].pressed = insideRect( position, self.itemSize, mousePosition )
+	end
 end
 
-function EditorListbox:update( deltaTime )
-	--[[
-	local capture = { mouseCaptured = false, keyboardCaptured = false }
+function EditorListbox:press( mousePosition )
+	-- check against scrollbar
+	local localMousePosition = subVec( mousePosition, self.position )
+	if insideRect( self.scrollbar.position, self.scrollbar.size, localMousePosition ) then
+		self.scrollbar.captured = true
+		self.scrollbar.captureOffset = subVec( localMousePosition, self.scrollbar.position )
+	else
+	-- check against items
+		for i=1, self.visibleItems do
+			local position = self:getItemPosition( i )
+			local itemIndex = i + self.itemOffset
 
-	local mousePosition = Input.getMousePosition()
-	if insideRect( self.position, self.size, mousePosition ) then
-		if not self.scrollbar.captured then
-			-- check mouse interaction with items
-			for i=1, self.visibleItems do
-				local position = self:getItemPosition( i )
-				local itemIndex = i + self.itemOffset
-
-				if insideRect( position, self.itemSize, mousePosition ) then
-					self.items[itemIndex].hovered = true
-
-					if Input.buttonPressed( Buttons.Left ) then
-						self.items[itemIndex].pressed = true
-					elseif Input.buttonReleased( Buttons.Left ) then
-						if self.items[itemIndex].pressed then
-							self.items[itemIndex].pressed = false
-
-							if self.onItemSelected then
-								self:onItemSelected( self.items[itemIndex] )
-							end
-						end
-					end
-				else
-					self.items[itemIndex].hovered = false
-
-					if not Input.buttonDown( Buttons.Left ) then
-						self.items[itemIndex].pressed = false
-					end
-				end
+			if insideRect( position, self.itemSize, mousePosition ) then
+				self.items[itemIndex].hovered = true
+				self.itemCaptured = itemIndex
+			else
+				self.items[itemIndex].hovered = false
 			end
+		end
+	end
+end
 
-			-- check mouse interaction with scrollbar
-			if Input.buttonPressed( Buttons.Left ) then
-				local localMousePosition = subVec( mousePosition, self.position )
-				if insideRect( self.scrollbar.position, self.scrollbar.size, localMousePosition ) then
-					self.scrollbar.captured = true
-
-					self.scrollbar.captureOffset = subVec( localMousePosition, self.scrollbar.position )
-				end
-			end
-		else -- scroll has captured the mouse input
-			if Input.buttonDown( Buttons.Left ) then
-				local localMousePosition = subVec( mousePosition, self.position )
-				self.scrollbar.position[2] = localMousePosition[2] - self.scrollbar.captureOffset[2]
-
-				-- make sure scrollbar is inside the gutter
-				local miny = self.gutter.position[2]
-				local maxy = miny + self.gutter.size[2] - self.scrollbar.size[2]
-
-				if self.scrollbar.position[2] < miny then
-					self.scrollbar.position[2] = miny
-				elseif self.scrollbar.position[2] > maxy then
-					self.scrollbar.position[2] = maxy
-				end
-
-				-- update items
-				self:calculateItemOffset()
-			else -- left mouse button no longer being pressed
-				self.scrollbar.captured = false
+function EditorListbox:release( mousePosition )
+	if self.scrollbar.captured then
+		self.scrollbar.captured = false
+	elseif self.itemCaptured > 0 then
+		local position = self:getItemPosition( self.itemCaptured - self.itemOffset )
+		
+		if insideRect( position, self.itemSize, mousePosition ) then
+			if self.onItemSelected then
+				self:onItemSelected( self.items[self.itemCaptured] )
 			end
 		end
 
-		capture.mouseCaptured = true
+		self.items[self.itemCaptured].hovered = false
+		self.items[self.itemCaptured].pressed = false
 	end
+end
 
-	return capture--]]
+function EditorListbox:update( deltaTime, mousePosition )
+	if insideRect( self.position, self.size, mousePosition ) then
+		for i=1, self.visibleItems do
+			local position = self:getItemPosition( i )
+			local itemIndex = i + self.itemOffset
+
+			if insideRect( position, self.itemSize, mousePosition ) then
+				self.items[itemIndex].hovered = true
+			else
+				self.items[itemIndex].hovered = false
+			end
+		end
+	end
 end
 
 function EditorListbox:render()

@@ -340,8 +340,8 @@ function ComponentParticleEmitterWindow:load()
 	self.window:addItem( sphericalCheckbox )
 end
 
-function ComponentParticleEmitterWindow:update( deltaTime )
-	return self.window:update( deltaTime )
+function ComponentParticleEmitterWindow:update( deltaTime, mousePosition )
+	self.window:update( deltaTime, mousePosition )
 end
 
 function ComponentParticleEmitterWindow:render()

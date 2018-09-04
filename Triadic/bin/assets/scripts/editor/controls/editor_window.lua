@@ -139,11 +139,11 @@ end
 function EditorWindow:checkCapture( capture, mousePosition )
 	if capture.depth < self.depth then
 		if self.visible then
+			for _,v in pairs(self.items) do
+				v:checkCapture( capture, mousePosition )
+			end
+			
 			if insideRect( self.position, self.size, mousePosition ) then
-				for _,v in pairs(self.items) do
-					v:checkCapture( capture, mousePosition )
-				end
-
 				if capture.depth < self.depth then
 					capture.depth = self.depth
 					capture.item = self
@@ -153,74 +153,96 @@ function EditorWindow:checkCapture( capture, mousePosition )
 	end
 end
 
-function EditorWindow:updateMouseInput( deltaTime )
-	
-end
+function EditorWindow:updateMouseInput( deltaTime, mousePosition )
+	if self.crossCaptured then
+		local crossPosition = { self.position[1] + self.size[1] - self.crossSize[1], self.position[2] }
+		self.crossPressed = insideRect( crossPosition, self.crossSize, mousePosition )
+	elseif self.titlebarCaptured then
+		self.position = subVec( mousePosition, self.movementOffset )
 
-function EditorWindow:update( deltaTime )
-	--[[
-	local capture = { mouseCaptured = false, keyboardCaptured = false }
+		-- clamp position to be inside window
+		local minx = 0
+		local maxx = ( WINDOW_WIDTH - GUI_PANEL_WIDTH - self.size[1] )
+		local miny = GUI_MENU_HEIGHT
+		local maxy = ( WINDOW_HEIGHT - self.size[2] )
 
-	if self.visible then
-		-- update window
-		local mousePosition = Input.getMousePosition()
-		if insideRect( self.position, self.size, mousePosition ) then
-			capture.mouseCaptured = true
-
-			if not self.titlebarCaptured and not self.crossCaptured then
-				if Input.buttonPressed( Buttons.Left ) then
-					local crossPosition = { self.position[1] + self.size[1] - self.crossSize[1], self.position[2] }
-					if insideRect( crossPosition, self.crossSize, mousePosition ) then
-						self.crossCaptured = true
-					elseif insideRect( self.position, self.titlebarSize, mousePosition ) then
-						self.titlebarCaptured = true
-						self.movementOffset[1] = mousePosition[1] - self.position[1]
-						self.movementOffset[2] = mousePosition[2] - self.position[2]
-					end
-				end
-			else
-				if Input.buttonDown( Buttons.Left ) then
-					if not self.crossCaptured then
-						self.position[1] = mousePosition[1] - self.movementOffset[1]
-						self.position[2] = mousePosition[2] - self.movementOffset[2]
-
-						-- clamp position to be inside window
-						if self.position[1] < 0 then
-							self.position[1] = 0
-						elseif self.position[1] > ( WINDOW_WIDTH - GUI_PANEL_WIDTH - self.size[1] ) then
-							self.position[1] = ( WINDOW_WIDTH - GUI_PANEL_WIDTH - self.size[1] )
-						end
-
-						if self.position[2] < GUI_MENU_HEIGHT then
-							self.position[2] = GUI_MENU_HEIGHT
-						elseif self.position[2] > ( WINDOW_HEIGHT - self.size[2] ) then
-							self.position[2] = ( WINDOW_HEIGHT - self.size[2] )
-						end
-
-						self:layout()
-					end
-				else
-					local crossPosition = { self.position[1] + self.size[1] - self.crossSize[1], self.position[2] }
-					if insideRect( crossPosition, self.crossSize, mousePosition ) then
-						--self.visible = false
---
-						--if self.onClose then
-						--	self:onClose()
-						--end
-
-						self:close()
-					end
-
-					self.crossCaptured = false
-					self.titlebarCaptured = false
-				end
-			end
-		else
-			if not Input.buttonDown( Buttons.Left ) then
-				self.crossCaptured = false
-			end
+		if self.position[1] < minx then
+			self.position[1] = minx
+		elseif self.position[1] > maxx then
+			self.position[1] = maxx
 		end
 
+		if self.position[2] < miny then
+			self.position[2] = miny
+		elseif self.position[2] > maxy then
+			self.position[2] = maxy
+		end
+
+		-- update item positions
+		self:layout()
+	end
+end
+
+function EditorWindow:press( mousePosition )
+	self.crossCaptured = false
+	self.titlebarCaptured = false
+
+	-- check interation with cross
+	local crossPosition = { self.position[1] + self.size[1] - self.crossSize[1], self.position[2] }
+	if insideRect( crossPosition, self.crossSize, mousePosition ) then
+		self.crossCaptured = true
+		self.crossHovered = true
+
+	-- check interaction with titlebar
+	elseif insideRect( self.position, self.titlebarSize, mousePosition ) then
+		self.titlebarCaptured = true
+		self.movementOffset = subVec( mousePosition, self.position )
+	end
+
+	if insideRect( self.position, self.size, mousePosition ) then
+		if self.onFocus then
+			self:onFocus()
+		end
+	end
+end
+
+function EditorWindow:release( mousePosition )
+	local closed = false
+
+	if self.crossCaptured then
+		local crossPosition = { self.position[1] + self.size[1] - self.crossSize[1], self.position[2] }
+		if insideRect( crossPosition, self.crossSize, mousePosition ) then
+			self:close()
+			closed = true
+		end
+	end
+
+	if not closed then
+		if insideRect( self.position, self.size, mousePosition ) then
+			self.focused = true
+		end
+	end
+
+	self.crossCaptured = false
+	self.crossHovered = false
+	self.crossPressed = false
+	self.titlebarCaptured = false
+end
+
+function EditorWindow:updateKeyboardInput()
+	local result = false
+
+	for _,v in pairs(self.items) do
+		if v.updateKeyboardInput then
+			result = v:updateKeyboardInput() or result
+		end
+	end
+
+	return result
+end
+
+function EditorWindow:update( deltaTime, mousePosition )
+	if self.visible then
 		local crossPosition = { self.position[1] + self.size[1] - self.crossSize[1], self.position[2] }
 		if insideRect( crossPosition, self.crossSize, mousePosition ) then
 			self.crossHovered = true
@@ -228,27 +250,11 @@ function EditorWindow:update( deltaTime )
 			self.crossHovered = false
 		end
 
-		-- focus
-		if Input.buttonPressed( Buttons.Left ) then
-			if insideRect( self.position, self.size, mousePosition ) then
-				self.focused = true
-
-				if self.onFocus then
-					self:onFocus()
-				end
-			else
-				self.focused = false
-			end
-		end
-
 		-- update items
 		for _,v in pairs(self.items) do
-			local result = v:update( deltaTime )
-			setCapture( result, capture )
+			v:update( deltaTime, mousePosition )
 		end
 	end
-
-	return capture--]]
 end
 
 function EditorWindow:render()
@@ -264,12 +270,10 @@ function EditorWindow:render()
 
 		-- render cross
 		local crossColor = self.crossColor
-		if self.crossHovered then
-			if self.crossCaptured then
-				crossColor = self.crossPressColor
-			else
-				crossColor = self.crossHoverColor
-			end
+		if self.crossPressed then
+			crossColor = self.crossPressColor
+		elseif self.crossHovered then
+			crossColor = self.crossHoverColor
 		end
 		padding = ( EDITOR_WINDOW_TITLEBAR_HEIGHT - self.crossSize[1] ) * 0.5
 		local crossPosition = {self.position[1] + self.size[1] - self.crossSize[1] - padding, self.position[2] + padding }

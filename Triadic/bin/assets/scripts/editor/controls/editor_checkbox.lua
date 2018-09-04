@@ -33,7 +33,7 @@ function EditorCheckbox.create( position, size )
 	local checkbox =
 	{
 		position = tableVal( position ),
-		size = tableVal( size ),
+		size = size,
 		depth = 0,
 		hovered = false,
 		pressed = false,
@@ -67,9 +67,7 @@ function EditorCheckbox:checkCapture( capture, mousePosition )
 end
 
 function EditorCheckbox:updateMouseInput( deltaTime, mousePosition )
-	if insideRect( self.position, self.size, mousePosition ) then
-		self.pressed = true
-	end
+	self.pressed = insideRect( self.position, self.size, mousePosition )
 end
 
 function EditorCheckbox:press( mousePosition )
@@ -91,36 +89,6 @@ end
 
 function EditorCheckbox:update( deltaTime, mousePosition )
 	self.hovered = insideRect( self.position, self.size, mousePosition )
-
-	--[[
-	local capture = { mouseCaptured = false, keyboardCaptured = false }
-
-	local mousePosition = Input.getMousePosition()
-
-	if insideRect( self.position, self.size, mousePosition ) then
-		self.hovered = true
-
-		if Input.buttonDown( Buttons.Left ) then
-			self.pressed = true
-		else
-			if self.pressed then
-				self.checked = not self.checked
-
-				if self.onCheck then
-					self:onCheck()
-				end
-			end
-
-			self.pressed = false
-		end
-
-		capture.mouseCaptured = true
-	else
-		self.hovered = false
-		self.pressed = false
-	end
-
-	return capture--]]
 end
 
 function EditorCheckbox:render()

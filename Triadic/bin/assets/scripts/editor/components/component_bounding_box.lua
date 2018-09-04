@@ -327,8 +327,8 @@ function ComponentBoundingBoxWindow:load()
 	self.window:addItem( typeDropdown )
 end
 
-function ComponentBoundingBoxWindow:update( deltaTime )
-	return self.window:update( deltaTime )
+function ComponentBoundingBoxWindow:update( deltaTime, mousePosition )
+	self.window:update( deltaTime, mousePosition )
 end
 
 function ComponentBoundingBoxWindow:render()

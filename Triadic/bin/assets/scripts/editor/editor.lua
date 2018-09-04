@@ -26,7 +26,15 @@ Editor =
 
 	priorityQueue = {},
 
-	capture = { depth = -1, button = -1, item = nil, focusItem = nil },
+	capture =
+	{
+		depth = -1,
+		button = -1,
+		item = nil,
+		focusItem = nil,
+		entity = nil,
+		axis = -1,
+	},
 }
 
 function Editor:load()
@@ -244,11 +252,45 @@ function Editor:update( deltaTime )
 
 	-- only update prioritized items
 	if #self.priorityQueue > 0 then
-		self.priorityQueue[#self.priorityQueue]:update( deltaTime )
-		--capture.mouseCaptured = true
-		--capture.keyboardCaptured = true
+		local mousePosition = Input.getMousePosition()
 
-		--return capture
+		if self.capture.button == -1 then
+			if Input.buttonPressed( Buttons.Left ) then
+				self.capture.button = Buttons.Left
+			elseif Input.buttonPressed( Buttons.Right ) then
+				self.capture.button = Buttons.Right
+			end
+
+			if self.capture.button > -1 then
+				self.priorityQueue[#self.priorityQueue]:checkCapture( self.capture, mousePosition )
+			end
+		else
+			if Input.buttonReleased( self.capture.button ) then
+				if self.capture.item then
+					self.capture.item:release( mousePosition )
+				end
+
+				self.capture.depth = -1
+				self.capture.item = nil
+				self.capture.button = -1
+			end
+		end
+
+		if self.capture.item then
+			self.capture.item:updateMouseInput( deltaTime, mousePosition )
+		else
+			if #self.priorityQueue > 0 then
+				self.priorityQueue[#self.priorityQueue]:update( deltaTime, mousePosition )
+			end
+
+			if self.capture.focusItem then
+				local stillFocused = self.capture.focusItem:updateKeyboardInput()
+				if not stillFocused then
+					self.capture.focusItem = nil
+				end
+			end
+		end
+
 		return
 	end
 
@@ -264,64 +306,330 @@ function Editor:update( deltaTime )
 	--setCapture( captureResult, capture )
 
 	--local capture = { depth = -1, item = nil }
-
 	local mousePosition = Input.getMousePosition()
-	if self.capture.button == -1 then
-		if Input.buttonPressed( Buttons.Left ) then
-			self.capture.button = Buttons.Left
-		elseif Input.buttonPressed( Buttons.Right ) then
-			self.capture.button = Buttons.Right
+	local guiCaptured = false
+
+	-- update GUI elements
+	if not self.capture.entity and self.capture.axis < 0 then
+		--Log.debug( "Capture button: " .. tostring( self.capture.button ) )
+		if self.capture.button == -1 then
+			if Input.buttonPressed( Buttons.Left ) then
+				self.capture.button = Buttons.Left
+			elseif Input.buttonPressed( Buttons.Right ) then
+				self.capture.button = Buttons.Right
+			end
+
+			if self.capture.button > -1 then
+				local prevFocusItem = self.capture.focusItem
+
+				self.console:checkCapture( self.capture, mousePosition )
+				self.gui:checkCapture( self.capture, mousePosition )
+
+				if self.capture.focusItem ~= self.capture.item then
+					self.capture.focusItem = nil
+				end
+
+				if prevFocusItem and prevFocusItem ~= self.capture.focusItem then
+					prevFocusItem:unsetFocus()
+				end
+
+				if self.capture.focusItem then
+					self.capture.focusItem:setFocus()
+				end
+
+				if self.capture.item then
+					self.capture.item:press( mousePosition )
+				end
+			end
+		else
+			if Input.buttonReleased( self.capture.button ) then
+				if self.capture.item then
+					self.capture.item:release( mousePosition )
+					guiCaptured = true
+				end
+		
+				self.capture.depth = -1
+				self.capture.item = nil
+				self.capture.button = -1
+			end
 		end
 
-		if self.capture.button > -1 then
-			local prevFocusItem = self.capture.focusItem
-
-			self.console:checkCapture( self.capture, mousePosition )
-			self.gui:checkCapture( self.capture, mousePosition )
-
-			if self.capture.focusItem ~= self.capture.item then
-				self.capture.focusItem = nil
+		if self.capture.item then
+			self.capture.item:updateMouseInput( deltaTime, mousePosition )
+		else
+			if self.capture.focusItem then
+				local stillFocused = self.capture.focusItem:updateKeyboardInput()
+				if not stillFocused then
+					self.capture.focusItem = nil
+				end
 			end
 
-			if prevFocusItem and prevFocusItem ~= self.capture.focusItem then
-				prevFocusItem:unsetFocus()
-				self.capture.focusItem:setFocus()
+			self.console:update( deltaTime, mousePosition )
+			if self.console.visible then
+				self.capture.focusItem = self.console
 			end
 
-			if self.capture.item then
-				self.capture.item:press( mousePosition )
-			end
+			self.gui:update( deltaTime, mousePosition )
+		end
+
+		if not self.capture.item and not self.capture.focusItem then
+			self.camera:update( deltaTime )
 		end
 	else
-		if Input.buttonReleased( self.capture.button ) then
-			if self.capture.item then
-				self.capture.item:release( mousePosition )
+		self.capture.button = -1
+	end
+
+	-- manipulate entities
+	if not self.capture.item and not guiCaptured then
+		local ray = self.camera.camera:createRay()
+
+		-- un-hovered the entity that was hovered last frame
+		if self.hoveredEntity then
+			self.hoveredEntity.hovered = false
+		end
+
+		self.hoveredEntity  = self:findEntity( ray )
+
+		-- hover the entity that is hovered this frame
+		if self.hoveredEntity then
+			self.hoveredEntity.hovered = true
+		end
+
+		if self.capture.axis < 0 then
+			if Input.buttonPressed( Buttons.Left ) then
+				-- check interaction with gizmo
+				if self.selectedEntity then
+					self.capture.axis = -1
+
+					-- x-axis
+					if Physics.rayAABB( ray, self.gizmo.xbounds ) then
+						self.capture.axis = 1
+
+						self.xplane = Physics.createPlane( {0,0,1}, self.selectedEntity.position[3] )
+
+						local hit = {}
+						if Physics.rayPlane( ray, self.xplane, hit ) then
+							self.xoffset = hit.position[1] - self.selectedEntity.position[1]
+							self.xscale = hit.position[1] - self.selectedEntity.scale[1]
+							self.gizmo.selectedAxis = 1
+
+							-- TODO: save commmand
+						end
+					-- y-axis
+					elseif Physics.rayAABB( ray, self.gizmo.ybounds ) then
+						self.capture.axis = 2
+
+						local forward = self.camera.camera:getForward()
+						local xnormal = {1,0,0}
+						local znormal = {0,0,1}
+
+						local xdot = Vec3.dot( xnormal, forward )
+						local zdot = Vec3.dot( znormal, forward )
+
+						if xdot < zdot then
+							self.yplane = Physics.createPlane( xnormal, self.selectedEntity.position[1] )
+						else
+							self.yplane = Physics.createPlane( znormal, self.selectedEntity.position[3] )
+						end
+
+						local hit = {}
+						if Physics.rayPlane( ray, self.yplane, hit ) then
+							self.yoffset = hit.position[2] - self.selectedEntity.position[2]
+							self.yscale = hit.position[2] - self.selectedEntity.scale[2]
+							self.gizmo.selectedAxis = 2
+							
+							-- TODO: save command
+						end
+					-- z-axis
+					elseif Physics.rayAABB( ray, self.gizmo.zbounds ) then
+						self.capture.axis = 3
+
+						self.zplane = Physics.createPlane( {1,0,0}, self.selectedEntity.position[1] )
+
+						local hit = {}
+						if Physics.rayPlane( ray, self.zplane, hit ) then
+							self.zoffset = hit.position[3] - self.selectedEntity.position[3]
+							self.zscale = hit.position[3] - self.selectedEntity.scale[3]
+							self.gizmo.selectedAxis = 3
+
+							-- TODO: save command
+						end
+					end
+				end
+
+				self.capture.entity = self.hoveredEntity
+
+			-- check if an entity was clicked
+			elseif Input.buttonReleased( Buttons.Left ) then
+				if self.selectedEntity then
+					self.selectedEntity.selected = false
+				end
+
+				if self.capture.entity and self.capture.entity == self.hoveredEntity then
+					self.selectedEntity = self.capture.entity
+					self.selectedEntity:refreshInfoWindows()
+
+					self.gizmo:setPosition( self.selectedEntity.position )
+					self.gizmo.visible = true
+					self.gizmo.selectedAxis = -1
+				else
+					self.selectedEntity = nil
+					self.gizmo.visible = false
+				end
+
+				self.gui.panel.tabs[GUI_TAB_INFO]:setEntity( self.selectedEntity )
+
+				self.capture.entity = nil
+				self.capture.axis = -1
 			end
-	
-			self.capture.depth = -1
-			self.capture.item = nil
-			self.capture.button = -1
+		else
+			if self.selectedEntity then
+				local entityMoved = false
+				local entityRotated = false
+				local entityScaled = false
+
+				if Input.buttonDown( Buttons.Left ) then
+					local snap = Input.keyDown( Keys.LeftControl )
+
+					if self.capture.axis == 1 then
+						local hit = {}
+						if Physics.rayPlane( ray, self.xplane, hit ) then
+							if self.mode == MODE_TRANSLATE then
+								self.selectedEntity.position[1] = hit.position[1] - self.xoffset
+
+								if snap then
+									self.selectedEntity.position[1] = math.floor( self.selectedEntity.position[1] + 0.5 )
+								end
+
+								entityMoved = true
+							elseif self.mode == MODE_ROTATE then
+							elseif self.mode == MODE_SCALE then
+								self.selectedEntity.scale[1]= hit.position[1] - self.xscale
+
+								if snap then
+									self.selectedEntity.scale[1] = math.floor( self.selectedEntity.scale[1] + 0.5 )
+								end
+
+								entityScaled = true
+							end
+						end
+					elseif self.capture.axis == 2 then
+						local hit = {}
+						if Physics.rayPlane( ray, self.yplane, hit ) then
+							if self.mode == MODE_TRANSLATE then
+								self.selectedEntity.position[2] = hit.position[2] - self.yoffset
+
+								if snap then
+									self.selectedEntity.position[2] = math.floor( self.selectedEntity.position[2] + 0.5 )
+								end
+
+								entityMoved = true
+							elseif self.mode == MODE_ROTATE then
+							elseif self.mode == MODE_SCALE then
+								self.selectedEntity.scale[2] = hit.position[2] - self.yscale
+
+								if snap then
+									self.selectedEntity.scale[2] = math.floor( self.selectedEntity.scale[2] + 0.5 )
+								end
+
+								entityScaled = true
+							end
+						end
+					elseif self.capture.axis == 3 then
+						local hit = {}
+						if Physics.rayPlane( ray, self.zplane, hit ) then
+							if self.mode == MODE_TRANSLATE then
+								self.selectedEntity.position[3] = hit.position[3] - self.zoffset
+
+								if snap then
+									self.selectedEntity.position[3] = math.floor( self.selectedEntity.position[3] + 0.5 )
+								end
+
+								entityMoved = true
+							elseif self.mode == MODE_ROTATE then
+							elseif self.mode == MODE_SCALE then
+								self.selectedEntity.scale[3] = hit.position[3] - self.zscale
+
+								if snap then
+									self.selectedEntity.scale[3] = math.floor( self.selectedEntity.scale[3] + 0.5 )
+								end
+
+								entityScaled = true
+							end
+						end
+					end
+				elseif Input.buttonReleased( Buttons.Left ) then
+					self.capture.axis = -1
+					self.gizmo.selectedAxis = -1
+				end
+
+				-- update gizmo if entity was moved
+				if entityMoved then
+					self.gizmo:setPosition( self.selectedEntity.position )
+					self.gui.panel.tabs[GUI_TAB_INFO]:refresh()
+				elseif entityRotated then
+				elseif entityScaled then
+					self.gizmo:setScale( self.selectedEntity.scale )
+					self.gui.panel.tabs[GUI_TAB_INFO]:refresh()
+				end
+			end
 		end
 	end
 
-	if self.capture.item then
-		self.capture.item:updateMouseInput( deltaTime, mousePosition )
-	else
-		if self.capture.focusItem then
-			local stillFocused = self.capture.focusItem:updateKeyboardInput()
-			if not stillFocused then
-				self.capture.focusItem = nil
+	if not self.capture.focusItem then
+		-- copy current entity
+		if self.selectedEntity then
+			if Input.keyReleased( Keys.D ) and Input.keyDown( Keys.LeftControl ) then
+				local entity = self:copyEntity()
+
+				local command = CommandCopyEntity.create( self, entity )
+				self.commandHistory:addCommand( command )
 			end
 		end
 
-		self.console:update( deltaTime, mousePosition )
-		if self.console.visible then
-			self.capture.focusItem = self.console
+		-- remove current entity
+		if self.selectedEntity then
+			if Input.keyReleased( Keys.Delete ) then
+				local command = CommandRemoveEntity.create( self, self.selectedEntity )
+				self.commandHistory:addCommand( command )
+
+				self:removeEntity( self.selectedEntity )
+			end
 		end
 
-		self.gui:update( deltaTime, mousePosition )
+		-- undo/redo
+		if Input.keyDown( Keys.LeftControl ) then
+			local undoRedo = false
+			if Input.keyRepeated( Keys.Z ) then
+				self.commandHistory:undo()
+				undoRedo = true
+			elseif Input.keyRepeated( Keys.Y ) then
+				self.commandHistory:redo()
+				undoRedo = true
+			end
+
+			if self.selectedEntity and undoRedo then
+				self.gizmo:setPosition( self.selectedEntity.position )
+				self.gui.panel.tabs[GUI_TAB_INFO]:refresh()
+			end
+		end
+
+		-- select mode
+		if Input.keyPressed( Keys.W ) then
+			self.mode = MODE_TRANSLATE
+		elseif Input.keyPressed( Keys.E ) then
+			self.mode = MODE_SCALE
+		elseif Input.keyPressed( Keys.R ) then
+			self.mode = MODE_ROTATE
+		end
 	end
 
+	-- entities
+	for _,v in pairs(self.entities) do
+		v:update( deltaTime )
+	end
+
+	--[[
 	if not self.capture.item then
 		self.camera:update( deltaTime )
 
@@ -593,7 +901,7 @@ function Editor:update( deltaTime )
 	-- entities
 	for _,v in pairs(self.entities) do
 		v:update( deltaTime )
-	end
+	end--]]
 end
 
 function Editor:render()

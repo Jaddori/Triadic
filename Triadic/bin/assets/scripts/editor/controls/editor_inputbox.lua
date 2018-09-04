@@ -57,17 +57,6 @@ end
 function EditorInputbox:update( deltaTime, mousePosition )
 	self.label:update( deltaTime, mousePosition )
 	self.textbox:update( deltaTime, mousePosition )
-
-	--[[
-	local capture = { mouseCaptured = false, keyboardCaptured = false }
-	
-	local result = self.label:update( deltaTime )
-	setCapture( result, capture )
-
-	result = self.textbox:update( deltaTime )
-	setCapture( result, capture )
-
-	return capture--]]
 end
 
 function EditorInputbox:render()

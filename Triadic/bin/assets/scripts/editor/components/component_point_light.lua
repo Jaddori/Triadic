@@ -204,8 +204,8 @@ function ComponentPointLightWindow:load()
 	self.window:addItem( exponentInputbox )
 end
 
-function ComponentPointLightWindow:update( deltaTime )
-	return self.window:update( deltaTime )
+function ComponentPointLightWindow:update( deltaTime, mousePosition )
+	self.window:update( deltaTime, mousePosition )
 end
 
 function ComponentPointLightWindow:render()

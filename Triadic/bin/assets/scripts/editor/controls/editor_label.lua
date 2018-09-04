@@ -8,7 +8,6 @@ EditorLabel =
 	size = {0,0},
 	depth = 0,
 	textColor = {1.0, 1.0, 1.0, 1.0},
-	--text = "",
 	alignText = {},
 }
 
@@ -22,13 +21,9 @@ function EditorLabel.create( position, size, text )
 	
 	label.position = tableVal( position )
 	label.size = tableVal( size )
-	--label.text = text
 	label.depth = 0
 	label.alignText = EditorAlignText.create( label, EditorLabel.fontIndex, text )
 	label.alignText:align( ALIGN_NEAR, ALIGN_NEAR )
-
-	--local font = Assets.getFont( EditorLabel.fontIndex )
-	--label.size = font:measureText( label.text )
 	
 	return label
 end
@@ -62,32 +57,17 @@ function EditorLabel:updateMouseInput( deltaTime )
 end
 
 function EditorLabel:update( deltaTime )
-	--[[
-	local capture = { mouseCaptured = false, keyboardCapture = false }
-
-	return capture--]]
 end
 
 function EditorLabel:render()
-	--Graphics.queueText( self.fontIndex,  self.text, self.position, self.depth, self.textColor )
 	self.alignText:render( self.depth, self.textColor )
 end
 
 function EditorLabel:loadFont( info, texture )
-	--self.fontIndex = Assets.loadFont( info, texture )
-	--local font = Assets.getFont( self.fontIndex )
-
-	--self.size = font:measureText( self.text )
-
 	local fontIndex = Assets.loadFont( info, texture )
 	self.alignText:setFontIndex( fontIndex )
 end
 
 function EditorLabel:setText( text )
-	--self.text = tostring( text )
-	
-	--local font = Assets.getFont( self.fontIndex )
-	--self.size = font:measureText( self.text )
-
 	self.alignText:setText( text )
 end

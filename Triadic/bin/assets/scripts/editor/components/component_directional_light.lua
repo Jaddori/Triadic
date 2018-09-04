@@ -160,8 +160,8 @@ function ComponentDirectionalLightWindow:load()
 	self.window:addItem( intensityInputbox )
 end
 
-function ComponentDirectionalLightWindow:update( deltaTime )
-	return self.window:update( deltaTime )
+function ComponentDirectionalLightWindow:update( deltaTime, mousePosition )
+	self.window:update( deltaTime, mousePosition )
 end
 
 function ComponentDirectionalLightWindow:render()

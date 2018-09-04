@@ -247,8 +247,8 @@ function ComponentMeshWindow:load()
 	self.window:addItem( meshList )
 end
 
-function ComponentMeshWindow:update( deltaTime )
-	return self.window:update( deltaTime )
+function ComponentMeshWindow:update( deltaTime, mousePosition )
+	self.window:update( deltaTime, mousePosition )
 end
 
 function ComponentMeshWindow:render()

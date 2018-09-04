@@ -188,8 +188,8 @@ function ComponentWalkableWindow:load()
 	self.window:addItem( calculateButton )
 end
 
-function ComponentWalkableWindow:update( deltaTime )
-	return self.window:update( deltaTime )
+function ComponentWalkableWindow:update( deltaTime, mousePosition )
+	self.window:update( deltaTime, mousePosition )
 end
 
 function ComponentWalkableWindow:render()

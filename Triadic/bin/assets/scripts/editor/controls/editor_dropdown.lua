@@ -18,6 +18,7 @@ EditorDropdown =
 	hovered = false,
 	pressed = false,
 	selectedIndex = 0,
+	capturedIndex = -1,
 
 	-- arrow
 	arrowDownTextureIndex = -1,
@@ -137,8 +138,11 @@ function EditorDropdown:checkCapture( capture, mousePosition )
 				if insideRect( position, size, mousePosition ) then
 					capture.depth = self.depth + GUI_DEPTH_SMALL_INC*4
 					capture.item = self
+					--self.capturedIndex = v.index
 					break
 				end
+
+				position[2] = position[2] + size[2]
 			end
 		end
 
@@ -152,92 +156,78 @@ function EditorDropdown:checkCapture( capture, mousePosition )
 end
 
 function EditorDropdown:updateMouseInput( deltaTime, mousePosition )
-	self.pressed = insideRect( self.position, self.size, mousePosition )
+	if self.capturedIndex < 0 then
+		self.pressed = insideRect( self.position, self.size, mousePosition )
+	else
+		local position = {self.position[1], self.position[2] + self.size[2]*self.capturedIndex}
+		local size = { math.max(self.size[1], self.menu.itemSize), self.size[2] }
+
+		self.menu.items[self.capturedIndex].pressed = insideRect( position, size, mousePosition )
+	end
 end
 
 function EditorDropdown:press( mousePosition )
-	self.hovered = true
+	if self.expanded then
+		local position = {self.position[1], self.position[2] + self.size[2]}
+		local size = {math.max(self.size[1], self.menu.itemSize), self.size[2]}
+
+		for _,v in pairs(self.menu.items) do
+			if insideRect( position, size, mousePosition ) then
+				self.capturedIndex = v.index
+				v.hovered = true
+			end
+
+			position[2] = position[2] + size[2]
+		end
+	end
 end
 
 function EditorDropdown:release( mousePosition )
+	-- check items
+	if self.expanded then
+		local position = {self.position[1], self.position[2] + self.size[2]*self.capturedIndex}
+		local size = { math.max(self.size[1], self.menu.itemSize), self.size[2] }
+
+		if insideRect( position, size, mousePosition ) then
+			self.selectedIndex = self.capturedIndex
+
+			if self.onItemSelected then
+				self:onItemSelected( self.menu.items[self.capturedIndex] )
+			end
+
+			self.expanded = false
+		end
+	end
+
+	-- check main box
 	if insideRect( self.position, self.size, mousePosition ) then
 		self.expanded = not self.expanded
 	end
 
 	self.hovered = false
 	self.pressed = false
+	self.capturedIndex = -1
 end
 
-function EditorDropdown:update( deltaTime )
-	--[[
-	local capture = { mouseCaptured = false, keyboardCaptured = false }
-
-	local mousePosition = Input.getMousePosition()
-
-	-- update menu
-	local itemPressed = false
+function EditorDropdown:update( deltaTime, mousePosition )
 	if self.expanded then
+		self.hovered = false
+
 		local position = {self.position[1], self.position[2] + self.size[2]}
-		local size = {self.size[1], self.size[2]}
-		if self.menu.itemSize > size[1] then
-			size[1] = self.menu.itemSize
-		end
+		local size = {math.max(self.size[1], self.menu.itemSize), self.size[2]}
 
 		for _,v in pairs(self.menu.items) do
-			if insideRect( position, size, mousePosition ) then
-				capture.mouseCaptured = true
+			v.hovered = insideRect( position, size, mousePosition )
 
-				v.hovered = true
-
-				if Input.buttonDown( Buttons.Left ) then
-					v.pressed = true
-					itemPressed = true
-				else
-					if v.pressed then
-						self.selectedIndex = v.index
-
-						if self.onItemSelected then
-							self:onItemSelected( v )
-						end
-					end
-				end
-			else
-				v.hovered = false
-				v.pressed = false
-			end
-
-			position[2] = position[2] + self.size[2]
-		end
-	end
-	
-	-- update main box
-	if insideRect( self.position, self.size, mousePosition ) then
-		capture.mouseCaptured = true
-
-		self.hovered = true
-		if Input.buttonDown( Buttons.Left ) then
-			self.pressed = true
-		else
-			if self.pressed then
-				self:expand()
-			end
-
-			self.pressed = false
+			position[2] = position[2] + size[2]
 		end
 	else
-		self.hovered = false
-		self.pressed = false
-
-		if Input.buttonReleased( Buttons.Left ) then
-			self.expanded = false
-		end
-
-		if not self.pressed and not itemPressed and Input.buttonDown( Buttons.Left ) then
-			self.expanded = false
+		if insideRect( self.position, self.size, mousePosition ) then
+			self.hovered = true
+		else
+			self.hovered = false
 		end
 	end
-
-	return capture--]]
 end
 
 function EditorDropdown:render()
@@ -269,10 +259,7 @@ function EditorDropdown:render()
 	-- draw menu
 	if self.expanded then
 		local position = { self.position[1], self.position[2] + self.size[2] }
-		local size = { self.size[1], self.size[2] }
-		if self.menu.itemSize > size[1] then
-			size[1] = self.menu.itemSize
-		end
+		local size = { math.max(self.size[1], self.menu.itemSize), self.size[2] }
 		
 		for _,v in pairs(self.menu.items) do
 			local color = self.color
@@ -288,7 +275,7 @@ function EditorDropdown:render()
 			-- draw text
 			Graphics.queueText( self.fontIndex, v.text, {position[1]+textPadding, position[2]}, self.depth + GUI_DEPTH_SMALL_INC*4, self.textColor )
 
-			position[2] = position[2] + self.size[2]
+			position[2] = position[2] + size[2]
 		end
 	end
 end

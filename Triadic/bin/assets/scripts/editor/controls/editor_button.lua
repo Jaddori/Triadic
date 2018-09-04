@@ -114,38 +114,6 @@ function EditorButton:update( deltaTime, mousePosition )
 	if not self.disabled then
 		self.hovered = insideRect( self.position, self.size, mousePosition )
 	end
-
-	--[[
-	local capture = { mouseCaptured = false, keyboardCaptured = false }
-
-	local mousePosition = Input.getMousePosition()
-	
-	if not self.disabled then
-		if insideRect( self.position, self.size, mousePosition ) then
-			self.hovered = true
-			
-			if Input.buttonDown( Buttons.Left ) then
-				self.pressed = true
-			else
-				if self.pressed then
-					self:onClick()
-				end
-				
-				self.pressed = false
-			end
-			
-			capture.mouseCaptured = true
-		else
-			self.hovered = false
-			self.pressed = false
-			
-			if Input.buttonReleased( Buttons.Left ) then
-				self:onUnclicked()
-			end
-		end
-	end
-	
-	return capture--]]
 end
 
 function EditorButton:render()
@@ -165,8 +133,6 @@ function EditorButton:render()
 	Graphics.queueQuad( self.textureIndex, self.position, self.size, self.depth, color )
 	
 	-- render text
-	--local textPosition = { self.position[1] + 8, self.position[2] }
-	--Graphics.queueText( self.fontIndex, self.text, textPosition, self.depth+GUI_DEPTH_SMALL_INC, textColor )
 	self.alignText:render( self.depth + GUI_DEPTH_SMALL_INC, textColor )
 end
 
