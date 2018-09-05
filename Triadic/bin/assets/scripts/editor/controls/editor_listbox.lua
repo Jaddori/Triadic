@@ -97,6 +97,12 @@ function EditorListbox.create( position, size )
 	return result
 end
 
+function EditorListbox.createWithHeight( height )
+	assert( isnumber( height ), "Height must be a number." )
+
+	return EditorListbox.create( nil, {0, height} )
+end
+
 function EditorListbox:setPosition( position )
 	self.position[1] = position[1]
 	self.position[2] = position[2]

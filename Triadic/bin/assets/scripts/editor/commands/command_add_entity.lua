@@ -6,6 +6,9 @@ CommandAddEntity =
 }
 
 function CommandAddEntity.create( editor, entity )
+	assert( editor, "Editor was nil." )
+	assert( entity, "Entity was nil." )
+
 	local command =
 	{
 		editor = editor,

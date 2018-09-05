@@ -6,6 +6,10 @@ CommandMove =
 }
 
 function CommandMove.create( oldPosition, newPosition, entity )
+	assert( oldPosition, "OldPosition was nil." )
+	assert( newPosition, "NewPosition was nil." )
+	assert( entity, "Entity was nil." )
+
 	local command = 
 	{
 		oldPosition = {0,0,0},

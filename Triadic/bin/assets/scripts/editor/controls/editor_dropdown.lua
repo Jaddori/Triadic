@@ -76,6 +76,10 @@ function EditorDropdown.create( position, size )
 	return result
 end
 
+function EditorDropdown.createDefault()
+	return EditorDropdown.create( nil, { 0, GUI_BUTTON_HEIGHT } )
+end
+
 function EditorDropdown:expand( expanded )
 	self.expanded = expanded or not self.expanded
 end

@@ -34,6 +34,12 @@ function EditorInputbox.create( position, width, text )
 	return result
 end
 
+function EditorInputbox.createWithText( text )
+	assert( isstring( text ), "Text must be a string." )
+
+	return EditorInputbox.create( nil, 0, text )
+end
+
 function EditorInputbox:setPosition( position )
 	self.label:setPosition( position )
 	self.textbox:setPosition( {position[1], position[2] + self.label.size[2]} )

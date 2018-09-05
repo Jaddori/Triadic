@@ -6,6 +6,10 @@ CommandScale =
 }
 
 function CommandScale.create( oldScale, newScale, entity )
+	assert( oldScale, "OldScale was nil." )
+	assert( newScale, "NewScale was nil." )
+	assert( entity, "Entity was nil." )
+
 	local command = 
 	{
 		oldScale = {0,0,0},

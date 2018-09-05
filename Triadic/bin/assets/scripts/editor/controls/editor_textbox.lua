@@ -63,6 +63,16 @@ function EditorTextbox.create( position, size )
 	return textbox
 end
 
+function EditorTextbox.createWithWidth( width )
+	assert( isnumber( width ), "Width must be a number." )
+
+	return EditorTextbox.create( nil, {width,GUI_BUTTON_HEIGHT} )
+end
+
+function EditorTextbox.createDefault()
+	return EditorTextbox.create( nil, {0, GUI_BUTTON_HEIGHT} )
+end
+
 function EditorTextbox:setPosition( position )
 	self.position[1] = position[1]
 	self.position[2] = position[2]

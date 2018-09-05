@@ -28,6 +28,12 @@ function EditorLabel.create( position, size, text )
 	return label
 end
 
+function EditorLabel.createWithText( text )
+	assert( isstring( text ), "Text must be a string." )
+
+	return EditorLabel.create( nil, {0, GUI_BUTTON_HEIGHT}, text )
+end
+
 function EditorLabel:setPosition( position )
 	self.position[1] = position[1]
 	self.position[2] = position[2]

@@ -54,6 +54,12 @@ function EditorButton.create( position, size, text )
 	return button
 end
 
+function EditorButton.createWithText( text )
+	assert( isstring( text ), "Text must be a string." )
+
+	return EditorButton.create( nil, {0, GUI_BUTTON_HEIGHT}, text )
+end
+
 function EditorButton:setPosition( position )
 	self.position[1] = position[1]
 	self.position[2] = position[2]

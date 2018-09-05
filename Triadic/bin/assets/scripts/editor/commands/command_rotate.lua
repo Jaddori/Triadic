@@ -6,6 +6,10 @@ CommandRotate =
 }
 
 function CommandRotate.create( oldOrientation, newOrientation, entity )
+	assert( oldOrientation, "OldOrientation was nil." )
+	assert( newOrientation, "NewOrientation was nil." )
+	assert( entity, "Entity was nil." )
+
 	local command = 
 	{
 		oldOrientation = {0,0,0},

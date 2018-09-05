@@ -45,6 +45,10 @@ function EditorCheckbox.create( position, size )
 	return checkbox
 end
 
+function EditorCheckbox.createDefault()
+	return EditorCheckbox.create( nil, { DEFAULT_SIZE, DEFAULT_SIZE } )
+end
+
 function EditorCheckbox:setPosition( position )
 	self.position[1] = position[1]
 	self.position[2] = position[2]
