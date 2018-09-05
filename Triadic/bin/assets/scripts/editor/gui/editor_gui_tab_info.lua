@@ -291,6 +291,13 @@ function info:checkCapture( capture, mousePosition )
 
 	-- check prefab name window
 	self.prefabNameWindow:checkCapture( capture, mousePosition )
+
+	if capture.depth < self.depth then
+		if insideRect( self.position, self.size, mousePosition ) then
+			capture.depth = self.depth
+			capture.item = self
+		end
+	end
 end
 
 function info:update( deltaTime, mousePosition )

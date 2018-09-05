@@ -164,6 +164,13 @@ function prefabs:checkCapture( capture, mousePosition )
 			v:checkCapture( capture, mousePosition )
 		end
 	end
+
+	if capture.depth < self.depth then
+		if insideRect( self.position, self.size, mousePosition ) then
+			capture.depth = self.depth
+			capture.item = self
+		end
+	end
 end
 
 function prefabs:update( deltaTime, mousePosition )

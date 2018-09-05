@@ -264,13 +264,17 @@ function Editor:update( deltaTime )
 				self.priorityQueue[#self.priorityQueue]:checkCapture( self.capture, mousePosition )
 
 				if self.capture.item then
-					self.capture.item:press( mousePosition )
+					if self.capture.item.press then
+						self.capture.item:press( mousePosition )
+					end
 				end
 			end
 		else
 			if Input.buttonReleased( self.capture.button ) then
 				if self.capture.item then
-					self.capture.item:release( mousePosition )
+					if self.capture.item.release then
+						self.capture.item:release( mousePosition )
+					end
 				end
 
 				self.capture.depth = -1
@@ -280,7 +284,9 @@ function Editor:update( deltaTime )
 		end
 
 		if self.capture.item then
-			self.capture.item:updateMouseInput( deltaTime, mousePosition )
+			if self.capture.item.updateMouseInput then
+				self.capture.item:updateMouseInput( deltaTime, mousePosition )
+			end
 		else
 			if #self.priorityQueue > 0 then
 				self.priorityQueue[#self.priorityQueue]:update( deltaTime, mousePosition )
@@ -323,21 +329,30 @@ function Editor:update( deltaTime )
 				end
 
 				if prevFocusItem and prevFocusItem ~= self.capture.focusItem then
-					prevFocusItem:unsetFocus()
+					if prevFocusItem.unsetFocus then
+						prevFocusItem:unsetFocus()
+					end
 				end
 
 				if self.capture.focusItem then
-					self.capture.focusItem:setFocus()
+					if self.capture.focusItem.setFocus then
+						self.capture.focusItem:setFocus()
+					end
 				end
 
 				if self.capture.item then
-					self.capture.item:press( mousePosition )
+					if self.capture.item.press then
+						self.capture.item:press( mousePosition )
+					end
 				end
 			end
 		else
 			if Input.buttonReleased( self.capture.button ) then
 				if self.capture.item then
-					self.capture.item:release( mousePosition )
+					if self.capture.item.release then
+						self.capture.item:release( mousePosition )
+					end
+
 					guiCaptured = true
 				end
 		
@@ -348,7 +363,9 @@ function Editor:update( deltaTime )
 		end
 
 		if self.capture.item then
-			self.capture.item:updateMouseInput( deltaTime, mousePosition )
+			if self.capture.item.updateMouseInput then
+				self.capture.item:updateMouseInput( deltaTime, mousePosition )
+			end
 		else
 			if self.capture.focusItem then
 				local stillFocused = self.capture.focusItem:updateKeyboardInput()
