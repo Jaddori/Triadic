@@ -8,10 +8,10 @@ EditorLayoutTopdown =
 
 function EditorLayoutTopdown.create( position, width )
 	assert( position, "Position was nil." )
-	assert( size, "Size was nil." )
+	assert( width, "Width was nil." )
 
 	assert( istable( position ), "Position must be a table." )
-	assert( istable( size ), "Size must be a table." )
+	assert( isnumber( width ), "Width must be a number." )
 
 	local result = 
 	{
@@ -55,16 +55,18 @@ function EditorLayoutTopdown:removeAt( index )
 end
 
 function EditorLayoutTopdown:layout()
-	local xoffset = self.padding
+	local xoffset = self.position[1] + self.padding
 	local yoffset = self.position[2] + self.padding
 	local itemWidth = self.size[1] - self.padding*2
 
 	for i=1, #self.items do
 		local position = { xoffset, yoffset }
-		local size = { itemWidth, self.items[i].size[2] }
-
 		self.items[i]:setPosition( position )
-		self.items[i]:setSize( size )
+
+		local size = { itemWidth, self.items[i].size[2] }
+		if self.items[i].size[1] <= 0 then
+			self.items[i]:setSize( size )
+		end
 
 		yoffset = yoffset + size[2] + self.padding
 	end
@@ -87,10 +89,10 @@ function EditorLayoutTopdown:setPadding( padding )
 	self:layout()
 end
 
-function EditorLayoutTopdown:call( func )
+function EditorLayoutTopdown:call( func, ... )
 	for _,v in pairs(self.items) do
 		if v[func] then
-			v[func]( v )
+			v[func]( v, ... )
 		end
 	end
 end

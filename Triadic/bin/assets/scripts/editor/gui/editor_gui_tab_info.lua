@@ -12,7 +12,8 @@ local info =
 
 	position = {0,0},
 	size = {0,0},
-
+	
+	layout = {},
 	nameInputbox = {},
 	prefabInputbox = {},
 	prefabDetachButton = {},
@@ -46,10 +47,16 @@ function info:load( position, size, depth )
 
 	self.crossTextureIndex = Assets.loadTexture( GUI_DEFAULT_CROSS_TEXTURE )
 
+	-- layout
+	Log.debug( "Position: " .. stringVec( position ) )
+	self.layout = EditorLayoutTopdown.create( position, size[1] )
+
 	-- name
-	self.nameInputbox = EditorInputbox.create( {position[1] + padding, position[2] + padding + yoffset}, size[1]-padding*2, "Name:" )
+	--self.nameInputbox = EditorInputbox.create( {position[1] + padding, position[2] + padding + yoffset}, size[1]-padding*2, "Name:" )
+	self.nameInputbox = EditorInputbox.createWithText( "Name:" )
 	self.nameInputbox:setDepth( self.depth )
-	self.items[#self.items+1] = self.nameInputbox
+	--self.items[#self.items+1] = self.nameInputbox
+	self.layout:addItem( self.nameInputbox )
 	yoffset = yoffset + self.nameInputbox.size[2] + padding
 
 	-- prefab name
@@ -57,7 +64,8 @@ function info:load( position, size, depth )
 	self.prefabInputbox = EditorInputbox.create( {position[1] + padding, position[2] + padding + yoffset}, size[1]-padding*3-detachBounds, "Prefab:" )
 	self.prefabInputbox.textbox.readOnly = true
 	self.prefabInputbox:setDepth( self.depth )
-	self.items[#self.items+1] = self.prefabInputbox
+	--self.items[#self.items+1] = self.prefabInputbox
+	self.layout:addItem( self.prefabInputbox )
 	yoffset = yoffset + self.prefabInputbox.size[2] + padding
 	
 	-- prefab detach button
@@ -75,35 +83,41 @@ function info:load( position, size, depth )
 			self.onDetachPrefab()
 		end
 	end
-	self.items[#self.items+1] = self.prefabDetachButton
+	--self.items[#self.items+1] = self.prefabDetachButton
+	self.layout:addItem( self.prefabDetachButton )
 
 	-- position
 	self.positionInputbox = EditorInputbox.create( {position[1] + padding, position[2] + padding + yoffset}, size[1]-padding*2, "Position:" )
 	self.positionInputbox:setDepth( self.depth )
-	self.items[#self.items+1] = self.positionInputbox
+	--self.items[#self.items+1] = self.positionInputbox
+	self.layout:addItem( self.positionInputbox )
 	yoffset = yoffset + self.positionInputbox.size[2] + padding
 
 	-- orientation
 	self.orientationInputbox = EditorInputbox.create( {position[1] + padding, position[2] + padding + yoffset}, size[1]-padding*2, "Orientation:" )
 	self.orientationInputbox:setDepth( self.depth )
-	self.items[#self.items+1] = self.orientationInputbox
+	--self.items[#self.items+1] = self.orientationInputbox
+	self.layout:addItem( self.orientationInputbox )
 	yoffset = yoffset + self.orientationInputbox.size[2] + padding
 
 	-- scale
 	self.scaleInputbox = EditorInputbox.create( {position[1] + padding, position[2] + padding + yoffset}, size[1]-padding*2, "Scale:" )
 	self.scaleInputbox:setDepth( self.depth )
-	self.items[#self.items+1] = self.scaleInputbox
+	--self.items[#self.items+1] = self.scaleInputbox
+	self.layout:addItem( self.scaleInputbox )
 	yoffset = yoffset + self.scaleInputbox.size[2] + padding
 
 	-- visible
 	self.visibleLabel = EditorLabel.create( {position[1] + padding, position[2] + padding + yoffset}, {size[1]-padding*2, GUI_BUTTON_HEIGHT}, "Visible:" )
 	self.visibleLabel:setDepth( self.depth )
-	self.items[#self.items+1] = self.visibleLabel
+	--self.items[#self.items+1] = self.visibleLabel
+	self.layout:addItem( self.visibleLabel )
 	yoffset = yoffset + self.visibleLabel.size[2] + padding
 
 	self.visibleCheckbox = EditorCheckbox.create( {position[1] + padding, position[2] + padding + yoffset} )
 	self.visibleCheckbox:setDepth( self.depth )
-	self.items[#self.items+1] = self.visibleCheckbox
+	--self.items[#self.items+1] = self.visibleCheckbox
+	self.layout:addItem( self.visibleCheckbox )
 	yoffset = yoffset + self.visibleCheckbox.size[2] + padding
 
 	-- create prefab
@@ -124,7 +138,8 @@ function info:load( position, size, depth )
 			end
 		end
 	end
-	self.items[#self.items+1] = self.createPrefabButton
+	--self.items[#self.items+1] = self.createPrefabButton
+	self.layout:addItem( self.createPrefabButton )
 	yoffset = yoffset + self.createPrefabButton.size[2] + padding
 
 	-- revert to prefab
@@ -136,7 +151,8 @@ function info:load( position, size, depth )
 			self.onRevertToPrefab()
 		end
 	end
-	self.items[#self.items+1] = self.revertPrefabButton
+	--self.items[#self.items+1] = self.revertPrefabButton
+	self.layout:addItem( self.revertPrefabButton )
 	yoffset = yoffset + self.revertPrefabButton.size[2] + padding
 
 	-- prefab name window
@@ -163,7 +179,8 @@ function info:load( position, size, depth )
 	-- components
 	self.componentsLabel = EditorLabel.create( {position[1] + padding, position[2] + padding + yoffset}, {size[1]-padding*2, GUI_BUTTON_HEIGHT}, "Components:" )
 	self.componentsLabel:setDepth( self.depth )
-	self.items[#self.items+1] = self.componentsLabel
+	--self.items[#self.items+1] = self.componentsLabel
+	self.layout:addItem( self.componentsLabel )
 	yoffset = yoffset + self.componentsLabel.size[2] + padding
 
 	-- add component
@@ -175,7 +192,8 @@ function info:load( position, size, depth )
 			self.onAddComponent()
 		end
 	end
-	self.items[#self.items+1] = self.addComponentButton
+	--self.items[#self.items+1] = self.addComponentButton
+	self.layout:addItem( self.addComponentButton )
 	yoffset = yoffset + GUI_BUTTON_HEIGHT + padding
 end
 
@@ -302,9 +320,10 @@ end
 
 function info:update( deltaTime, mousePosition )
 	-- update items
-	for _,v in pairs(self.items) do
-		v:update( deltaTime, mousePosition )
-	end
+	--for _,v in pairs(self.items) do
+	--	v:update( deltaTime, mousePosition )
+	--end
+	self.layout:call( "update", deltaTime, mousePosition )
 
 	-- update sub items
 	for _,v in pairs(self.subItems) do
@@ -338,9 +357,11 @@ end
 
 function info:render()
 	-- render items
-	for _,v in pairs(self.items) do
-		v:render()
-	end
+	--for _,v in pairs(self.items) do
+	--	v:render()
+	--end
+
+	self.layout:call( "render" )
 
 	-- render sub items
 	for _,v in pairs(self.subItems) do
