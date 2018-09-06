@@ -4,6 +4,7 @@ EditorLayoutTopdown =
 	size = {0,0},
 	padding = 4,
 	items = {},
+	displayItems = {},
 }
 
 function EditorLayoutTopdown.create( position, width )
@@ -17,7 +18,8 @@ function EditorLayoutTopdown.create( position, width )
 	{
 		position = tableVal( position ),
 		size = { width or 0, 0 },
-		items = {}
+		items = {},
+		displayItems = {},
 	}
 
 	setmetatable( result, { __index = EditorLayoutTopdown } )
@@ -27,6 +29,14 @@ end
 
 function EditorLayoutTopdown:addItem( item )
 	self.items[#self.items+1] = item
+
+	if #item == 0 then
+		item.relativePosition = tableVal( item.position )
+	else
+		for _,v in pairs(item) do
+			v.relativePosition = tableVal( v.position )
+		end
+	end
 
 	--NOTE: Room for optimization here
 	self:layout()
@@ -54,24 +64,83 @@ function EditorLayoutTopdown:removeAt( index )
 	self:layout()
 end
 
+function EditorLayoutTopdown:clear()
+	local count = #self.items
+	for i=1, count do
+		self.items[i] = nil
+	end
+
+	count = #self.displayItems
+	for i=1, count do
+		self.displayItems[i] = nil
+	end
+end
+
 function EditorLayoutTopdown:layout()
+	local count = #self.displayItems
+	for i=1, count do
+		self.displayItems[i] = nil
+	end
+
 	local xoffset = self.position[1] + self.padding
 	local yoffset = self.position[2] + self.padding
 	local itemWidth = self.size[1] - self.padding*2
 
 	for i=1, #self.items do
-		local position = { xoffset, yoffset }
-		self.items[i]:setPosition( position )
+		if #self.items[i] == 0 then
+			local position = { xoffset, yoffset }
+			self.items[i]:setPosition( position )
 
-		local size = { itemWidth, self.items[i].size[2] }
-		if self.items[i].size[1] <= 0 then
-			self.items[i]:setSize( size )
+			local size = { itemWidth, self.items[i].size[2] }
+			if self.items[i].size[1] <= 0 then
+				self.items[i]:setSize( size )
+			end
+
+			yoffset = yoffset + size[2] + self.padding
+
+			self.displayItems[#self.displayItems+1] = self.items[i]
+		else
+			local fixedWidth = 0
+			for j=1, #self.items[i] do
+				if self.items[i][j].size[1] > 0 then
+					local itemPadding = self.padding
+					if j > 1 then
+						itemPadding = itemPadding * 2
+					end
+
+					fixedWidth = fixedWidth + self.items[i][j].size[1] + itemPadding
+				end
+			end
+
+			local xposition = xoffset
+			local maxHeight = 0
+			for j=1, #self.items[i] do
+				-- set position
+				local position = { xposition, yoffset }
+				if self.items[i][j].position[2] > 0 then
+					position[2] = position[2] + self.items[i][j].relativePosition[2]
+				end
+				self.items[i][j]:setPosition( position )
+				
+				-- set size
+				local size = { itemWidth - fixedWidth, self.items[i][j].size[2] }
+				if self.items[i][j].size[1] <= 0 then
+					self.items[i][j]:setSize( size )
+				end
+
+				xposition = xposition + size[1] + self.padding
+				if self.items[i][j].size[2] > maxHeight then
+					maxHeight = self.items[i][j].size[2]
+				end
+
+				self.displayItems[#self.displayItems+1] = self.items[i][j]
+			end
+
+			yoffset = yoffset + maxHeight + self.padding
 		end
-
-		yoffset = yoffset + size[2] + self.padding
 	end
 
-	self.size[2] = yoffset
+	self.size[2] = yoffset - self.position[2]
 end
 
 function EditorLayoutTopdown:setPosition( position )
@@ -90,7 +159,7 @@ function EditorLayoutTopdown:setPadding( padding )
 end
 
 function EditorLayoutTopdown:call( func, ... )
-	for _,v in pairs(self.items) do
+	for _,v in pairs(self.displayItems) do
 		if v[func] then
 			v[func]( v, ... )
 		end

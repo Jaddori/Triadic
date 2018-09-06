@@ -4,6 +4,7 @@ local DEFAULT_SIZE = 18
 
 EditorCheckbox = 
 {
+	fontIndex = -1,
 	backgroundTextureIndex = -1,
 	checkTextureIndex = -1,
 	position = {0,0},
@@ -14,6 +15,9 @@ EditorCheckbox =
 	hoverColor = {0.75, 0.75, 0.75, 1.0},
 	pressColor = {0.35, 0.35, 0.35, 1.0},
 
+	text = "Checkbox",
+	textColor = {1,1,1,1},
+
 	hovered = false,
 	pressed = false,
 	checked = false,
@@ -21,13 +25,17 @@ EditorCheckbox =
 	onCheck = nil,
 }
 
-function EditorCheckbox.create( position, size )
+function EditorCheckbox.create( position, size, text )
 	if EditorCheckbox.backgroundTextureIndex < 0 then
 		EditorCheckbox.backgroundTextureIndex = Assets.loadTexture( DEFAULT_BACKGROUND_TEXTURE )
 	end
 
 	if EditorCheckbox.checkTextureIndex < 0 then
 		EditorCheckbox.checkTextureIndex = Assets.loadTexture( DEFAULT_CHECK_TEXTURE )
+	end
+
+	if EditorCheckbox.fontIndex < 0 then
+		EditorCheckbox.fontIndex = Assets.loadFont( GUI_DEFAULT_FONT_INFO, GUI_DEFAULT_FONT_TEXTURE )
 	end
 
 	local checkbox =
@@ -38,20 +46,26 @@ function EditorCheckbox.create( position, size )
 		hovered = false,
 		pressed = false,
 		checked = false,
+
+		text = text,
 	}
+
+	checkbox.textPosition = {checkbox.position[1] + DEFAULT_SIZE + 4, checkbox.position[2] }
 
 	setmetatable( checkbox, { __index = EditorCheckbox } )
 
 	return checkbox
 end
 
-function EditorCheckbox.createDefault()
-	return EditorCheckbox.create( nil, { DEFAULT_SIZE, DEFAULT_SIZE } )
+function EditorCheckbox.createWithText( text )
+	return EditorCheckbox.create( nil, { DEFAULT_SIZE, DEFAULT_SIZE }, text )
 end
 
 function EditorCheckbox:setPosition( position )
 	self.position[1] = position[1]
 	self.position[2] = position[2]
+
+	self.textPosition = {self.position[1] + DEFAULT_SIZE + 4, self.position[2] - 2 }
 end
 
 function EditorCheckbox:setSize( size )
@@ -110,4 +124,7 @@ function EditorCheckbox:render()
 	if self.checked then
 		Graphics.queueQuad( self.checkTextureIndex, self.position, self.size, self.depth + GUI_DEPTH_SMALL_INC, self.checkColor )
 	end
+
+	-- draw text
+	Graphics.queueText( self.fontIndex, self.text, self.textPosition, self.depth, self.textColor )
 end
