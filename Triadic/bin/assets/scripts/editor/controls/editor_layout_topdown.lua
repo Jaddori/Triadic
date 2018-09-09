@@ -27,6 +27,12 @@ function EditorLayoutTopdown.create( position, width )
 	return result
 end
 
+function EditorLayoutTopdown:setDepth( depth )
+	for _,v in pairs(self.displayItems) do
+		v:setDepth( depth )
+	end
+end
+
 function EditorLayoutTopdown:addItem( item )
 	self.items[#self.items+1] = item
 
@@ -158,10 +164,28 @@ function EditorLayoutTopdown:setPadding( padding )
 	self:layout()
 end
 
+function EditorLayoutTopdown:checkCapture( capture, mousePosition )
+	for _,v in pairs(self.displayItems) do
+		v:checkCapture( capture, mousePosition )
+	end
+end
+
 function EditorLayoutTopdown:call( func, ... )
 	for _,v in pairs(self.displayItems) do
 		if v[func] then
 			v[func]( v, ... )
 		end
+	end
+end
+
+function EditorLayoutTopdown:update( deltaTime, mousePosition )
+	for _,v in pairs(self.displayItems) do
+		v:update( deltaTime, mousePosition )
+	end
+end
+
+function EditorLayoutTopdown:render()
+	for _,v in pairs(self.displayItems) do
+		v:render()
 	end
 end

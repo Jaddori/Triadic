@@ -118,8 +118,8 @@ function EditorWindow:layout()
 	local penultimateHeight = 0
 	local yoffset = self.titlebarSize[2] + self.padding
 	for _,v in pairs(self.items) do
-		v:setPosition( {self.position[1] + self.padding, self.position[2] + yoffset} )
-		v:setSize( {self.size[1] - self.padding*2, v.size[2]} )
+		v:setPosition( {self.position[1], self.position[2] + yoffset} )
+		v:setSize( {self.size[1], v.size[2]} )
 
 		yoffset = yoffset + v.size[2] + self.padding
 		penultimateHeight = yoffset + self.padding

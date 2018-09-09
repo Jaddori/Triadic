@@ -206,9 +206,6 @@ end
 
 function info:setEntity( entity )
 	-- clear items
-	--count = #self.subItems
-	--for i=0, count do self.subItems[i]=nil end
-
 	self.subLayout:clear()
 	
 	if entity then
