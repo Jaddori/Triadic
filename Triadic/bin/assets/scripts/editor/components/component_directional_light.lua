@@ -113,9 +113,9 @@ function ComponentDirectionalLightWindow:show( component )
 	if self.window.onFocus then self.window:onFocus() end
 
 	-- update items
-	self.window.items[1].textbox:setText( stringVec( component.direction ) )
-	self.window.items[2].textbox:setText( stringVec( component.color ) )
-	self.window.items[3].textbox:setText( component.intensity )
+	self.directionInputbox.textbox:setText( stringVec( component.direction ) )
+	self.colorInputbox.textbox:setText( stringVec( component.color ) )
+	self.intensityInputbox.textbox:setText( component.intensity )
 end
 
 function ComponentDirectionalLightWindow:hide()
@@ -138,26 +138,36 @@ function ComponentDirectionalLightWindow:load()
 	self.window.position[2] = GUI_MENU_HEIGHT + 8
 	self.window.visible = false
 
+	-- layout
+	local layout = EditorLayoutTopdown.create( {0,0}, self.window.size[1] )
+
 	-- direction
-	local directionInputbox = EditorInputbox.create( nil, nil, "Direction:" )
+	local directionInputbox = EditorInputbox.createWithText( "Direction:" )
 	directionInputbox.textbox.onFinish = function( textbox )
 		self.component.direction = vecString( textbox.text )
 	end
-	self.window:addItem( directionInputbox )
+	layout:addItem( directionInputbox )
 
 	-- color
-	local colorInputbox = EditorInputbox.create( nil, nil, "Color:" )
+	local colorInputbox = EditorInputbox.createWithText( "Color:" )
 	colorInputbox.textbox.onFinish = function( textbox )
 		self.component.color = vecString( textbox.text )
 	end
-	self.window:addItem( colorInputbox )
+	layout:addItem( colorInputbox )
 
 	-- intensity
-	local intensityInputbox = EditorInputbox.create( nil, nil, "Intensity:" )
+	local intensityInputbox =EditorInputbox.createWithText( "Intensity:" )
 	intensityInputbox.textbox.onFinish = function( textbox )
 		self.component.intensity = tonumber( textbox.text )
 	end
-	self.window:addItem( intensityInputbox )
+	layout:addItem( intensityInputbox )
+
+	self.window:addItem( layout )
+
+	-- set table references for easy access
+	self.directionInputbox = directionInputbox
+	self.colorInputbox = colorInputbox
+	self.intensityInputbox = intensityInputbox
 end
 
 function ComponentDirectionalLightWindow:update( deltaTime, mousePosition )

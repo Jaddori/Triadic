@@ -74,7 +74,6 @@ function ComponentMesh:compile( file, level )
 
 	writeIndent( file, level, "parent = " .. self.parent.name .. ",\n" )
 	writeIndent( file, level, "transform = Transform.create(),\n" )
-	--writeIndent( file, level, "meshIndex = " .. tostring( self.meshIndex ) .. ",\n" )
 	writeIndent( file, level, "meshIndex = Assets.loadMesh( \"" .. self.meshName .. "\" ),\n" )
 
 	level = level - 1
@@ -190,7 +189,7 @@ function ComponentMeshWindow:show( component )
 			break
 		end
 	end
-	self.window.items[1].textbox:setText( meshName )
+	self.meshInput.textbox:setText( meshName )
 end
 
 function ComponentMeshWindow:hide()
@@ -224,11 +223,15 @@ function ComponentMeshWindow:load()
 		end
 	end
 
-	-- add items
-	local meshInput = EditorInputbox.create( nil, nil, "Mesh:" )
-	meshInput.textbox.readOnly = true
-	self.window:addItem( meshInput )
+	-- layout
+	local layout = EditorLayoutTopdown.create( {0,0}, self.window.size[1] )
 
+	-- mesh name
+	local meshInput = EditorInputbox.createWithText( "Mesh:" )
+	meshInput.textbox.readOnly = true
+	layout:addItem( meshInput )
+
+	-- mesh list
 	local meshList = EditorListbox.create( nil, {0, MESH_LIST_PANEL_HEIGHT} )
 	for i=1, #self.meshNames do
 		meshList:addItem( self.meshNames[i], i )
@@ -241,10 +244,15 @@ function ComponentMeshWindow:load()
 		self.component.boundingBox = self.meshBoundingBoxes[index]
 		self.component.meshName = self.meshNames[index]
 
-		self.window.items[1].textbox:setText( self.meshNames[index] )
+		self.meshInput.textbox:setText( self.meshNames[index] )
 	end
 
-	self.window:addItem( meshList )
+	layout:addItem( meshList )
+
+	self.window:addItem( layout )
+
+	-- set table references for easy access
+	self.meshInput = meshInput
 end
 
 function ComponentMeshWindow:update( deltaTime, mousePosition )

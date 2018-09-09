@@ -223,18 +223,18 @@ function ComponentParticleEmitterWindow:show( component )
 	if self.window.onFocus then self.window:onFocus() end
 
 	-- update items
-	self.window.items[1].textbox:setText( component.maxParticles )
-	self.window.items[2].textbox:setText( component.minFrequency )
-	self.window.items[3].textbox:setText( component.maxFrequency )
-	self.window.items[4].textbox:setText( component.minLifetime )
-	self.window.items[5].textbox:setText( component.maxLifetime )
-	self.window.items[6].textbox:setText( stringVec( component.minDirection ) )
-	self.window.items[7].textbox:setText( stringVec( component.maxDirection ) )
-	self.window.items[8].textbox:setText( component.startSpeed )
-	self.window.items[9].textbox:setText( component.endSpeed )
-	self.window.items[10].textbox:setText( component.startSize )
-	self.window.items[11].textbox:setText( component.endSize )
-	self.window.items[13].checked = component.spherical
+	self.maxParticles.textbox:setText( component.maxParticles )
+	self.minFrequency.textbox:setText( component.minFrequency )
+	self.maxFrequency.textbox:setText( component.maxFrequency )
+	self.minLifetime.textbox:setText( component.minLifetime )
+	self.maxLifetime.textbox:setText( component.maxLifetime )
+	self.minDirection.textbox:setText( component.minDirection )
+	self.maxDirection.textbox:setText( component.maxDirection )
+	self.startSpeed.textbox:setText( component.startSpeed )
+	self.endSpeed.textbox:setText( component.endSpeed )
+	self.startSize.textbox:setText( component.startSize )
+	self.endSize.textbox:setText( component.endSize )
+	self.sphericalCheckbox.checked = component.spherical
 end
 
 function ComponentParticleEmitterWindow:hide()
@@ -252,92 +252,109 @@ function ComponentParticleEmitterWindow:refresh( entity )
 end
 
 function ComponentParticleEmitterWindow:load()
+	-- window
 	self.window = EditorWindow.create( "Particle Emitter Component" )
 	self.window.position[1] = WINDOW_WIDTH - GUI_PANEL_WIDTH - self.window.size[1] - 8
 	self.window.position[2] = GUI_MENU_HEIGHT + 8
 	self.window.visible = false
+
+	-- layout
+	local layout = EditorLayoutTopdown.create( {0,0}, self.window.size[1] )
 	
 	-- max particles
-	local maxParticles = EditorInputbox.create( nil, nil, "Max particles:" )
+	local maxParticles = EditorInputbox.createWithText( "Max particles:" )
 	maxParticles.textbox.onFinish = function( textbox )
 		self.component:setMaxParticles( tonumber( textbox.text ) )
 	end
-	self.window:addItem( maxParticles )
+	layout:addItem( maxParticles )
 
 	-- frequency
-	local minFrequency = EditorInputbox.create( nil, nil, "Min. frequency:" )
+	local minFrequency = EditorInputbox.createWithText( "Min. frequecny:" )
 	minFrequency.textbox.onFinish = function( textbox )
 		self.component.minFrequency = tonumber( textbox.text )
 	end
-	self.window:addItem( minFrequency )
+	layout:addItem( minFrequency )
 
-	local maxFrequency = EditorInputbox.create( nil, nil, "Max. frequency:" )
+	local maxFrequency = EditorInputbox.createWithText( "Max. frequency:" )
 	maxFrequency.textbox.onFinish = function( textbox )
 		self.component.maxFrequency = tonumber( textbox.text )
 	end
-	self.window:addItem( maxFrequency )
+	layout:addItem( maxFrequency )
 
 	-- lifetime
-	local minLifetime = EditorInputbox.create( nil, nil, "Min. lifetime:" )
+	local minLifetime = EditorInputbox.createWithText( "Min. lifetime:" )
 	minLifetime.textbox.onFinish = function( textbox )
 		self.component.minLifetime = tonumber( textbox.text )
 	end
-	self.window:addItem( minLifetime )
+	layout:addItem( minLifetime )
 
-	local maxLifetime = EditorInputbox.create( nil, nil, "Max. lifetime:" )
+	local maxLifetime = EditorInputbox.createWithText( "Max. lifetime:" )
 	maxLifetime.textbox.onFinish = function( textbox )
 		self.component.maxLifetime = tonumber( textbox.text )
 	end
-	self.window:addItem( maxLifetime )
+	layout:addItem( maxLifetime )
 
 	-- direction
-	local minDirection = EditorInputbox.create( nil, nil, "Min. direction:" )
+	local minDirection = EditorInputbox.createWithText( "Min. direction:" )
 	minDirection.textbox.onFinish = function( textbox )
 		self.component.minDirection = vecString( textbox.text )
 	end
-	self.window:addItem( minDirection )
+	layout:addItem( minDirection )
 
-	local maxDirection = EditorInputbox.create( nil, nil, "Max. direction:" )
+	local maxDirection = EditorInputbox.createWithText( "Max. direction:" )
 	maxDirection.textbox.onFinish = function( textbox )
 		self.component.maxDirection = vecString( textbox.text )
 	end
-	self.window:addItem( maxDirection )
+	layout:addItem( maxDirection )
 
 	-- speed
-	local startSpeed = EditorInputbox.create( nil, nil, "Start speed:" )
+	local startSpeed = EditorInputbox.createWithText( "Start speed:" )
 	startSpeed.textbox.onFinish = function( textbox )
 		self.component.startSpeed = tonumber( textbox.text )
 	end
-	self.window:addItem( startSpeed )
+	layout:addItem( startSpeed )
 
-	local endSpeed = EditorInputbox.create( nil, nil, "End speed:" )
+	local endSpeed = EditorInputbox.createWithText( "End speed:" )
 	endSpeed.textbox.onFinish = function( textbox )
 		self.component.endSpeed = tonumber( textbox.text )
 	end
-	self.window:addItem( endSpeed )
+	layout:addItem( endSpeed )
 
 	-- size
-	local startSize = EditorInputbox.create( nil, nil, "Start size:" )
+	local startSize = EditorInputbox.createWithText( "Start size:" )
 	startSize.textbox.onFinish = function( textbox )
 		self.component.startSize = tonumber( textbox.text )
 	end
-	self.window:addItem( startSize )
+	layout:addItem( startSize )
 
-	local endSize = EditorInputbox.create( nil, nil, "End size:" )
+	local endSize = EditorInputbox.createWithText( "End size:" )
 	endSize.textbox.onFinish = function( textbox )
 		self.component.endSize = tonumber( textbox.text )
 	end
-	self.window:addItem( endSize )
+	layout:addItem( endSize )
 
 	-- spherical
-	local sphericalLabel = EditorLabel.create( {0,0}, {0, GUI_BUTTON_HEIGHT}, "Spherical:" )
-	self.window:addItem( sphericalLabel )
-
-	local sphericalCheckbox = EditorCheckbox.create()
+	local sphericalCheckbox = EditorCheckbox.createWithText( "Spherical:" )
 	sphericalCheckbox.onCheck = function( checkbox )
 		self.component.spherical = checkbox.checked
 	end
-	self.window:addItem( sphericalCheckbox )
+	layout:addItem( sphericalCheckbox )
+
+	self.window:addItem( layout )
+
+	-- set table references for easy access
+	self.maxParticles = maxParticles
+	self.minFrequency = minFrequency
+	self.maxFrequency = maxFrequency
+	self.minLifetime = minLifetime
+	self.maxLifetime = maxLifetime
+	self.minDirection = minDirection
+	self.maxDirection = maxDirection
+	self.startSpeed = startSpeed
+	self.endSpeed = endSpeed
+	self.startSize = startSize
+	self.endSize = endSize
+	self.sphericalCheckbox = sphericalCheckbox
 end
 
 function ComponentParticleEmitterWindow:update( deltaTime, mousePosition )

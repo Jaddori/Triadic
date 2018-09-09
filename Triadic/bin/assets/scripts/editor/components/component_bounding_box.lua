@@ -230,8 +230,12 @@ function ComponentBoundingBoxWindow:show( component )
 		self.window.items[i] = nil
 	end
 
-	local typeLabel = EditorLabel.create( nil, {0, GUI_BUTTON_HEIGHT}, "Type:" )
-	self.window:addItem( typeLabel )
+	-- layout
+	local layout = EditorLayoutTopdown.create( {0,0}, self.window.size[1] )
+
+	-- type
+	local typeLabel = EditorLabel.createWithText( "Type:" )
+	layout:addItem( typeLabel )
 
 	local typeDropdown = EditorDropdown.create( {0,0}, {0, GUI_BUTTON_HEIGHT} )
 	typeDropdown:addItem( "Ray", BOUNDING_TYPE_RAY )
@@ -242,53 +246,58 @@ function ComponentBoundingBoxWindow:show( component )
 		self.component:changeType( item.tag )
 		self:show( self.component )
 	end
-	self.window:addItem( typeDropdown )
+	layout:addItem( typeDropdown )
 
 	-- ray
 	if self.component.type == BOUNDING_TYPE_RAY then
-		local directionInputbox = EditorInputbox.create( nil, nil, "Direction:" )
+		-- direction
+		local directionInputbox = EditorInputbox.createWithText( "Direction:" )
 		directionInputbox.textbox:setText( stringVec( self.component.ray.direction ) )
 		directionInputbox.textbox.onFinish = function( textbox )
 			local dir = normalizeVec( vecString( textbox.text ) )
 			self.component.ray.direction = dir
 			textbox:setText( stringVec( dir ) )
 		end
-		self.window:addItem( directionInputbox )
+		layout:addItem( directionInputbox )
 
-		local lengthInputbox = EditorInputbox.create( nil, nil, "Length:" )
+		-- length
+		local lengthInputbox = EditorInputbox.createWithText( "Length:" )
 		lengthInputbox.textbox:setText( self.component.ray.length )
 		lengthInputbox.textbox.onFinish = function( textbox )
 			self.component.ray.length = tonumber( textbox.text )
 		end
-		self.window:addItem( lengthInputbox )
+		layout:addItem( lengthInputbox )
 	-- sphere
 	elseif self.component.type == BOUNDING_TYPE_SPHERE then
-		local radiusInputbox = EditorInputbox.create( nil, nil, "Radius:" )
+		-- radius
+		local radiusInputbox = EditorInputbox.createWithText( "Radius:" )
 		radiusInputbox.textbox:setText( self.component.sphere.radius )
 		radiusInputbox.textbox.onFinish = function( textbox )
 			self.component.sphere.radius = tonumber( textbox.text )
 		end
-		self.window:addItem( radiusInputbox )
+		layout:addItem( radiusInputbox )
 	-- aabb
 	else
-		local minPositionInputbox = EditorInputbox.create( nil, nil, "Min. position:" )
+		-- min position
+		local minPositionInputbox = EditorInputbox.createWithText( "Min. position:" )
 		minPositionInputbox.textbox:setText( stringVec( self.component.aabb.minOffset ) )
 		minPositionInputbox.textbox.onFinish = function( textbox )
 			self.component.aabb.minOffset = vecString( textbox.text )
 			self.component:parentMoved()
 		end
-		self.window:addItem( minPositionInputbox )
+		layout:addItem( minPositionInputbox )
 
-		local maxPositionInputbox = EditorInputbox.create( nil, nil, "Max. position:" )
+		-- max position
+		local maxPositionInputbox = EditorInputbox.createWithText( "Max. position:" )
 		maxPositionInputbox.textbox:setText( stringVec( self.component.aabb.maxOffset ) )
 		maxPositionInputbox.textbox.onFinish = function( textbox )
 			self.component.aabb.maxOffset = vecString( textbox.text )
 			self.component:parentMoved()
 		end
-		self.window:addItem( maxPositionInputbox )
+		layout:addItem( maxPositionInputbox )
 	end
 
-	
+	self.window:addItem( layout )
 end
 
 function ComponentBoundingBoxWindow:hide()
@@ -306,14 +315,18 @@ function ComponentBoundingBoxWindow:refresh( entity )
 end
 
 function ComponentBoundingBoxWindow:load()
+	-- window	
 	self.window = EditorWindow.create( "Bounding Box Component" )
 	self.window.position[1] = WINDOW_WIDTH - GUI_PANEL_WIDTH - self.window.size[1] - 8
 	self.window.position[2] = GUI_MENU_HEIGHT + 8
 	self.window.visible = false
 
-	-- add items
-	local typeLabel = EditorLabel.create( nil, {0, GUI_BUTTON_HEIGHT}, "Type:" )
-	self.window:addItem( typeLabel )
+	-- layout
+	local layout = EditorLayoutTopdown.create( {0,0}, self.window.size[1] )
+
+	-- type
+	local typeLabel = EditorLabel.createWithText( "Type:" )
+	layout:addItem( typeLabel )
 
 	local typeDropdown = EditorDropdown.create( {0,0}, {0, GUI_BUTTON_HEIGHT} )
 	typeDropdown:addItem( "Ray", BOUNDING_TYPE_RAY )
@@ -324,7 +337,9 @@ function ComponentBoundingBoxWindow:load()
 		self.component:changeType( item.tag )
 		self:show( self.component )
 	end
-	self.window:addItem( typeDropdown )
+	layout:addItem( typeDropdown )
+
+	self.window:addItem( layout )
 end
 
 function ComponentBoundingBoxWindow:update( deltaTime, mousePosition )

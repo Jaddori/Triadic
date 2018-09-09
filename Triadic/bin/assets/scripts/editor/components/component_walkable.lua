@@ -140,8 +140,8 @@ function ComponentWalkableWindow:show( component )
 	self.window.visible = true
 
 	-- update items
-	self.window.items[1].textbox:setText( stringVec( component.size ) )
-	self.window.items[2].textbox:setText( component.interval )
+	self.sizeInput.textbox:setText( stringVec( component.size ) )
+	self.intervalInput.textbox:setText( component.interval )
 end
 
 function ComponentWalkableWindow:hide()
@@ -159,6 +159,7 @@ function ComponentWalkableWindow:refresh( entity )
 end
 
 function ComponentWalkableWindow:load()
+	-- window
 	self.window = EditorWindow.create( "Walkable Component" )
 	self.window.position[1] = WINDOW_WIDTH - GUI_PANEL_WIDTH - self.window.size[1] - 8
 	self.window.position[2] = GUI_MENU_HEIGHT + 8
@@ -166,26 +167,35 @@ function ComponentWalkableWindow:load()
 	self.window.focused = true
 	if self.window.onFocus then self.window:onFocus() end
 
+	-- layout
+	local layout = EditorLayoutTopdown.create( {0,0}, self.window.size[1] )
+
 	-- size
-	local sizeInput = EditorInputbox.create( {0,0}, 0, "Size:" )
+	local sizeInput = EditorInputbox.createWithText( "Size:" )
 	sizeInput.textbox.onFinish = function( textbox )
 		self.component.size = vecString( textbox.text )
 	end
-	self.window:addItem( sizeInput )
+	layout:addItem( sizeInput )
 	
 	-- interval
-	local intervalInput = EditorInputbox.create( {0,0}, 0, "Interval:" )
+	local intervalInput = EditorInputbox.createWithText( "Interval:" )
 	intervalInput.textbox.onFinish = function( textbox )
 		self.component.interval = tonumber( textbox.text )
 	end
-	self.window:addItem( intervalInput )
+	layout:addItem( intervalInput )
 
 	-- calculate
-	local calculateButton = EditorButton.create( {0,0}, {0,GUI_BUTTON_HEIGHT}, "Calculate" )
+	local calculateButton = EditorButton.createWithText( "Calculate" )
 	calculateButton.onClick = function( button )
 		self.component:calculate()
 	end
-	self.window:addItem( calculateButton )
+	layout:addItem( calculateButton )
+
+	self.window:addItem( layout )
+
+	-- set table references for easy access
+	self.sizeInput = sizeInput
+	self.intervalInput = intervalInput
 end
 
 function ComponentWalkableWindow:update( deltaTime, mousePosition )

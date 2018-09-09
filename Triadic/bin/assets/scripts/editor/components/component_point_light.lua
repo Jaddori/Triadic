@@ -133,12 +133,12 @@ function ComponentPointLightWindow:show( component )
 	if self.window.onFocus then self.window:onFocus() end
 
 	-- update items
-	self.window.items[1].textbox:setText( stringVec( component.offset ) )
-	self.window.items[2].textbox:setText( stringVec( component.color ) )
-	self.window.items[3].textbox:setText( component.intensity )
-	self.window.items[4].textbox:setText( component.linear )
-	self.window.items[5].textbox:setText( component.constant )
-	self.window.items[6].textbox:setText( component.exponent )
+	self.offsetInputbox.textbox:setText( stringVec( component.offset ) )
+	self.colorInputbox.textbox:setText( stringVec( component.color ) )
+	self.intensityInputbox.textbox:setText( component.intensity )
+	self.linearInputbox.textbox:setText( component.intensity )
+	self.constantInputbox.textbox:setText( component.intensity )
+	self.exponentInputbox.textbox:setText( component.intensity )
 end
 
 function ComponentPointLightWindow:hide()
@@ -156,52 +156,78 @@ function ComponentPointLightWindow:refresh( entity )
 end
 
 function ComponentPointLightWindow:load()
+	-- window
 	self.window = EditorWindow.create( "Point Light component" )
 	self.window.position[1] = WINDOW_WIDTH - GUI_PANEL_WIDTH - self.window.size[1] - 8
 	self.window.position[2] = GUI_MENU_HEIGHT + 8
 	self.window.visible = false
 
+	-- layout
+	local layout = EditorLayoutTopdown.create( {0,0}, self.window.size[1] )
+
 	-- offset
-	local offsetInputbox = EditorInputbox.create( nil, nil, "Offset:" )
+	--local offsetInputbox = EditorInputbox.create( nil, nil, "Offset:" )
+	local offsetInputbox = EditorInputbox.createWithText( "Offset:" )
 	offsetInputbox.textbox.onFinish = function( textbox )
 		self.component.offset = vecString( textbox.text )
 	end
-	self.window:addItem( offsetInputbox )
+	--self.window:addItem( offsetInputbox )
+	layout:addItem( offsetInputbox )
 
 	-- color
-	local colorInputbox = EditorInputbox.create( nil, nil, "Color:" )
+	--local colorInputbox = EditorInputbox.create( nil, nil, "Color:" )
+	local colorInputbox = EditorInputbox.createWithText( "Color:" )
 	colorInputbox.textbox.onFinish = function( textbox )
 		self.component.color = vecString( textbox.text )
 	end
-	self.window:addItem( colorInputbox )
+	--self.window:addItem( colorInputbox )
+	layout:addItem( colorInputbox )
 
 	-- intensity
-	local intensityInputbox = EditorInputbox.create( nil, nil, "Intensity:" )
+	--local intensityInputbox = EditorInputbox.create( nil, nil, "Intensity:" )
+	local intensityInputbox = EditorInputbox.createWithText( "Intensity:" )
 	intensityInputbox.textbox.onFinish = function( textbox )
 		self.component.intensity = tonumber( textbox.text )
 	end
-	self.window:addItem( intensityInputbox )
+	--self.window:addItem( intensityInputbox )
+	layout:addItem( intensityInputbox )
 
 	-- linear
-	local linearInputbox = EditorInputbox.create( nil, nil, "Linear:" )
+	--local linearInputbox = EditorInputbox.create( nil, nil, "Linear:" )
+	local linearInputbox = EditorInputbox.createWithText( "Linear:" )
 	linearInputbox.textbox.onFinish = function( textbox )
 		self.component.linear = tonumber( textbox.text )
 	end
-	self.window:addItem( linearInputbox )
+	--self.window:addItem( linearInputbox )
+	layout:addItem( linearInputbox )
 
 	-- constant
-	local constantInputbox = EditorInputbox.create( nil, nil, "Constant:" )
+	--local constantInputbox = EditorInputbox.create( nil, nil, "Constant:" )
+	local constantInputbox = EditorInputbox.createWithText( "Constant:" )
 	constantInputbox.textbox.onFinish = function( textbox )
 		self.component.constant = tonumber( textbox.text )
 	end
-	self.window:addItem( constantInputbox )
+	--self.window:addItem( constantInputbox )
+	layout:addItem( constantInputbox )
 
 	-- exponent
-	local exponentInputbox = EditorInputbox.create( nil, nil, "Exponent:" )
+	--local exponentInputbox = EditorInputbox.create( nil, nil, "Exponent:" )
+	local exponentInputbox = EditorInputbox.createWithText( "Exponent:" )
 	exponentInputbox.textbox.onFinish = function( textbox )
 		self.component.exponent = tonumber( textbox.text )
 	end
-	self.window:addItem( exponentInputbox )
+	--self.window:addItem( exponentInputbox )
+	layout:addItem( exponentInputbox )
+
+	self.window:addItem( layout )
+
+	-- set table references for easy access
+	self.offsetInputbox = offsetInputbox
+	self.colorInputbox = colorInputbox
+	self.intensityInputbox = intensityInputbox
+	self.linearInputbox = linearInputbox
+	self.constantInputbox = constantInputbox
+	self.exponentInputbox = exponentInputbox
 end
 
 function ComponentPointLightWindow:update( deltaTime, mousePosition )
