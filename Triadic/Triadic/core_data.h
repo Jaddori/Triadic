@@ -8,6 +8,8 @@
 #include "graphics.h"
 #include "shapes.h"
 #include "collision_solver.h"
+#include "client.h"
+#include "server.h"
 
 #define CORE_DATA_TRANSIENT_MEMORY_SIZE 1024*1024*10 // 10Mb
 
@@ -21,4 +23,6 @@ struct CoreData
 	Rendering::Graphics* graphics;
 	Rendering::DebugShapes* debugShapes;
 	Physics::CollisionSolver* collisionSolver;
+	Network::Client* client;
+	Network::Server* server;
 };

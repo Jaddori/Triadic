@@ -6,7 +6,10 @@
 #include <string>
 #include <stdint.h>
 #include <ctime>
+#include <WinSock2.h>
+#include <WS2tcpip.h>
 #include <Windows.h>
+#include <Psapi.h>
 
 // Windowing
 #include "SDL\SDL.h"

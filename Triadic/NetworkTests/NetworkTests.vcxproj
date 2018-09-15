@@ -124,16 +124,24 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Triadic\client.cpp" />
+    <ClCompile Include="..\Triadic\message.cpp" />
     <ClCompile Include="..\Triadic\network_message.cpp" />
+    <ClCompile Include="..\Triadic\reliable_channel.cpp" />
     <ClCompile Include="..\Triadic\server.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="message_tests.cpp" />
     <ClCompile Include="network_message_tests.cpp" />
+    <ClCompile Include="reliable_channel_tests.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Triadic\client.h" />
+    <ClInclude Include="..\Triadic\message.h" />
     <ClInclude Include="..\Triadic\network_message.h" />
+    <ClInclude Include="..\Triadic\reliable_channel.h" />
     <ClInclude Include="..\Triadic\server.h" />
+    <ClInclude Include="message_tests.h" />
     <ClInclude Include="network_message_tests.h" />
+    <ClInclude Include="reliable_channel_tests.h" />
     <ClInclude Include="tests.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

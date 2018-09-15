@@ -238,7 +238,16 @@
     <ClCompile Include="client.cpp">
       <Filter>Source Files\Network</Filter>
     </ClCompile>
+    <ClCompile Include="message.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
     <ClCompile Include="network_message.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="reliable_channel.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="communicator.cpp">
       <Filter>Source Files\Network</Filter>
     </ClCompile>
   </ItemGroup>
@@ -468,7 +477,16 @@
     <ClInclude Include="client.h">
       <Filter>Source Files\Network</Filter>
     </ClInclude>
+    <ClInclude Include="message.h">
+      <Filter>Source Files\Network</Filter>
+    </ClInclude>
     <ClInclude Include="network_message.h">
+      <Filter>Source Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="reliable_channel.h">
+      <Filter>Source Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="communicator.h">
       <Filter>Source Files\Network</Filter>
     </ClInclude>
   </ItemGroup>

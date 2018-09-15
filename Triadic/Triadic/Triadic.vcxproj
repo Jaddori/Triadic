@@ -150,6 +150,7 @@
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="client.cpp" />
     <ClCompile Include="collision_solver.cpp" />
+    <ClCompile Include="communicator.cpp" />
     <ClCompile Include="entity.cpp" />
     <ClCompile Include="font.cpp" />
     <ClCompile Include="gbuffer.cpp" />
@@ -204,9 +205,11 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mesh.cpp" />
     <ClCompile Include="model.cpp" />
-    <ClCompile Include="network_message.cpp" />
+    <ClCompile Include="message.cpp" />
     <ClCompile Include="prop.cpp" />
     <ClCompile Include="ray.cpp" />
+    <ClCompile Include="network_message.cpp" />
+    <ClCompile Include="reliable_channel.cpp" />
     <ClCompile Include="scripting.cpp" />
     <ClCompile Include="server.cpp" />
     <ClCompile Include="shader.cpp" />
@@ -225,6 +228,7 @@
     <ClInclude Include="client.h" />
     <ClInclude Include="collision_solver.h" />
     <ClInclude Include="common.h" />
+    <ClInclude Include="communicator.h" />
     <ClInclude Include="core_data.h" />
     <ClInclude Include="entity.h" />
     <ClInclude Include="font.h" />
@@ -274,11 +278,13 @@
     <ClInclude Include="mesh.h" />
     <ClInclude Include="model.h" />
     <ClInclude Include="network.h" />
-    <ClInclude Include="network_message.h" />
+    <ClInclude Include="message.h" />
     <ClInclude Include="point.h" />
     <ClInclude Include="prop.h" />
     <ClInclude Include="queue.h" />
     <ClInclude Include="ray.h" />
+    <ClInclude Include="network_message.h" />
+    <ClInclude Include="reliable_channel.h" />
     <ClInclude Include="rendering.h" />
     <ClInclude Include="scripting.h" />
     <ClInclude Include="server.h" />

@@ -10,10 +10,40 @@
 #include "shapes.h"
 #include "scripting.h"
 #include "collision_solver.h"
+#include "server.h"
+#include "client.h"
 
 using namespace System;
 using namespace Scripting;
 using namespace Physics;
+using namespace Network;
+
+int updateServer( void* args )
+{
+	ThreadData* data = (ThreadData*)args;
+
+	Server& server = *data->coreData->server;
+	server.start();
+
+	while( *data->coreData->running && server.getValid() )
+	{
+		uint64_t lastTick = SDL_GetTicks();
+		server.queue( "Testing", strlen( "Testing" ) );
+		server.processTick();
+
+		uint64_t curTick = SDL_GetTicks();
+		uint64_t tickDif = curTick - lastTick;
+
+		if( tickDif < SERVER_TICK_TIME )
+		{
+			SDL_Delay( SERVER_TICK_TIME - tickDif );
+		}
+	}
+
+	server.stop();
+
+	return 0;
+}
 
 int update( void* args )
 {
@@ -21,8 +51,15 @@ int update( void* args )
 
 	Input& input = *data->coreData->input;
 	Script& script = *data->script;
+	Client& client = *data->coreData->client;
 
 	uint64_t lastTick = SDL_GetTicks();
+
+	uint64_t lastClientTick = SDL_GetTicks();
+
+	client.start();
+
+	int curID = 1;
 
 	while( *data->coreData->running )
 	{
@@ -42,26 +79,23 @@ int update( void* args )
 			script.update( deltaTime );
 			script.render();
 
-			//Point mouseDelta = input.getMouseDelta();
-			//if( input.buttonDown( SDL_BUTTON_LEFT ) )
-			//	camera.updateDirection( mouseDelta.x, mouseDelta.y );
-			//
-			//glm::vec3 movement;
-			//if( input.keyDown( SDL_SCANCODE_A ) )
-			//	movement.x -= 1.0f;
-			//if( input.keyDown( SDL_SCANCODE_D ) )
-			//	movement.x += 1.0f;
-			//if( input.keyDown( SDL_SCANCODE_W ) )
-			//	movement.z += 1.0f;
-			//if( input.keyDown( SDL_SCANCODE_S ) )
-			//	movement.z -= 1.0f;
-			//camera.relativeMovement( movement );
-
 			data->coreData->systemInfo->stopUpdate();
 
 			if( input.keyPressed( SDL_SCANCODE_G ) )
 			{
 				data->coreData->graphics->getGbuffer()->toggleDebugMode();
+			}
+
+			// update client
+			uint64_t curClientTick = SDL_GetTicks();
+			if( curClientTick - lastClientTick > CLIENT_TICK_TIME )
+			{
+				client.queue( curID );
+				curID++;
+
+				client.processTick();
+
+				lastClientTick = SDL_GetTicks();
 			}
 
 			SDL_SemPost( data->updateDone );
@@ -71,6 +105,8 @@ int update( void* args )
 			LOG_ERROR( "Update thread encountered error when waiting on semaphore." );
 		}
 	}
+
+	data->coreData->client->stop();
 
 	return 0;
 }
@@ -140,6 +176,8 @@ int main( int argc, char* argv[] )
 			debugShapes.upload();
 
 			CollisionSolver collisionSolver;
+			Client client;
+			Server server;
 
 			CoreData coreData = {};
 			coreData.input = &input;
@@ -150,6 +188,8 @@ int main( int argc, char* argv[] )
 			coreData.debugShapes = &debugShapes;
 			coreData.transientMemory = (char*)malloc( CORE_DATA_TRANSIENT_MEMORY_SIZE );
 			coreData.collisionSolver = &collisionSolver;
+			coreData.client = &client;
+			coreData.server = &server;
 
 			LOG_INFO( "Initializing Entity." );
 			Entity::setCoreData( &coreData );
@@ -165,6 +205,7 @@ int main( int argc, char* argv[] )
 			threadData.script = &script;
 
 			SDL_Thread* updateThread = SDL_CreateThread( update, NULL, &threadData );
+			SDL_Thread* serverThread = SDL_CreateThread( updateServer, NULL, &threadData );
 
 			uint64_t lastTick = SDL_GetTicks();
 
@@ -234,6 +275,9 @@ int main( int argc, char* argv[] )
 
 			LOG_INFO( "Waiting for update thread to finish." );
 			SDL_WaitThread( updateThread, NULL );
+
+			LOG_INFO( "Waiting for server thread to finish." );
+			SDL_WaitThread( serverThread, NULL );
 			
 			// UNLOAD
 			threadPool.unload();

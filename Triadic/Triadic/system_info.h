@@ -1,8 +1,10 @@
 #pragma once
 
-#include <Windows.h>
-#include <Psapi.h>
-#include "SDL\SDL.h"
+//#include <Windows.h>
+//#include <Psapi.h>
+//#include "SDL\SDL.h"
+//#include "thread_pool.h"
+#include "common.h"
 #include "thread_pool.h"
 
 class SystemInfo

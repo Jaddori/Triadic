@@ -22,11 +22,23 @@
     <ClCompile Include="..\Triadic\server.cpp">
       <Filter>Source Files\Network</Filter>
     </ClCompile>
-    <ClCompile Include="network_message_tests.cpp">
-      <Filter>Source Files\Tests</Filter>
+    <ClCompile Include="..\Triadic\message.cpp">
+      <Filter>Source Files\Network</Filter>
     </ClCompile>
     <ClCompile Include="..\Triadic\network_message.cpp">
       <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="message_tests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="network_message_tests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Triadic\reliable_channel.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="reliable_channel_tests.cpp">
+      <Filter>Source Files\Tests</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -36,13 +48,25 @@
     <ClInclude Include="..\Triadic\server.h">
       <Filter>Source Files\Network</Filter>
     </ClInclude>
-    <ClInclude Include="network_message_tests.h">
+    <ClInclude Include="tests.h">
       <Filter>Source Files\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Triadic\message.h">
+      <Filter>Source Files\Network</Filter>
     </ClInclude>
     <ClInclude Include="..\Triadic\network_message.h">
       <Filter>Source Files\Network</Filter>
     </ClInclude>
-    <ClInclude Include="tests.h">
+    <ClInclude Include="message_tests.h">
+      <Filter>Source Files\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="network_message_tests.h">
+      <Filter>Source Files\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Triadic\reliable_channel.h">
+      <Filter>Source Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="reliable_channel_tests.h">
       <Filter>Source Files\Tests</Filter>
     </ClInclude>
   </ItemGroup>

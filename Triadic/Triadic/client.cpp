@@ -9,64 +9,117 @@ Client::~Client()
 {
 }
 
-bool Client::debug()
+void Client::start( int port )
 {
-	bool result = true;
+	valid = false;
 
-	struct sockaddr_in si_other;
-	int s, slen = sizeof(si_other);
-	char buf[128];
-	char message[128] = { "Hello, World!" };
-	WSADATA wsa;
-
-	if( WSAStartup( MAKEWORD(2,2), &wsa ) != 0 )
+	if( WSAStartup( MAKEWORD(2,2), &wsaData ) == 0 )
 	{
-		printf( "Client: Failed to startup WSA: %d", WSAGetLastError() );
-		result = false;
-	}
-	else
-	{
-		s = socket( AF_INET, SOCK_DGRAM, IPPROTO_UDP );
-		if( s == SOCKET_ERROR )
+		mainSocket = socket( AF_INET, SOCK_DGRAM, IPPROTO_UDP );
+		if( mainSocket != SOCKET_ERROR )
 		{
-			printf( "Client: Failed to create socket: %d", WSAGetLastError() );
-			result = false;
+			DWORD nonBlocking = 1;
+			if( ioctlsocket( mainSocket, FIONBIO, &nonBlocking ) == 0 )
+			{
+				memset( &remoteAddress, 0, sizeof(remoteAddress) );
+
+				remoteAddress.sin_family = AF_INET;
+				remoteAddress.sin_port = htons( port );
+				inet_pton( AF_INET, "127.0.0.1", &remoteAddress.sin_addr.s_addr );
+
+				mutex = SDL_CreateMutex();
+
+				valid = true;
+			}
+			else
+			{
+				LOG_ERROR( "Server: Failed to set socket to non-blocking." );
+			}
 		}
 		else
 		{
-			memset( &si_other, 0, sizeof(si_other) );
-			si_other.sin_family = AF_INET;
-			si_other.sin_port = htons( 12345 );
-			//si_other.sin_addr.s_addr = inet_addr( "127.0.0.1" );
-			inet_pton( AF_INET, "127.0.0.1", &si_other.sin_addr.s_addr );
+			LOG_ERROR( "Client: Failed to create socket." );
+		}
+	}
+	else
+	{
+		LOG_ERROR( "Client: Failed to startup WSA." );
+	}
+}
 
-			for( int i=0; i<3 && result; i++ )
-			{
-				//printf( "Client: Sending." );
-				int send_len = sendto( s, message, strlen( message ), 0, (struct sockaddr*)&si_other, slen );
-				if( send_len == SOCKET_ERROR )
-				{
-					printf( "Client: sendto failed with error code: %d", WSAGetLastError() );
-					result = false;
-				}
-				else
-				{
-					memset( buf, 0, 128 );
+void Client::stop()
+{
+	if( hasSocket )
+		closesocket( mainSocket );
+	WSACleanup();
+}
 
-					int recv_len = recvfrom( s, buf, 128, 0, (struct sockaddr*)&si_other, &slen );
-					if( recv_len == SOCKET_ERROR )
-					{
-						printf( "Client: recvfrom failed with error code: %d", WSAGetLastError() );
-						result = false;
-					}
-				}
-			}
+void Client::processTick()
+{
+	if( !valid )
+		return;
 
-			closesocket( s );
+	int remoteAddressSize = sizeof(remoteAddress);
+
+	SDL_LockMutex( mutex );
+	if( sendMessage.getSize() > 0 )
+	{
+		int sendLen = sendto( mainSocket, sendMessage.getBuffer(), sendMessage.getSize(), 0, (struct sockaddr*)&remoteAddress, remoteAddressSize );
+
+		if( sendLen != SOCKET_ERROR )
+		{
+		}
+		else
+		{
+			LOG_ERROR( "Client: sendto failed with error code: %d", WSAGetLastError() );
+			valid = false;
 		}
 
-		WSACleanup();
+		sendMessage.clear();
+	}
+	SDL_UnlockMutex( mutex );
+
+	// RECEIVE
+	int recvLen = 0;
+	do
+	{
+		memset( buffer, 0, MESSAGE_SIZE );
+
+		recvLen = recvfrom( mainSocket, buffer, MESSAGE_SIZE, 0, (struct sockaddr*)&remoteAddress, &remoteAddressSize );
+		if( recvLen > 0 )
+		{
+			Message message( buffer, recvLen );
+			recvMessages.add( message );
+		}
+	} while( recvLen > 0 );
+}
+
+int Client::beginRead()
+{
+	readOffset = 0;
+
+	return recvMessages.getSize();
+}
+
+void Client::endRead()
+{
+	recvMessages.clear();
+}
+
+Message* Client::getMessage()
+{
+	Message* message = NULL;
+
+	if( readOffset < recvMessages.getSize() )
+	{
+		message = &recvMessages[readOffset];
+		readOffset++;
 	}
 
-	return result;
+	return message;
+}
+
+bool Client::getValid() const
+{
+	return valid;
 }

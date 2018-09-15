@@ -1,15 +1,20 @@
 #include "network_message.h"
 using namespace Network;
 
-NetworkMessage::NetworkMessage()
-	: size( 0 ), offset( 0 )
+NetworkMessage::NetworkMessage( uint64_t _id, uint64_t _ack, uint32_t _ackflags )
+	: id( _id ), ack( _ack ), ackflags( _ackflags )
 {
+	write( id );
+	write( ack );
+	write( ackflags );
 }
 
 NetworkMessage::NetworkMessage( char* buf, int len )
-	: size( len ), offset( 0 )
+	: Message( buf, len )
 {
-	memcpy( buffer, buf, len );
+	id = read<uint64_t>();
+	ack = read<uint64_t>();
+	ackflags = read<uint64_t>();
 }
 
 NetworkMessage::~NetworkMessage()
@@ -18,37 +23,9 @@ NetworkMessage::~NetworkMessage()
 
 void NetworkMessage::clear()
 {
-	size = 0;
-	offset = 0;
-}
+	Message::clear();
 
-void NetworkMessage::setSize( int value )
-{
-	size = value;
-}
-
-void NetworkMessage::setOffset( int value )
-{
-	offset = value;
-}
-
-void NetworkMessage::setBuffer( char* buf, int len )
-{
-	memcpy( buffer, buf, len );
-	size = len;
-}
-
-int NetworkMessage::getSize() const
-{
-	return size;
-}
-
-int NetworkMessage::getOffset() const
-{
-	return offset;
-}
-
-const char* NetworkMessage::getBuffer() const
-{
-	return buffer;
+	id = 0;
+	ack = 0;
+	ackflags = 0;
 }
