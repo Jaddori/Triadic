@@ -15,6 +15,9 @@
 #include "lua_physics.h"
 #include "lua_math.h"
 #include "lua_core.h"
+#include "lua_message.h"
+#include "lua_client.h"
+#include "lua_server.h"
 
 namespace Scripting
 {

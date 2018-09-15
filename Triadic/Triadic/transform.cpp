@@ -16,16 +16,19 @@ Transform::~Transform()
 void Transform::addPosition( const glm::vec3& p )
 {
 	position += p;
+	dirty = true;
 }
 
 void Transform::addOrientation( const glm::quat& o )
 {
 	orientation *= o;
+	dirty = true;
 }
 
 void Transform::addScale( const glm::vec3& s )
 {
 	scale += s;
+	dirty = true;
 }
 
 void Transform::addScale( float s )

@@ -47,6 +47,9 @@ bool Script::bind( CoreData* coreData )
 		LuaPhysics::bind( lua, coreData );
 		LuaMath::bind( lua );
 		LuaCore::bind( lua, coreData );
+		LuaMessage::bind( lua );
+		LuaClient::bind( lua, coreData );
+		LuaServer::bind( lua, coreData );
 
 		// load main script
 		lua_getglobal( lua, "debug" );

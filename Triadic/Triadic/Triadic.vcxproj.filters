@@ -250,6 +250,15 @@
     <ClCompile Include="communicator.cpp">
       <Filter>Source Files\Network</Filter>
     </ClCompile>
+    <ClCompile Include="lua_server.cpp">
+      <Filter>Source Files\Scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="lua_client.cpp">
+      <Filter>Source Files\Scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="lua_message.cpp">
+      <Filter>Source Files\Scripting</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Lua\lapi.h">
@@ -488,6 +497,15 @@
     </ClInclude>
     <ClInclude Include="communicator.h">
       <Filter>Source Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="lua_server.h">
+      <Filter>Source Files\Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="lua_client.h">
+      <Filter>Source Files\Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="lua_message.h">
+      <Filter>Source Files\Scripting</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

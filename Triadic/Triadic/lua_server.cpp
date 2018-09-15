@@ -49,6 +49,8 @@ namespace LuaServer
 			lua_pushlightuserdata( lua, message );
 			lua_setfield( lua, -2, "__self" );
 			luaL_setmetatable( lua, "messageMeta" );
+
+			result = 1;
 		}
 
 		return result;
