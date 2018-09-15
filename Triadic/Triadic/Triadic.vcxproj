@@ -105,7 +105,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>..\libs</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2main.lib;SDL2.lib;glew32s.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2main.lib;SDL2.lib;glew32s.lib;opengl32.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -141,13 +141,14 @@
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Windows</SubSystem>
       <AdditionalLibraryDirectories>..\libs</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2main.lib;SDL2.lib;glew32s.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2main.lib;SDL2.lib;glew32s.lib;opengl32.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="aabb.cpp" />
     <ClCompile Include="assets.cpp" />
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="client.cpp" />
     <ClCompile Include="collision_solver.cpp" />
     <ClCompile Include="entity.cpp" />
     <ClCompile Include="font.cpp" />
@@ -203,9 +204,11 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mesh.cpp" />
     <ClCompile Include="model.cpp" />
+    <ClCompile Include="network_message.cpp" />
     <ClCompile Include="prop.cpp" />
     <ClCompile Include="ray.cpp" />
     <ClCompile Include="scripting.cpp" />
+    <ClCompile Include="server.cpp" />
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="shapes.cpp" />
     <ClCompile Include="system_info.cpp" />
@@ -219,6 +222,7 @@
     <ClInclude Include="assets.h" />
     <ClInclude Include="billboard.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="client.h" />
     <ClInclude Include="collision_solver.h" />
     <ClInclude Include="common.h" />
     <ClInclude Include="core_data.h" />
@@ -269,12 +273,15 @@
     <ClInclude Include="Lua\lzio.h" />
     <ClInclude Include="mesh.h" />
     <ClInclude Include="model.h" />
+    <ClInclude Include="network.h" />
+    <ClInclude Include="network_message.h" />
     <ClInclude Include="point.h" />
     <ClInclude Include="prop.h" />
     <ClInclude Include="queue.h" />
     <ClInclude Include="ray.h" />
     <ClInclude Include="rendering.h" />
     <ClInclude Include="scripting.h" />
+    <ClInclude Include="server.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="shapes.h" />
     <ClInclude Include="swap.h" />

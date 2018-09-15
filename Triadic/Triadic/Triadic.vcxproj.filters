@@ -26,6 +26,9 @@
     <Filter Include="Source Files\Physics">
       <UniqueIdentifier>{55df2d40-6dce-40d4-812d-87f70e8d6a0c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Network">
+      <UniqueIdentifier>{e828a6ce-54ad-4f2a-a26d-fa38a8d24c00}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -228,6 +231,15 @@
     </ClCompile>
     <ClCompile Include="gbuffer.cpp">
       <Filter>Source Files\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="server.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="client.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="network_message.cpp">
+      <Filter>Source Files\Network</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -446,6 +458,18 @@
     </ClInclude>
     <ClInclude Include="billboard.h">
       <Filter>Source Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="network.h">
+      <Filter>Source Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="server.h">
+      <Filter>Source Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="client.h">
+      <Filter>Source Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="network_message.h">
+      <Filter>Source Files\Network</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

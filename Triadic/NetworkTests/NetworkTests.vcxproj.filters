@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source Files\Network">
+      <UniqueIdentifier>{1135237a-b945-4318-8a0e-9307559488e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tests">
+      <UniqueIdentifier>{e653e6cd-f396-4b12-b85a-7e3802a1d342}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Triadic\client.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Triadic\server.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="network_message_tests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Triadic\network_message.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Triadic\client.h">
+      <Filter>Source Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Triadic\server.h">
+      <Filter>Source Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="network_message_tests.h">
+      <Filter>Source Files\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Triadic\network_message.h">
+      <Filter>Source Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="tests.h">
+      <Filter>Source Files\Tests</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
