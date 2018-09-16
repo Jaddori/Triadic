@@ -69,6 +69,14 @@ function normalizeVec( vec )
 	return result
 end
 
+function lerpVec( a, b, t )
+	assert( #a == #b, "Vectors must have same dimension." )
+
+	for i=1, #a do
+		a[i] = lerp( a[i], b[i], t )
+	end
+end
+
 function stringVec( vec )
 	assert( istable( vec ), "Input must be a table." )
 

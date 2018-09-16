@@ -31,6 +31,14 @@ function Game:render()
 	self.states[self.currentState]:render()
 end
 
+function Game:clientWrite()
+	self.states[self.currentState]:clientWrite()
+end
+
+function Game:serverWrite()
+	self.states[self.currentState]:serverWrite()
+end
+
 function Game:addState( state )
 	self.states[state.name] = state
 	

@@ -25,10 +25,17 @@ int updateServer( void* args )
 	Server& server = *data->coreData->server;
 	server.start();
 
+	Script script;
+	script.bind( data->coreData, true );
+	script.load();
+
 	while( *data->coreData->running && server.getValid() )
 	{
 		uint64_t lastTick = SDL_GetTicks();
-		server.queue( "Testing", strlen( "Testing" ) );
+
+		script.update( SERVER_TICK_TIME );
+		script.serverWrite();
+
 		server.processTick();
 
 		uint64_t curTick = SDL_GetTicks();
@@ -39,6 +46,8 @@ int updateServer( void* args )
 			SDL_Delay( SERVER_TICK_TIME - tickDif );
 		}
 	}
+
+	script.unload();
 
 	server.stop();
 
@@ -58,8 +67,6 @@ int update( void* args )
 	uint64_t lastClientTick = SDL_GetTicks();
 
 	client.start();
-
-	int curID = 1;
 
 	while( *data->coreData->running )
 	{
@@ -90,9 +97,7 @@ int update( void* args )
 			uint64_t curClientTick = SDL_GetTicks();
 			if( curClientTick - lastClientTick > CLIENT_TICK_TIME )
 			{
-				client.queue( curID );
-				curID++;
-
+				script.clientWrite();
 				client.processTick();
 
 				lastClientTick = SDL_GetTicks();
@@ -195,7 +200,7 @@ int main( int argc, char* argv[] )
 			Entity::setCoreData( &coreData );
 
 			Script script;
-			script.bind( &coreData );
+			script.bind( &coreData, false );
 			script.load();
 
 			ThreadData threadData;

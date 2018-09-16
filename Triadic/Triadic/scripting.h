@@ -27,12 +27,19 @@ namespace Scripting
 		Script();
 		~Script();
 
-		bool bind( CoreData* coreData );
+		bool bind( CoreData* coreData, bool isServer );
 		void update( float deltaTime );
 
 		inline void load() { run( loadFunctionReference, "mainLoad" ); }
 		inline void unload() { run( unloadFunctionReference, "mainUnload" ); }
 		inline void render() { run( renderFunctionReference, "mainRender" ); }
+		inline void clientWrite() { run( clientWriteFunctionReference, "mainClientWrite" ); }
+		inline void serverWrite() { run( serverWriteFunctionReference, "mainServerWrite" ); }
+
+		void setGlobal( const char* name, bool value );
+		void setGlobal( const char* name, int value );
+		void setGlobal( const char* name, float value );
+		void setGlobal( const char* name, const char* value );
 
 	private:
 		void run( int functionReference, const char* debugName );
@@ -42,7 +49,8 @@ namespace Scripting
 
 		int loadFunctionReference, unloadFunctionReference;
 		int updateFunctionReference, renderFunctionReference;
-		bool valid;
+		int clientWriteFunctionReference, serverWriteFunctionReference;
+		bool valid, isServer;
 
 		CoreData* _coreData;
 	};

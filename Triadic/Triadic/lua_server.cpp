@@ -1,4 +1,5 @@
 #include "lua_server.h"
+using namespace Network;
 
 namespace LuaServer
 {
@@ -12,6 +13,10 @@ namespace LuaServer
 			{ "beginRead", beginRead },
 			{ "endRead", endRead },
 			{ "getMessage", getMessage },
+
+			{ "queueInt", queueInt },
+			{ "queueFloat", queueFloat },
+			{ "queueString", queueString },
 
 			{ NULL, NULL }
 		};
@@ -42,7 +47,7 @@ namespace LuaServer
 	{
 		int result = 0;
 
-		Network::Message* message = g_coreData->server->getMessage();
+		Message* message = g_coreData->server->getMessage();
 		if( message )
 		{
 			lua_newtable( lua );
@@ -54,5 +59,51 @@ namespace LuaServer
 		}
 
 		return result;
+	}
+
+	LDEC( queueInt )
+	{
+		LUA_EXPECT_ARGS( 1 )
+		{
+			if( LUA_EXPECT_NUMBER( 1 ) )
+			{
+				int value = lua_toint( lua, 1 );
+
+				g_coreData->server->queue( value );
+			}
+		}
+
+		return 0;
+	}
+
+	LDEC( queueFloat )
+	{
+		LUA_EXPECT_ARGS( 1 )
+		{
+			if( LUA_EXPECT_NUMBER( 1 ) )
+			{
+				float value = lua_tofloat( lua, 1 );
+
+				g_coreData->server->queue( value );
+			}
+		}
+
+		return 0;
+	}
+
+	LDEC( queueString )
+	{
+		LUA_EXPECT_ARGS( 1 )
+		{
+			if( LUA_EXPECT_STRING( 1 ) )
+			{
+				const char* text = lua_tostring( lua, 1 );
+				int len = strlen( text );
+				
+				g_coreData->server->queue( text, len );
+			}
+		}
+
+		return 0;
 	}
 }

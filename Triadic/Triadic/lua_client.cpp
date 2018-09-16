@@ -13,6 +13,10 @@ namespace LuaClient
 			{ "endRead", endRead },
 			{ "getMessage", getMessage },
 
+			{ "queueInt", queueInt },
+			{ "queueFloat", queueFloat },
+			{ "queueString", queueString },
+
 			{ NULL, NULL }
 		};
 
@@ -54,5 +58,51 @@ namespace LuaClient
 		}
 
 		return result;
+	}
+
+	LDEC( queueInt )
+	{
+		LUA_EXPECT_ARGS( 1 )
+		{
+			if( LUA_EXPECT_NUMBER( 1 ) )
+			{
+				int value = lua_toint( lua, 1 );
+
+				g_coreData->client->queue( value );
+			}
+		}
+
+		return 0;
+	}
+
+	LDEC( queueFloat )
+	{
+		LUA_EXPECT_ARGS( 1 )
+		{
+			if( LUA_EXPECT_NUMBER( 1 ) )
+			{
+				float value = lua_tofloat( lua, 1 );
+
+				g_coreData->client->queue( value );
+			}
+		}
+
+		return 0;
+	}
+
+	LDEC( queueString )
+	{
+		LUA_EXPECT_ARGS( 1 )
+		{
+			if( LUA_EXPECT_STRING( 1 ) )
+			{
+				const char* text = lua_tostring( lua, 1 );
+				int len = strlen( text );
+
+				g_coreData->client->queue( text, len );
+			}
+		}
+
+		return 0;
 	}
 }

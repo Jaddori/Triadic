@@ -28,6 +28,14 @@ function mainRender()
 	run( "render" )
 end
 
+function mainClientWrite()
+	run( "clientWrite" )
+end
+
+function mainServerWrite()
+	run( "serverWrite" )
+end
+
 function addScript( script )
 	scripts[script.name] = script
 end

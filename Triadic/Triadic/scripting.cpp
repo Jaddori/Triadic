@@ -6,7 +6,9 @@ Script::Script()
 	loadFunctionReference( -1 ),
 	unloadFunctionReference( -1 ),
 	updateFunctionReference( -1 ),
-	renderFunctionReference( -1 )
+	renderFunctionReference( -1 ),
+	clientWriteFunctionReference( -1 ),
+	serverWriteFunctionReference( -1 )
 {
 }
 
@@ -16,9 +18,10 @@ Script::~Script()
 		lua_close( lua );
 }
 
-bool Script::bind( CoreData* coreData )
+bool Script::bind( CoreData* coreData, bool _isServer )
 {
 	_coreData = coreData;
+	isServer = _isServer;
 
 	valid = true;
 	LOG_INFO( "Initializing script backend." );
@@ -33,6 +36,11 @@ bool Script::bind( CoreData* coreData )
 		lua_setglobal( lua, "WINDOW_WIDTH" );
 		lua_pushnumber( lua, WINDOW_HEIGHT );
 		lua_setglobal( lua, "WINDOW_HEIGHT" );
+
+		lua_pushboolean( lua, isServer );
+		lua_setglobal( lua, "isServer" );
+		lua_pushboolean( lua, !isServer );
+		lua_setglobal( lua, "isClient" );
 
 		// bind subsystems
 		LuaRendering::bind( lua, coreData );
@@ -118,6 +126,31 @@ bool Script::bind( CoreData* coreData )
 				}
 				else
 					renderFunctionReference = luaL_ref( lua, LUA_REGISTRYINDEX );
+
+				if( isServer )
+				{
+					// get server write function
+					lua_getglobal( lua, "mainServerWrite" );
+					if( !lua_isfunction( lua, -1 ) )
+					{
+						LOG_ERROR( "Failed to find main server write function." );
+						valid = false;
+					}
+					else
+						serverWriteFunctionReference = luaL_ref( lua, LUA_REGISTRYINDEX );
+				}
+				else
+				{
+					// get client write function
+					lua_getglobal( lua, "mainClientWrite" );
+					if( !lua_isfunction( lua, -1 ) )
+					{
+						LOG_ERROR( "Failed to find main client write function." );
+						valid = false;
+					}
+					else
+						clientWriteFunctionReference = luaL_ref( lua, LUA_REGISTRYINDEX );
+				}
 			}
 		}
 	}
@@ -188,6 +221,30 @@ void Script::reload()
 
 	if( lua )
 		lua_close( lua );
-	bind( _coreData );
+	bind( _coreData, isServer );
 	load();
+}
+
+void Script::setGlobal( const char* name, bool value )
+{
+	lua_pushboolean( lua, value );
+	lua_setglobal( lua, name );
+}
+
+void Script::setGlobal( const char* name, int value )
+{
+	lua_pushnumber( lua, value );
+	lua_setglobal( lua, name );
+}
+
+void Script::setGlobal( const char* name, float value )
+{
+	lua_pushnumber( lua, value );
+	lua_setglobal( lua, name );
+}
+
+void Script::setGlobal( const char* name, const char* value )
+{
+	lua_pushstring( lua, value );
+	lua_setglobal( lua, name );
 }

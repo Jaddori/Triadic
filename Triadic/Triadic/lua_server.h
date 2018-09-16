@@ -10,4 +10,8 @@ namespace LuaServer
 	LDEC( beginRead );
 	LDEC( endRead );
 	LDEC( getMessage );
+
+	LDEC( queueInt );
+	LDEC( queueFloat );
+	LDEC( queueString );
 }
