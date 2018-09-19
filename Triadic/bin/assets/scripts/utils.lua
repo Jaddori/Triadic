@@ -72,9 +72,12 @@ end
 function lerpVec( a, b, t )
 	assert( #a == #b, "Vectors must have same dimension." )
 
+	local result = {}
 	for i=1, #a do
-		a[i] = lerp( a[i], b[i], t )
+		result[i] = lerp( a[i], b[i], t )
 	end
+
+	return result
 end
 
 function stringVec( vec )

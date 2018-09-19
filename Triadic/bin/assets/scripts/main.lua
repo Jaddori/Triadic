@@ -24,6 +24,10 @@ function mainUpdate( deltaTime )
 	run( "update", deltaTime )
 end
 
+function mainFixedUpdate( timestep )
+	run( "fixedUpdate" )
+end
+
 function mainRender()
 	run( "render" )
 end

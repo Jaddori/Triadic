@@ -3,8 +3,9 @@
 #include "common.h"
 #include "message.h"
 
-#define SERVER_TICK_RATE 10
+#define SERVER_TICK_RATE 20
 #define SERVER_TICK_TIME ( 1000.0f / SERVER_TICK_RATE )
+#define SERVER_CMD_MS 15
 #define SERVER_DEFAULT_PORT 12345
 
 namespace Network

@@ -17,7 +17,7 @@ struct CoreData
 {
 	System::Input* input;
 	SystemInfo* systemInfo;
-	bool* running;
+	bool* running, *reload;
 	char* transientMemory;
 	Rendering::Assets* assets;
 	Rendering::Graphics* graphics;
@@ -25,4 +25,5 @@ struct CoreData
 	Physics::CollisionSolver* collisionSolver;
 	Network::Client* client;
 	Network::Server* server;
+	uint64_t* updateAccumulator;
 };

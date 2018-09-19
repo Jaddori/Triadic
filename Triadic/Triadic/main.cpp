@@ -33,10 +33,16 @@ int updateServer( void* args )
 	{
 		uint64_t lastTick = SDL_GetTicks();
 
-		script.update( SERVER_TICK_TIME );
+		script.update( SERVER_TICK_TIME  * 0.0001f );
 		script.serverWrite();
 
 		server.processTick();
+
+		if( *data->coreData->reload )
+		{
+			script.reload();
+			*data->coreData->reload = false;
+		}
 
 		uint64_t curTick = SDL_GetTicks();
 		uint64_t tickDif = curTick - lastTick;
@@ -63,8 +69,10 @@ int update( void* args )
 	Client& client = *data->coreData->client;
 
 	uint64_t lastTick = SDL_GetTicks();
-
 	uint64_t lastClientTick = SDL_GetTicks();
+	uint64_t lastUpdateTick = SDL_GetTicks();
+
+	uint64_t* updateAccumulator = data->coreData->updateAccumulator;
 
 	client.start();
 
@@ -80,11 +88,32 @@ int update( void* args )
 
 			uint64_t curTick = SDL_GetTicks();
 			float deltaTime = ( curTick - lastTick ) * 0.001f;
+
+			uint64_t acc = *updateAccumulator;
+			acc += ( curTick - lastTick );
+
 			lastTick = curTick;
+
+			if( acc > CLIENT_CMD_MS )
+			{
+				int iterations = acc / CLIENT_CMD_MS;
+
+				for( int i=0; i<iterations; i++ )
+				{
+					script.fixedUpdate(0);
+				}
+			}
+			*updateAccumulator = acc;
 
 			// update subsystems
 			script.update( deltaTime );
 			script.render();
+			
+			if( data->coreData->input->keyReleased( SDL_SCANCODE_F1 ) )
+			{
+				script.reload();
+				*data->coreData->reload = true;
+			}
 
 			data->coreData->systemInfo->stopUpdate();
 
@@ -168,7 +197,7 @@ int main( int argc, char* argv[] )
 			threadPool.load();
 
 			bool running = true;
-			bool mouseDown = false;
+			bool reload = false;
 
 			Input input;
 
@@ -184,10 +213,13 @@ int main( int argc, char* argv[] )
 			Client client;
 			Server server;
 
+			uint64_t updateAccumulator = 0;
+
 			CoreData coreData = {};
 			coreData.input = &input;
 			coreData.systemInfo = &systemInfo;
 			coreData.running = &running;
+			coreData.reload = &reload;
 			coreData.assets = graphics.getAssets();
 			coreData.graphics = &graphics;
 			coreData.debugShapes = &debugShapes;
@@ -195,6 +227,7 @@ int main( int argc, char* argv[] )
 			coreData.collisionSolver = &collisionSolver;
 			coreData.client = &client;
 			coreData.server = &server;
+			coreData.updateAccumulator = &updateAccumulator;
 
 			LOG_INFO( "Initializing Entity." );
 			Entity::setCoreData( &coreData );
@@ -214,20 +247,28 @@ int main( int argc, char* argv[] )
 
 			uint64_t lastTick = SDL_GetTicks();
 
+			uint64_t inputLastTick = SDL_GetTicks();
+
 			while( running )
 			{
 				int waitResult = SDL_SemWait( threadData.updateDone );
 				if( waitResult == 0 )
 				{
-					input.reset();
-
-					// events
-					SDL_Event e;
-					while( SDL_PollEvent( &e ) )
+					if( updateAccumulator > CLIENT_CMD_MS )
 					{
-						if( e.type == SDL_QUIT )
-							running = false;
-						input.update( &e );
+						while( updateAccumulator > CLIENT_CMD_MS )
+							updateAccumulator -= CLIENT_CMD_MS;
+
+						input.reset();
+
+						// events
+						SDL_Event e;
+						while( SDL_PollEvent( &e ) )
+						{
+							if( e.type == SDL_QUIT )
+								running = false;
+							input.update( &e );
+						}
 					}
 
 					// finalize objects

@@ -117,6 +117,16 @@ bool Script::bind( CoreData* coreData, bool _isServer )
 				else
 					updateFunctionReference = luaL_ref( lua, LUA_REGISTRYINDEX );
 
+				// get fixed u
+				lua_getglobal( lua, "mainFixedUpdate" );
+				if( !lua_isfunction( lua, -1 ) )
+				{
+					LOG_ERROR( "Failed to find main fixed update function." );
+					valid = false;
+				}
+				else
+					fixedUpdateFunctionReference = luaL_ref( lua, LUA_REGISTRYINDEX );
+
 				// get render function
 				lua_getglobal( lua, "mainRender" );
 				if( !lua_isfunction( lua, -1 ) )
@@ -189,9 +199,28 @@ void Script::update( float deltaTime )
 		else
 			lua_pop( lua, 1 );
 	}
+}
 
-	if( _coreData->input->keyReleased( SDL_SCANCODE_F1 ) )
-		reload();
+void Script::fixedUpdate( float timestep )
+{
+	if( valid )
+	{
+		lua_getglobal( lua, "debug" );
+		lua_getfield( lua, -1, "traceback" );
+		lua_replace( lua, -2 );
+
+		lua_rawgeti( lua, LUA_REGISTRYINDEX, fixedUpdateFunctionReference );
+		lua_pushnumber( lua, timestep );
+		if( lua_pcall( lua, 1, 0, -3 ) != 0 )
+		{
+			LOG_ERROR( "Failed to run fixed update function." );
+			LOG_ERROR( "%s", lua_tostring( lua, -1 ) );
+
+			valid = false;
+		}
+		else
+			lua_pop( lua, 1 );
+	}
 }
 
 void Script::run( int functionReference, const char* debugName )

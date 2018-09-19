@@ -29,6 +29,8 @@ namespace Scripting
 
 		bool bind( CoreData* coreData, bool isServer );
 		void update( float deltaTime );
+		void fixedUpdate( float timestep );
+		void reload();
 
 		inline void load() { run( loadFunctionReference, "mainLoad" ); }
 		inline void unload() { run( unloadFunctionReference, "mainUnload" ); }
@@ -43,12 +45,11 @@ namespace Scripting
 
 	private:
 		void run( int functionReference, const char* debugName );
-		void reload();
 
 		lua_State* lua;
 
 		int loadFunctionReference, unloadFunctionReference;
-		int updateFunctionReference, renderFunctionReference;
+		int updateFunctionReference, fixedUpdateFunctionReference, renderFunctionReference;
 		int clientWriteFunctionReference, serverWriteFunctionReference;
 		bool valid, isServer;
 

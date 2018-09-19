@@ -31,6 +31,10 @@ function StateGame:update( deltaTime )
 	end
 end
 
+function StateGame:fixedUpdate()
+	Player:fixedUpdate()
+end
+
 function StateGame:render()
 	Player:render()
 end

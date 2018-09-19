@@ -27,6 +27,10 @@ function Game:update( deltaTime )
 	self.states[self.currentState]:update( deltaTime )
 end
 
+function Game:fixedUpdate()
+	self.states[self.currentState]:fixedUpdate()
+end
+
 function Game:render()
 	self.states[self.currentState]:render()
 end

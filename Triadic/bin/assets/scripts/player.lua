@@ -5,9 +5,16 @@ Player =
 	meshIndex = -1,
 	camera = nil,
 	grid = nil,
+	velocity = {0,0,0},
+	prevPosition = {0,0,0},
+	nextPosition = {0,0,0},
+	elapsedTime = 0,
+	sinval = 0,
 
 	ghostTransform = nil,
 	ghostPosition = {0,0,0},
+
+	commands = {},
 }
 
 function Player:load()
@@ -34,36 +41,67 @@ end
 
 function Player:update( deltaTime )
 	if isClient then
-		local movement = {0,0,0}
-		
-		if Input.keyDown( Keys.Left ) then
-			movement[1] = movement[1] - 10
-		end
-		
-		if Input.keyDown( Keys.Right ) then
-			movement[1] = movement[1] + 10
-		end
-		
-		if Input.keyDown( Keys.Up ) then
-			movement[3] = movement[3] - 10
-		end
-		
-		if Input.keyDown( Keys.Down ) then
-			movement[3] = movement[3] + 10
-		end
-		
-		movement[1] = movement[1] * deltaTime
-		movement[3] = movement[3] * deltaTime
-		
-		self.transform:addPosition( movement )
+		-- update local players position
+		self.elapsedTime = self.elapsedTime + deltaTime
+		-- TODO: Setup global from backend to avoid magic numbers
+		local timestep = (1000 / 64) / 1000
+		local t = self.elapsedTime / timestep
 
-		local position = self.transform:getPosition()
+		if t > 1.0 then
+			t = 1.0
+		end
+
+		local position = lerpVec( self.prevPosition, self.nextPosition, t )
+
+		self.transform:setPosition( position )
+
+		-- update camera position
 		self.camera:setPosition( position )
 		self.camera:relativeMovement( {0,0,-25} )
 
-		local newGhostPosition = self.ghostTransform:getPosition()
-		lerpVec( newGhostPosition, self.ghostPosition, 0.02 )
-		self.ghostTransform:setPosition( newGhostPosition )
+		-- update ghost
+		self.ghostTransform:setPosition( self.ghostPosition )
+	end
+end
+
+function Player:fixedUpdate()
+	if isClient then
+		local command = { horizontal = 0, vertical = 0 }
+
+		if Input.keyDown( Keys.Left ) then
+			command.horizontal = command.horizontal - 1
+		end
+
+		if Input.keyDown( Keys.Right ) then
+			command.horizontal = command.horizontal + 1
+		end
+
+		if Input.keyDown( Keys.Up ) then
+			command.vertical = command.vertical - 1
+		end
+
+		if Input.keyDown( Keys.Down ) then
+			command.vertical = command.vertical + 1
+		end
+
+		self:processCommand( command )
+	end
+end
+
+function Player:processCommand( command )
+	if isClient then
+		self.prevPosition[1] = self.nextPosition[1]
+		self.prevPosition[3] = self.nextPosition[3]
+
+		self.nextPosition[1] = self.nextPosition[1] + command.horizontal*0.5
+		self.nextPosition[3] = self.nextPosition[3] + command.vertical*0.5
+
+		self.elapsedTime = 0
+
+		self.commands[#self.commands+1] = command
+	else -- isServer
+		local movement = { command.horizontal * 0.5, 0, command.vertical * 0.5 }
+		self.transform:addPosition( movement )
 	end
 end
 
@@ -85,26 +123,33 @@ function Player:clientRead( message )
 	position[2] = message:readFloat()
 	position[3] = message:readFloat()
 
-	--self.ghostTransform:setPosition( position )
 	self.ghostPosition = position
 end
 
 function Player:clientWrite()
-	local position = self.transform:getPosition()
+	local commandCount = #self.commands
+	Client.queueInt( commandCount )
 
-	Client.queueFloat( position[1] )
-	Client.queueFloat( position[2] )
-	Client.queueFloat( position[3] )
+	for i=1, commandCount do
+		Client.queueInt( self.commands[i].horizontal )
+		Client.queueInt( self.commands[i].vertical )
+	end
+
+	self.commands = {}
 end
 
 function Player:serverRead( message )
-	local position = {0,0,0}
+	local commandCount = message:readInt()
+	for i=1, commandCount do
+		local command =
+		{
+			horizontal = message:readInt(),
+			vertical = message:readInt(),
+		}
 
-	position[1] = message:readFloat()
-	position[2] = message:readFloat()
-	position[3] = message:readFloat()
-
-	self.transform:setPosition( position )
+		self.commands[#self.commands+1] = command
+		self:processCommand( command )
+	end
 end
 
 function Player:serverWrite()
