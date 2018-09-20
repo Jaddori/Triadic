@@ -15,9 +15,6 @@ Player =
 	ghostPosition = {0,0,0},
 
 	commands = {},
-
-	localAcc = 0,
-	remoteAcc = 0,
 }
 
 function Player:load()
@@ -68,7 +65,7 @@ end
 
 function Player:fixedUpdate()
 	if IS_CLIENT then
-		local command = { horizontal = 0, vertical = 0, localAcc = self.localAcc }
+		local command = { horizontal = 0, vertical = 0, localAck = GameClient.localAck }
 
 		if Input.keyDown( Keys.Left ) then
 			command.horizontal = command.horizontal - 1
@@ -115,80 +112,61 @@ function Player:render()
 end
 
 function Player:clientRead( message )
-	local remoteAcc = message:readInt()
-	local localAcc = message:readInt()
+	local position = {0,0,0}
 
-	if remoteAcc > self.remoteAcc then
-		self.remoteAcc = remoteAcc
+	position[1] = message:readFloat()
+	position[2] = message:readFloat()
+	position[3] = message:readFloat()
 
-		local position = {0,0,0}
+	copyVec( position, self.ghostPosition )
+	copyVec( position, self.prevPosition )
+	copyVec( position, self.nextPosition )
 
-		position[1] = message:readFloat()
-		position[2] = message:readFloat()
-		position[3] = message:readFloat()
-
-		self.ghostPosition = position
-		copyVec( self.prevPosition, position )
-		copyVec( self.nextPosition, position )
-
-		local count = #self.commands
-		for i=1, count do
-			if self.commands[i].localAcc > localAcc then
-				self:processCommand( self.commands[i] )
-			end
-		end
-
-		for i=count, 1, -1 do
-			if self.commands[i].localAcc <= localAcc then
-				self.commands[i] = nil
-			end
+	local newCommands = {}
+	local count = #self.commands
+	for i=1, count do
+		if self.commands[i].localAck > message.remoteAck then
+			self:processCommand( self.commands[i] )
+			newCommands[#newCommands+1] = self.commands[i]
 		end
 	end
+
+	self.commands = newCommands
 end
 
 function Player:clientWrite()
-	Client.queueInt( self.localAcc )
-	self.localAcc = self.localAcc + 1
-
-	Client.queueInt( self.remoteAcc )
-
-	local commandCount = #self.commands
-	Client.queueInt( commandCount )
-
-	for i=1, commandCount do
-		Client.queueInt( self.commands[i].horizontal )
-		Client.queueInt( self.commands[i].vertical )
+	local commandCount = 0
+	for i=1, #self.commands do
+		if self.commands[i].localAck == GameClient.localAck then
+			commandCount = commandCount + 1
+		end
 	end
 
-	self.commands = {}
+	Client.queueInt( commandCount )
+
+	for i=1, #self.commands do
+		if self.commands[i].localAck == GameClient.localAck then
+			Client.queueInt( self.commands[i].horizontal )
+			Client.queueInt( self.commands[i].vertical )
+		end
+	end
 end
 
 function Player:serverRead( message )
-	local remoteAcc = message:readInt()
-	local localAcc = message:readInt()
+	local commandCount = message:readInt()
 
-	if remoteAcc > self.remoteAcc then
-		self.remoteAcc = remoteAcc
+	for i=1, commandCount do
+		local command =
+		{
+			horizontal = message:readInt(),
+			vertical = message:readInt(),
+		}
 
-		local commandCount = message:readInt()
-
-		for i=1, commandCount do
-			local command =
-			{
-				horizontal = message:readInt(),
-				vertical = message:readInt(),
-			}
-
-			self:processCommand( command )
-		end
+		self:processCommand( command )
 	end
 end
 
 function Player:serverWrite()
-	Server.queueInt( self.localAcc )
-	self.localAcc = self.localAcc + 1
-	Server.queueInt( self.remoteAcc )
-
 	local position = self.transform:getPosition()
 
 	Server.queueFloat( position[1] )

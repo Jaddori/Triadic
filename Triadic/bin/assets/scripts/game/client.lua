@@ -1,6 +1,9 @@
 GameClient =
 {
 	objects = {},
+	localAck = 0,
+	remoteAck = 0,
+	history = 0,
 }
 
 function GameClient:register( object, id )
@@ -14,6 +17,10 @@ function GameClient:update( deltaTime )
 	for i=1, messageCount do
 		local message = Client.getMessage()
 
+		message.localAck = message:readInt()
+		message.remoteAck = message:readInt()
+		message.history = message:readInt()
+
 		local idCount = message:readInt()
 		for j=1, idCount do
 			local id = message:readInt()
@@ -24,14 +31,22 @@ function GameClient:update( deltaTime )
 				break
 			end
 		end
+
+		self.remoteAck = message.localAck
 	end
 	Client.endRead()
 end
 
 function GameClient:clientWrite()
+	Client.queueInt( self.localAck )
+	Client.queueInt( self.remoteAck )
+	Client.queueInt( self.history )
+
 	Client.queueInt( #self.objects )
 	for k,v in pairs(self.objects) do
 		Client.queueInt( k )
 		v:clientWrite()
 	end
+
+	self.localAck = self.localAck + 1
 end
