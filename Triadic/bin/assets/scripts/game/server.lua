@@ -9,7 +9,7 @@ function GameServer:register( object, id )
 	self.objects[id] = object
 end
 
-function GameServer:update( deltaTime )
+function GameServer:fixedUpdate()
 	local messageCount = Server.beginRead()
 	for i=1, messageCount do
 		local message = Server.getMessage()

@@ -15,6 +15,9 @@ Player =
 	ghostPosition = {0,0,0},
 
 	commands = {},
+
+	localAcc = 0,
+	remoteAcc = 0,
 }
 
 function Player:load()
@@ -43,7 +46,7 @@ function Player:update( deltaTime )
 	if IS_CLIENT then
 		-- update local players position
 		self.elapsedTime = self.elapsedTime + deltaTime
-		local timestep = TIMESTEP_MS / 1000
+		local timestep = TIMESTEP_MS * 0.001
 		local t = self.elapsedTime / timestep
 
 		if t > 1.0 then
@@ -65,7 +68,7 @@ end
 
 function Player:fixedUpdate()
 	if IS_CLIENT then
-		local command = { horizontal = 0, vertical = 0 }
+		local command = { horizontal = 0, vertical = 0, localAcc = self.localAcc }
 
 		if Input.keyDown( Keys.Left ) then
 			command.horizontal = command.horizontal - 1
@@ -84,6 +87,7 @@ function Player:fixedUpdate()
 		end
 
 		self:processCommand( command )
+		self.commands[#self.commands+1] = command
 	end
 end
 
@@ -96,8 +100,6 @@ function Player:processCommand( command )
 		self.nextPosition[3] = self.nextPosition[3] + command.vertical*0.5
 
 		self.elapsedTime = 0
-
-		self.commands[#self.commands+1] = command
 	else -- IS_SERVER
 		local movement = { command.horizontal * 0.5, 0, command.vertical * 0.5 }
 		self.transform:addPosition( movement )
@@ -107,25 +109,49 @@ end
 function Player:render()
 	Graphics.queueMesh( self.meshIndex, self.transform )
 
-	--Graphics.queueMesh( self.meshIndex, self.ghostTransform )
-	
-	local position = self.transform:getPosition()
-	--DebugShapes.addSphere( position, 2.0, {0.0, 1.0, 0.0, 1.0} )
+	Graphics.queueMesh( self.meshIndex, self.ghostTransform )
 
 	self.grid:render()
 end
 
 function Player:clientRead( message )
-	local position = {0,0,0}
+	local remoteAcc = message:readInt()
+	local localAcc = message:readInt()
 
-	position[1] = message:readFloat()
-	position[2] = message:readFloat()
-	position[3] = message:readFloat()
+	if remoteAcc > self.remoteAcc then
+		self.remoteAcc = remoteAcc
 
-	self.ghostPosition = position
+		local position = {0,0,0}
+
+		position[1] = message:readFloat()
+		position[2] = message:readFloat()
+		position[3] = message:readFloat()
+
+		self.ghostPosition = position
+		copyVec( self.prevPosition, position )
+		copyVec( self.nextPosition, position )
+
+		local count = #self.commands
+		for i=1, count do
+			if self.commands[i].localAcc > localAcc then
+				self:processCommand( self.commands[i] )
+			end
+		end
+
+		for i=count, 1, -1 do
+			if self.commands[i].localAcc <= localAcc then
+				self.commands[i] = nil
+			end
+		end
+	end
 end
 
 function Player:clientWrite()
+	Client.queueInt( self.localAcc )
+	self.localAcc = self.localAcc + 1
+
+	Client.queueInt( self.remoteAcc )
+
 	local commandCount = #self.commands
 	Client.queueInt( commandCount )
 
@@ -138,20 +164,31 @@ function Player:clientWrite()
 end
 
 function Player:serverRead( message )
-	local commandCount = message:readInt()
-	for i=1, commandCount do
-		local command =
-		{
-			horizontal = message:readInt(),
-			vertical = message:readInt(),
-		}
+	local remoteAcc = message:readInt()
+	local localAcc = message:readInt()
 
-		self.commands[#self.commands+1] = command
-		self:processCommand( command )
+	if remoteAcc > self.remoteAcc then
+		self.remoteAcc = remoteAcc
+
+		local commandCount = message:readInt()
+
+		for i=1, commandCount do
+			local command =
+			{
+				horizontal = message:readInt(),
+				vertical = message:readInt(),
+			}
+
+			self:processCommand( command )
+		end
 	end
 end
 
 function Player:serverWrite()
+	Server.queueInt( self.localAcc )
+	self.localAcc = self.localAcc + 1
+	Server.queueInt( self.remoteAcc )
+
 	local position = self.transform:getPosition()
 
 	Server.queueFloat( position[1] )

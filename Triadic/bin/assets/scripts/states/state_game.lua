@@ -24,15 +24,17 @@ end
 function StateGame:update( deltaTime )
 	Player:update( deltaTime )
 
-	if IS_SERVER then
-		GameServer:update( deltaTime )
-	else
+	if IS_CLIENT then
 		GameClient:update( deltaTime )
 	end
 end
 
 function StateGame:fixedUpdate()
 	Player:fixedUpdate()
+
+	if IS_SERVER then
+		GameServer:fixedUpdate()
+	end
 end
 
 function StateGame:render()
