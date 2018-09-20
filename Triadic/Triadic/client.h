@@ -5,7 +5,6 @@
 
 #define CLIENT_TICK_RATE 20
 #define CLIENT_TICK_TIME ( 1000.0f / CLIENT_TICK_RATE )
-#define CLIENT_CMD_MS 15
 #define CLIENT_DEFAULT_PORT 12345
 
 namespace Network

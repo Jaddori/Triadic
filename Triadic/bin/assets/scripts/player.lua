@@ -20,7 +20,7 @@ Player =
 function Player:load()
 	self.transform = Transform.create()
 	
-	if isClient then
+	if IS_CLIENT then
 		self.ghostTransform = Transform.create()
 
 		self.meshIndex = Assets.loadMesh( "./assets/models/cube.mesh" )
@@ -40,11 +40,10 @@ function Player:unload()
 end
 
 function Player:update( deltaTime )
-	if isClient then
+	if IS_CLIENT then
 		-- update local players position
 		self.elapsedTime = self.elapsedTime + deltaTime
-		-- TODO: Setup global from backend to avoid magic numbers
-		local timestep = (1000 / 64) / 1000
+		local timestep = TIMESTEP_MS / 1000
 		local t = self.elapsedTime / timestep
 
 		if t > 1.0 then
@@ -65,7 +64,7 @@ function Player:update( deltaTime )
 end
 
 function Player:fixedUpdate()
-	if isClient then
+	if IS_CLIENT then
 		local command = { horizontal = 0, vertical = 0 }
 
 		if Input.keyDown( Keys.Left ) then
@@ -89,7 +88,7 @@ function Player:fixedUpdate()
 end
 
 function Player:processCommand( command )
-	if isClient then
+	if IS_CLIENT then
 		self.prevPosition[1] = self.nextPosition[1]
 		self.prevPosition[3] = self.nextPosition[3]
 
@@ -99,7 +98,7 @@ function Player:processCommand( command )
 		self.elapsedTime = 0
 
 		self.commands[#self.commands+1] = command
-	else -- isServer
+	else -- IS_SERVER
 		local movement = { command.horizontal * 0.5, 0, command.vertical * 0.5 }
 		self.transform:addPosition( movement )
 	end
@@ -108,10 +107,10 @@ end
 function Player:render()
 	Graphics.queueMesh( self.meshIndex, self.transform )
 
-	Graphics.queueMesh( self.meshIndex, self.ghostTransform )
+	--Graphics.queueMesh( self.meshIndex, self.ghostTransform )
 	
 	local position = self.transform:getPosition()
-	DebugShapes.addSphere( position, 2.0, {0.0, 1.0, 0.0, 1.0} )
+	--DebugShapes.addSphere( position, 2.0, {0.0, 1.0, 0.0, 1.0} )
 
 	self.grid:render()
 end

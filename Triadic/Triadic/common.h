@@ -21,7 +21,9 @@
 #define WINDOW_VIEWPORT glm::vec4( 0.0f, 0.0f, WINDOW_WIDTH, WINDOW_HEIGHT )
 
 #define FPS 200
-#define TICKS_PER_FRAME (uint64_t)( ( 1000.0f / FPS ) + 0.5f )
+#define TICKS_PER_FRAME ((uint64_t)( ( 1000.0f / FPS ) + 0.5f ))
+#define TIMESTEP_MS 15
+#define TIMESTEP_PER_SEC ((uint64_t)( ( 1000.0f / TIMESTEP_MS ) + 0.5f ))
 
 // Threading
 #define THREAD_UPDATE_WAIT 1000

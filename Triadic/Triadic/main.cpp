@@ -33,7 +33,8 @@ int updateServer( void* args )
 	{
 		uint64_t lastTick = SDL_GetTicks();
 
-		script.update( SERVER_TICK_TIME  * 0.0001f );
+		//script.update(0.0f);
+		script.fixedUpdate( TIMESTEP_PER_SEC );
 		script.serverWrite();
 
 		server.processTick();
@@ -94,13 +95,13 @@ int update( void* args )
 
 			lastTick = curTick;
 
-			if( acc > CLIENT_CMD_MS )
+			if( acc > TIMESTEP_MS )
 			{
-				int iterations = acc / CLIENT_CMD_MS;
+				int iterations = acc / TIMESTEP_MS;
 
 				for( int i=0; i<iterations; i++ )
 				{
-					script.fixedUpdate(0);
+					script.fixedUpdate( TIMESTEP_MS );
 				}
 			}
 			*updateAccumulator = acc;
@@ -254,10 +255,10 @@ int main( int argc, char* argv[] )
 				int waitResult = SDL_SemWait( threadData.updateDone );
 				if( waitResult == 0 )
 				{
-					if( updateAccumulator > CLIENT_CMD_MS )
+					if( updateAccumulator > TIMESTEP_MS )
 					{
-						while( updateAccumulator > CLIENT_CMD_MS )
-							updateAccumulator -= CLIENT_CMD_MS;
+						while( updateAccumulator > TIMESTEP_MS )
+							updateAccumulator -= TIMESTEP_MS;
 
 						input.reset();
 

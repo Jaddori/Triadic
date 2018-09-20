@@ -38,9 +38,14 @@ bool Script::bind( CoreData* coreData, bool _isServer )
 		lua_setglobal( lua, "WINDOW_HEIGHT" );
 
 		lua_pushboolean( lua, isServer );
-		lua_setglobal( lua, "isServer" );
+		lua_setglobal( lua, "IS_SERVER" );
 		lua_pushboolean( lua, !isServer );
-		lua_setglobal( lua, "isClient" );
+		lua_setglobal( lua, "IS_CLIENT" );
+
+		lua_pushnumber( lua, TIMESTEP_MS );
+		lua_setglobal( lua, "TIMESTEP_MS" );
+		lua_pushnumber( lua, TIMESTEP_PER_SEC );
+		lua_setglobal( lua, "TIMESTEP_PER_SEC" );
 
 		// bind subsystems
 		LuaRendering::bind( lua, coreData );

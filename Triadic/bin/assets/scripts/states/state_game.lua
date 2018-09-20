@@ -8,7 +8,7 @@ StateGame =
 function StateGame:load()
 	doscript( "player.lua" )
 
-	if isServer then
+	if IS_SERVER then
 		doscript( "game/server.lua" )
 	else
 		doscript( "game/client.lua" )
@@ -24,7 +24,7 @@ end
 function StateGame:update( deltaTime )
 	Player:update( deltaTime )
 
-	if isServer then
+	if IS_SERVER then
 		GameServer:update( deltaTime )
 	else
 		GameClient:update( deltaTime )
