@@ -15,6 +15,7 @@ namespace LuaServer
 			{ "getMessage", getMessage },
 
 			{ "queueInt", queueInt },
+			{ "queueUint", queueUint },
 			{ "queueFloat", queueFloat },
 			{ "queueString", queueString },
 
@@ -68,6 +69,21 @@ namespace LuaServer
 			if( LUA_EXPECT_NUMBER( 1 ) )
 			{
 				int value = lua_toint( lua, 1 );
+
+				g_coreData->server->queue( value );
+			}
+		}
+
+		return 0;
+	}
+
+	LDEC( queueUint )
+	{
+		LUA_EXPECT_ARGS( 1 )
+		{
+			if( LUA_EXPECT_NUMBER( 1 ) )
+			{
+				uint32_t value = (uint32_t)lua_tonumber( lua, 1 );
 
 				g_coreData->server->queue( value );
 			}

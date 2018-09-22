@@ -142,14 +142,20 @@ function Player:clientWrite()
 		end
 	end
 
-	Client.queueInt( commandCount )
+	--Client.queueInt( commandCount )
+	GameClient:queue( 1, CLIENT_INT, commandCount )
 
 	for i=1, #self.commands do
 		if self.commands[i].localAck == GameClient.localAck then
-			Client.queueInt( self.commands[i].horizontal )
-			Client.queueInt( self.commands[i].vertical )
+			--Client.queueInt( self.commands[i].horizontal )
+			--Client.queueInt( self.commands[i].vertical )
+
+			GameClient:queue( 1, CLIENT_INT, self.commands[i].horizontal )
+			GameClient:queue( 1, CLIENT_INT, self.commands[i].vertical )
 		end
 	end
+
+	return true
 end
 
 function Player:serverRead( message )
@@ -169,9 +175,15 @@ end
 function Player:serverWrite()
 	local position = self.transform:getPosition()
 
-	Server.queueFloat( position[1] )
-	Server.queueFloat( position[2] )
-	Server.queueFloat( position[3] )
+	--Server.queueFloat( position[1] )
+	--Server.queueFloat( position[2] )
+	--Server.queueFloat( position[3] )
+
+	GameServer:queue( 1, SERVER_FLOAT, position[1] )
+	GameServer:queue( 1, SERVER_FLOAT, position[2] )
+	GameServer:queue( 1, SERVER_FLOAT, position[3] )
+
+	return true
 end
 
 --addScript( Player )

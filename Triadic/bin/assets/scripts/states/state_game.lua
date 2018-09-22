@@ -1,12 +1,11 @@
 StateGame =
 {
 	name = "StateGame",
-	messages = { "a", "b", "c", "d" },
-	fontIndex = -1,
 }
 
 function StateGame:load()
 	doscript( "player.lua" )
+	doscript( "game/chat.lua" )
 
 	if IS_SERVER then
 		doscript( "game/server.lua" )
@@ -15,10 +14,12 @@ function StateGame:load()
 	end
 
 	Player:load()
+	Chat:load()
 end
 
 function StateGame:unload()
 	Player:unload()
+	Chat:unload()
 end
 
 function StateGame:update( deltaTime )
@@ -31,6 +32,7 @@ end
 
 function StateGame:fixedUpdate()
 	Player:fixedUpdate()
+	Chat:fixedUpdate()
 
 	if IS_SERVER then
 		GameServer:fixedUpdate()
@@ -39,6 +41,7 @@ end
 
 function StateGame:render()
 	Player:render()
+	Chat:render()
 end
 
 function StateGame:clientWrite()

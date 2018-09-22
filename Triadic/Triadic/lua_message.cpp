@@ -13,12 +13,14 @@ namespace LuaMessage
 			{ "writeChar", writeChar },
 			{ "writeBool", writeBool },
 			{ "writeInt", writeInt },
+			{ "writeUint", writeUint },
 			{ "writeFloat", writeFloat },
 			{ "writeString", writeString },
 
 			{ "readChar", readChar },
 			{ "readBool", readBool },
 			{ "readInt", readInt },
+			{ "readUint", readUint },
 			{ "readFloat", readFloat },
 			{ "readString", readString },
 
@@ -92,6 +94,23 @@ namespace LuaMessage
 				int i = lua_toint( lua, 2 );
 
 				message->write( i );
+			}
+		}
+
+		return 0;
+	}
+
+	LDEC( writeUint )
+	{
+		LUA_EXPECT_ARGS( 2 )
+		{
+			if( LUA_EXPECT_TABLE( 1 ) &&
+				LUA_EXPECT_NUMBER( 2 ) )
+			{
+				Message* message = lua_getuserdata<Message>( lua, 1 );
+				uint32_t ui = lua_toint( lua, 2 );
+
+				message->write( ui );
 			}
 		}
 
@@ -182,6 +201,25 @@ namespace LuaMessage
 				int i = message->read<int>();
 
 				lua_pushnumber( lua, i );
+				result = 1;
+			}
+		}
+
+		return result;
+	}
+
+	LDEC( readUint )
+	{
+		int result = 0;
+
+		LUA_EXPECT_ARGS( 1 )
+		{
+			if( LUA_EXPECT_TABLE( 1 ) )
+			{
+				Message* message = lua_getuserdata<Message>( lua, 1 );
+				uint32_t ui = message->read<uint32_t>();
+
+				lua_pushnumber( lua, ui );
 				result = 1;
 			}
 		}

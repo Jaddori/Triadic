@@ -12,12 +12,14 @@ namespace LuaMessage
 	LDEC( writeChar );
 	LDEC( writeBool );
 	LDEC( writeInt );
+	LDEC( writeUint );
 	LDEC( writeFloat );
 	LDEC( writeString );
 
 	LDEC( readChar );
 	LDEC( readBool );
 	LDEC( readInt );
+	LDEC( readUint );
 	LDEC( readFloat );
 	LDEC( readString );
 }

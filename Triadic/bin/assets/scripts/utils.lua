@@ -177,6 +177,20 @@ function tableVal( t, size, default )
 	return result
 end
 
+function stringBits( num )
+	local result = ""
+
+	for i=0, 4 do
+		for j=0, 4 do
+			result = result .. tostring( bit32.extract( num, 31 - (i*4+j) ) )
+		end
+
+		result = result .. " "
+	end
+
+	return result
+end
+
 function isnumber( a )
 	return type(a) == "number"
 end

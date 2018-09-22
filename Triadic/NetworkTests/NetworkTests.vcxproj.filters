@@ -11,6 +11,9 @@
     <Filter Include="Source Files\Tests">
       <UniqueIdentifier>{e653e6cd-f396-4b12-b85a-7e3802a1d342}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\System">
+      <UniqueIdentifier>{d637ddab-6edb-4cb8-9f7c-6f4209bf7167}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -40,6 +43,12 @@
     <ClCompile Include="reliable_channel_tests.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
+    <ClCompile Include="reliable_logic_tests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Triadic\log.cpp">
+      <Filter>Source Files\System</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Triadic\client.h">
@@ -68,6 +77,12 @@
     </ClInclude>
     <ClInclude Include="reliable_channel_tests.h">
       <Filter>Source Files\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="reliable_logic_tests.h">
+      <Filter>Source Files\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Triadic\log.h">
+      <Filter>Source Files\System</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

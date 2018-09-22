@@ -12,6 +12,7 @@ namespace LuaClient
 	LDEC( getMessage );
 
 	LDEC( queueInt );
+	LDEC( queueUint );
 	LDEC( queueFloat );
 	LDEC( queueString );
 }
