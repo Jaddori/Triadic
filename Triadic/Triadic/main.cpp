@@ -38,6 +38,7 @@ int updateServer( void* args )
 		script.serverWrite();
 
 		server.processTick();
+		script.serverRead();
 
 		if( *data->coreData->reload )
 		{
@@ -129,6 +130,7 @@ int update( void* args )
 			{
 				script.clientWrite();
 				client.processTick();
+				script.clientRead();
 
 				lastClientTick = SDL_GetTicks();
 			}

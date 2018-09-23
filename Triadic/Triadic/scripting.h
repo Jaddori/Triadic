@@ -36,7 +36,9 @@ namespace Scripting
 		inline void unload() { run( unloadFunctionReference, "mainUnload" ); }
 		inline void render() { run( renderFunctionReference, "mainRender" ); }
 		inline void clientWrite() { run( clientWriteFunctionReference, "mainClientWrite" ); }
+		inline void clientRead() { run( clientReadFunctionReference, "mainClientRead" ); }
 		inline void serverWrite() { run( serverWriteFunctionReference, "mainServerWrite" ); }
+		inline void serverRead() { run( serverReadFunctionReference, "mainServerRead" ); }
 
 		void setGlobal( const char* name, bool value );
 		void setGlobal( const char* name, int value );
@@ -45,12 +47,14 @@ namespace Scripting
 
 	private:
 		void run( int functionReference, const char* debugName );
+		int findFunctionReference( const char* name );
 
 		lua_State* lua;
 
 		int loadFunctionReference, unloadFunctionReference;
 		int updateFunctionReference, fixedUpdateFunctionReference, renderFunctionReference;
-		int clientWriteFunctionReference, serverWriteFunctionReference;
+		int clientWriteFunctionReference, clientReadFunctionReference;
+		int serverWriteFunctionReference, serverReadFunctionReference;
 		bool valid, isServer, isHost;
 
 		CoreData* _coreData;

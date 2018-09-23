@@ -2,7 +2,6 @@
 using namespace Network;
 
 Server::Server()
-	: ids( 50 )
 {
 }
 
@@ -67,6 +66,8 @@ void Server::processTick()
 		return;
 
 	// RECEIVE
+	recvMessages.clear();
+
 	int recvLen = 0;
 	do
 	{
@@ -77,7 +78,6 @@ void Server::processTick()
 
 		if( recvLen > 0 )
 		{
-			//uint64_t hash = ((uint64_t)remoteAddress.sin_addr.S_un.S_addr << 32) | remoteAddress.sin_port;
 			uint32_t hash = remoteAddress.sin_addr.S_un.S_addr + remoteAddress.sin_port;
 			if( addressHashes.find( hash ) < 0 )
 			{
@@ -90,33 +90,13 @@ void Server::processTick()
 				LOG_DEBUG( "Adding new remote address with hash: %d", hash );
 			}
 
-			SDL_LockMutex( mutex );
 			Message msg( buffer, recvLen );
 			msg.setHash( hash  );
 			recvMessages.add( msg );
-			SDL_UnlockMutex( mutex );
 		}
 	} while( recvLen > 0 );
 
 	// SEND
-	SDL_LockMutex( mutex );
-	/*if( sendMessage.getSize() > 0 )
-	{
-		const int REMOTE_ADDRESS_COUNT = remoteAddresses.getSize();
-		for( int curAddress = 0; curAddress < REMOTE_ADDRESS_COUNT; curAddress++ )
-		{
-			int sendLen = sendto( mainSocket, sendMessage.getBuffer(), sendMessage.getSize(), 0, (struct sockaddr*)&remoteAddresses[curAddress], remoteAddressSize );
-
-			if( sendLen == SOCKET_ERROR )
-			{
-				LOG_ERROR( "Server: sendto failed with error code: %d", WSAGetLastError() );
-				valid = false;
-			}
-		}
-
-		sendMessage.clear();
-	}*/
-
 	const int REMOTE_ADDRESS_COUNT = remoteAddresses.getSize();
 	for( int curAddress = 0; curAddress < REMOTE_ADDRESS_COUNT; curAddress++ )
 	{
@@ -134,35 +114,11 @@ void Server::processTick()
 			message.clear();
 		}
 	}
-
-	SDL_UnlockMutex( mutex );
 }
 
-int Server::beginRead()
+Array<Message>& Server::getMessages()
 {
-	readOffset = 0;
-	SDL_LockMutex( mutex );
-
-	return recvMessages.getSize();
-}
-
-void Server::endRead()
-{
-	recvMessages.clear();
-	SDL_UnlockMutex( mutex );
-}
-
-Message* Server::getMessage()
-{
-	Message* result = NULL;
-
-	if( readOffset < recvMessages.getSize() )
-	{
-		result = &recvMessages[readOffset];
-		readOffset++;
-	}
-
-	return result;
+	return recvMessages;
 }
 
 bool Server::getValid() const

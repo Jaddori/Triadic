@@ -39,8 +39,16 @@ function Game:clientWrite()
 	self.states[self.currentState]:clientWrite()
 end
 
+function Game:clientRead()
+	self.states[self.currentState]:clientRead()
+end
+
 function Game:serverWrite()
 	self.states[self.currentState]:serverWrite()
+end
+
+function Game:serverRead()
+	self.states[self.currentState]:serverRead()
 end
 
 function Game:addState( state )

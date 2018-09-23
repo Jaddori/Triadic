@@ -7,9 +7,7 @@ namespace LuaClient
 {
 	void bind( lua_State* lua, CoreData* coreData );
 
-	LDEC( beginRead );
-	LDEC( endRead );
-	LDEC( getMessage );
+	LDEC( getMessages );
 
 	LDEC( queueInt );
 	LDEC( queueUint );

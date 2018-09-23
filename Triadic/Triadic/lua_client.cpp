@@ -1,4 +1,5 @@
 #include "lua_client.h"
+using namespace Network;
 
 namespace LuaClient
 {
@@ -9,9 +10,7 @@ namespace LuaClient
 		luaL_newmetatable( lua, "clientMeta" );
 		luaL_Reg clientRegs[] = 
 		{
-			{ "beginRead", beginRead },
-			{ "endRead", endRead },
-			{ "getMessage", getMessage },
+			{ "getMessages", getMessages },
 
 			{ "queueInt", queueInt },
 			{ "queueUint", queueUint },
@@ -29,36 +28,23 @@ namespace LuaClient
 		g_coreData = coreData;
 	}
 
-	LDEC( beginRead )
+	LDEC( getMessages )
 	{
-		int count = g_coreData->client->beginRead();
-		lua_pushnumber( lua, count );
+		lua_newtable( lua );
 
-		return 1;
-	}
-
-	LDEC( endRead )
-	{
-		g_coreData->client->endRead();
-		return 0;
-	}
-
-	LDEC( getMessage )
-	{
-		int result = 0;
-
-		Network::Message* message = g_coreData->client->getMessage();
-		if( message )
+		Array<Message>& messages = g_coreData->client->getMessages();
+		const int MESSAGE_COUNT = messages.getSize();
+		for( int i=0; i<MESSAGE_COUNT; i++ )
 		{
 			lua_newtable( lua );
-			lua_pushlightuserdata( lua, message );
+			lua_pushlightuserdata( lua, &messages[i] );
 			lua_setfield( lua, -2, "__self" );
 			luaL_setmetatable( lua, "messageMeta" );
 
-			result = 1;
+			lua_rawseti( lua, -2, i+1 );
 		}
 
-		return result;
+		return 1;
 	}
 
 	LDEC( queueInt )

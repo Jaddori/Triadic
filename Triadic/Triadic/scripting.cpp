@@ -95,79 +95,24 @@ bool Script::bind( CoreData* coreData, bool _isServer, bool _isHost )
 			{
 				lua_pop( lua, 1 ); // remove traceback error function
 
-				// get load function
-				lua_getglobal( lua, "mainLoad" );
-				if( !lua_isfunction( lua, -1 ) )
-				{
-					LOG_ERROR( "Failed to find main load function." );
-					valid = false;
-				}
-				else
-					loadFunctionReference = luaL_ref( lua, LUA_REGISTRYINDEX );
-
-				// get unload function
-				lua_getglobal( lua, "mainUnload" );
-				if( !lua_isfunction( lua, -1 ) )
-				{
-					LOG_ERROR( "Failed to find main unload function." );
-					valid = false;
-				}
-				else
-					unloadFunctionReference = luaL_ref( lua, LUA_REGISTRYINDEX );
-
-				// get update function
-				lua_getglobal( lua, "mainUpdate" );
-				if( !lua_isfunction( lua, -1 ) )
-				{
-					LOG_ERROR( "Failed to find main update function." );
-					valid = false;
-				}
-				else
-					updateFunctionReference = luaL_ref( lua, LUA_REGISTRYINDEX );
-
-				// get fixed u
-				lua_getglobal( lua, "mainFixedUpdate" );
-				if( !lua_isfunction( lua, -1 ) )
-				{
-					LOG_ERROR( "Failed to find main fixed update function." );
-					valid = false;
-				}
-				else
-					fixedUpdateFunctionReference = luaL_ref( lua, LUA_REGISTRYINDEX );
-
-				// get render function
-				lua_getglobal( lua, "mainRender" );
-				if( !lua_isfunction( lua, -1 ) )
-				{
-					LOG_ERROR( "Failed to find main render function." );
-					valid = false;
-				}
-				else
-					renderFunctionReference = luaL_ref( lua, LUA_REGISTRYINDEX );
-
+				// getting function references
+				loadFunctionReference = findFunctionReference( "mainLoad" );
+				unloadFunctionReference = findFunctionReference( "mainUnload" );
+				updateFunctionReference = findFunctionReference( "mainUpdate" );
+				fixedUpdateFunctionReference = findFunctionReference( "mainFixedUpdate" );
+				renderFunctionReference = findFunctionReference( "mainRender" );
+				
 				if( isServer )
 				{
-					// get server write function
-					lua_getglobal( lua, "mainServerWrite" );
-					if( !lua_isfunction( lua, -1 ) )
-					{
-						LOG_ERROR( "Failed to find main server write function." );
-						valid = false;
-					}
-					else
-						serverWriteFunctionReference = luaL_ref( lua, LUA_REGISTRYINDEX );
+					// get server specific function references
+					serverWriteFunctionReference = findFunctionReference( "mainServerWrite" );
+					serverReadFunctionReference = findFunctionReference( "mainServerRead" );
 				}
 				else
 				{
-					// get client write function
-					lua_getglobal( lua, "mainClientWrite" );
-					if( !lua_isfunction( lua, -1 ) )
-					{
-						LOG_ERROR( "Failed to find main client write function." );
-						valid = false;
-					}
-					else
-						clientWriteFunctionReference = luaL_ref( lua, LUA_REGISTRYINDEX );
+					// get client specific function references
+					clientWriteFunctionReference = findFunctionReference( "mainClientWrite" );
+					clientReadFunctionReference = findFunctionReference( "mainClientRead" );
 				}
 			}
 		}
@@ -260,6 +205,22 @@ void Script::reload()
 		lua_close( lua );
 	bind( _coreData, isServer, isHost );
 	load();
+}
+
+int Script::findFunctionReference( const char* name )
+{
+	int result = -1;
+
+	lua_getglobal( lua, name );
+	if( !lua_isfunction( lua, -1 ) )
+	{
+		LOG_ERROR( "Failed to find function reference \"%s\".", name );
+		valid = false;
+	}
+	else
+		result = luaL_ref( lua, LUA_REGISTRYINDEX );
+
+	return result;
 }
 
 void Script::setGlobal( const char* name, bool value )

@@ -36,8 +36,16 @@ function mainClientWrite()
 	run( "clientWrite" )
 end
 
+function mainClientRead()
+	run( "clientRead" )
+end
+
 function mainServerWrite()
 	run( "serverWrite" )
+end
+
+function mainServerRead()
+	run( "serverRead" )
 end
 
 function addScript( script )

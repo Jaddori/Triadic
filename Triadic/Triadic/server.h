@@ -23,28 +23,20 @@ namespace Network
 		template<typename T>
 		void queue( uint32_t hash, T value )
 		{
-			SDL_LockMutex( mutex );
-			//sendMessage.write( value );
 			int index = addressHashes.find( hash );
 			if( index >= 0 )
 				sendMessages[index].write( value );
-			SDL_UnlockMutex( mutex );
 		}
 
 		template<typename T>
 		void queue( uint32_t hash, T* value, int maxCount )
 		{
-			SDL_LockMutex( mutex );
-			//sendMessage.write( value, maxCount );
 			int index = addressHashes.find( hash );
 			if( index >= 0 )
 				sendMessages[index].write( value, maxCount );
-			SDL_UnlockMutex( mutex );
 		}
 
-		int beginRead();
-		void endRead();
-		Message* getMessage();
+		Array<Message>& getMessages();
 
 		bool getValid() const;
 
@@ -57,13 +49,10 @@ namespace Network
 		bool hasSocket, valid;
 		char buffer[MESSAGE_SIZE];
 
-		//Message sendMessage;
 		Array<Message> sendMessages;
 		Array<Message> recvMessages;
 		Array<struct sockaddr_in> remoteAddresses;
 		Array<uint32_t> addressHashes;
-		Array<int> ids;
-		SDL_mutex* mutex;
 		int readOffset;
 	};
 }

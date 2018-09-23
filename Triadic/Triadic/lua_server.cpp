@@ -10,9 +10,7 @@ namespace LuaServer
 		luaL_newmetatable( lua, "serverMeta" );
 		luaL_Reg serverRegs[] = 
 		{
-			{ "beginRead", beginRead },
-			{ "endRead", endRead },
-			{ "getMessage", getMessage },
+			{ "getMessages", getMessages },
 
 			{ "queueInt", queueInt },
 			{ "queueUint", queueUint },
@@ -30,36 +28,23 @@ namespace LuaServer
 		g_coreData = coreData;
 	}
 
-	LDEC( beginRead )
+	LDEC( getMessages )
 	{
-		int count = g_coreData->server->beginRead();
-		lua_pushnumber( lua, count );
+		lua_newtable( lua );
 
-		return 1;
-	}
-
-	LDEC( endRead )
-	{
-		g_coreData->server->endRead();
-		return 0;
-	}
-
-	LDEC( getMessage )
-	{
-		int result = 0;
-
-		Message* message = g_coreData->server->getMessage();
-		if( message )
+		Array<Message>& messages = g_coreData->server->getMessages();
+		const int MESSAGE_COUNT = messages.getSize();
+		for( int i=0; i<MESSAGE_COUNT; i++ )
 		{
 			lua_newtable( lua );
-			lua_pushlightuserdata( lua, message );
+			lua_pushlightuserdata( lua, &messages[i] );
 			lua_setfield( lua, -2, "__self" );
 			luaL_setmetatable( lua, "messageMeta" );
 
-			result = 1;
+			lua_rawseti( lua, -2, i+1 );
 		}
 
-		return result;
+		return 1;
 	}
 
 	LDEC( queueInt )

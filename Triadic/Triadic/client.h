@@ -36,9 +36,7 @@ namespace Network
 			SDL_UnlockMutex( mutex );
 		}
 
-		int beginRead();
-		void endRead();
-		Message* getMessage();
+		Array<Message>& getMessages();
 
 		bool getValid() const;
 

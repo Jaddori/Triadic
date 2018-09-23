@@ -80,6 +80,8 @@ void Client::processTick()
 	SDL_UnlockMutex( mutex );
 
 	// RECEIVE
+	recvMessages.clear();
+
 	int recvLen = 0;
 	do
 	{
@@ -94,29 +96,9 @@ void Client::processTick()
 	} while( recvLen > 0 );
 }
 
-int Client::beginRead()
+Array<Message>& Client::getMessages()
 {
-	readOffset = 0;
-
-	return recvMessages.getSize();
-}
-
-void Client::endRead()
-{
-	recvMessages.clear();
-}
-
-Message* Client::getMessage()
-{
-	Message* message = NULL;
-
-	if( readOffset < recvMessages.getSize() )
-	{
-		message = &recvMessages[readOffset];
-		readOffset++;
-	}
-
-	return message;
+	return recvMessages;
 }
 
 bool Client::getValid() const
