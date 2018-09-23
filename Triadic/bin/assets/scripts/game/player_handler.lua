@@ -40,9 +40,6 @@ end
 function PlayerHandler:fixedUpdate()
 	if IS_CLIENT then
 		self.localPlayer:fixedUpdate()
-		--self.remotePlayer:fixedUpdate()
-	else
-		--self.players[2].transform:addPosition( {0.1,0,0} )
 	end
 end
 
@@ -78,7 +75,7 @@ end
 
 function PlayerHandler:serverRead( message )
 	local hash = message:getHash()
-	
+
 	if self.players[1].hash == hash then
 		self.players[1]:serverRead( message )
 	elseif self.players[2].hash == hash then

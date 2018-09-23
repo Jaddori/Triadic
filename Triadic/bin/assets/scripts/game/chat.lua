@@ -51,7 +51,7 @@ function Chat:clientWrite()
 	local result = false
 
 	if #self.sendMessages > 0 then
-		GameClient:queueReliable( 2, CLIENT_STRING, self.sendMessages[1] )
+		GameClient:queue( 2, CLIENT_STRING, self.sendMessages[1], true )
 		self.sendMessages[1] = nil
 
 		result = true
@@ -66,11 +66,11 @@ function Chat:serverRead( message )
 	self.sendMessages[#self.sendMessages+1] = text
 end
 
-function Chat:serverWrite()
+function Chat:serverWrite( hash )
 	local result = false
 
 	if #self.sendMessages > 0 then
-		GameServer:queueReliable( 2, SERVER_STRING, self.sendMessages[1] )
+		GameServer:queue( hash, 2, SERVER_STRING, self.sendMessages[1], true )
 		self.sendMessages[1] = nil
 
 		result = true

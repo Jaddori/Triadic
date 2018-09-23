@@ -35,18 +35,15 @@ function GameClient:update( deltaTime )
 			message.remoteAck = message:readUint()
 			message.history = message:readUint()
 
-			--Log.debug( "GOT MESSAGE" )
-
 			local idCount = message:readInt()
-			--Log.debug( "ID COUNT: " .. tostring( idCount ) )
+			--Log.debug( "Client: id count = " .. tostring( idCount ) )
 			for j=1, idCount do
 				local id = message:readInt()
+				--Log.debug( "Client: id = " .. tostring( id ) )
 
 				if self.objects[id] then
-					--Log.debug( "GOT OBJECT" )
 					self.objects[id]:clientRead( message )
 				else
-					--Log.debug( "NO OBJECT" )
 					break
 				end
 			end
@@ -136,8 +133,6 @@ function GameClient:clientWrite()
 					else
 						Log.error( "BAD TYPE" )
 					end
-
-					Log.debug( "Client: Writing reliable" )
 				end
 			end
 
@@ -148,14 +143,14 @@ function GameClient:clientWrite()
 	self.localAck = self.localAck + 1
 end
 
-function GameClient:queue( id, type, value )
+function GameClient:queue( id, type, value, reliable )
 	assert( type == CLIENT_BOOL or type == CLIENT_INT or type == CLIENT_FLOAT or type == CLIENT_STRING, "Bad type: " .. tostring( type ) )
 
-	self.packets[id][#self.packets[id]+1] = { type = type, value = value }
-end
-
-function GameClient:queueReliable( id, type, value )
-	assert( type == CLIENT_BOOL or type == CLIENT_INT or type == CLIENT_FLOAT or type == CLIENT_STRING, "Bad type: " .. tostring( type ) )
-
-	self.reliablePackets[id][#self.reliablePackets[id]+1] = { type = type, value = value, localAck = self.localAck }
+	if reliable then
+		local count = #self.reliablePackets[id]
+		self.reliablePackets[id][count+1] = { type = type, value = value, localAck = self.localAck }
+	else
+		local count = #self.packets[id]
+		self.packets[id][count+1] = { type = type, value = value }
+	end
 end
