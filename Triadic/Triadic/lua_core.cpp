@@ -9,6 +9,7 @@ namespace LuaCore
 		luaL_newmetatable( lua, "coreMeta" );
 		luaL_Reg assetsRegs[] =
 		{
+			{ "getTicks", getTicks },
 			{ "exit", exit },
 
 			{ NULL, NULL }
@@ -22,7 +23,14 @@ namespace LuaCore
 		g_coreData = coreData;
 	}
 
-	int exit( lua_State* lua )
+	LDEC( getTicks )
+	{
+		uint32_t ticks = SDL_GetTicks();
+		lua_pushnumber( lua, ticks );
+		return 1;
+	}
+
+	LDEC( exit )
 	{
 		*g_coreData->running = false;
 		return 0;

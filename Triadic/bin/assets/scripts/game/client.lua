@@ -10,6 +10,12 @@ GameClient =
 	remoteAck = 0,
 	history = 0,
 
+	RTTs = nil,
+	averageRTT = 0,
+	averageReceiveTime = 0,
+	lastReceiveTime = 0,
+	lastReceiveTick = 0,
+
 	debug_droprate = 0,
 	packets = {},
 	reliablePackets = {},
@@ -22,6 +28,18 @@ function GameClient:register( object, id )
 	self.objects[id] = object
 	self.packets[id] = {}
 	self.reliablePackets[id] = {}
+
+	if not self.RTTs then
+		self.RTTs = {}
+		for i=1, 10 do
+			self.RTTs[i] = 
+			{
+				localAck = 0,
+				tick = 0,
+				rtt = 0,
+			}
+		end
+	end
 end
 
 function GameClient:clientWrite()
@@ -29,6 +47,18 @@ function GameClient:clientWrite()
 	Client.queueUint( self.remoteAck )
 	Client.queueUint( self.history )
 
+	-- store RTT information
+	for i=#self.RTTs, 2, -1 do
+		self.RTTs[i].localAck = self.RTTs[i-1].localAck
+		self.RTTs[i].tick = self.RTTs[i-1].tick
+		self.RTTs[i].rtt = self.RTTs[i-1].rtt
+	end
+
+	self.RTTs[1].localAck = self.localAck
+	self.RTTs[1].tick = Core.getTicks()
+	self.RTTs[1].rtt = 0
+
+	-- collect objects that will write to the message
 	local writingObjects = 0
 	for k,v in pairs(self.objects) do
 		if v:clientWrite() then
@@ -45,6 +75,7 @@ function GameClient:clientWrite()
 		end
 	end
 
+	-- write to the message
 	Client.queueInt( writingObjects )
 	for k,v in pairs(self.objects) do
 		if #self.packets[k] > 0 or #self.reliablePackets[k] > 0 then
@@ -82,7 +113,19 @@ function GameClient:clientWrite()
 end
 
 function GameClient:clientRead()
+	local curTick = Core.getTicks()
 	local messages = Client.getMessages()
+
+	-- calculate average receive time
+	if #messages > 0 then
+		if self.lastReceiveTick > 0 then
+			local receiveTime = curTick - self.lastReceiveTick
+			self.averageReceiveTime = ( self.lastReceiveTime + receiveTime ) * 0.5
+			self.lastReceiveTime = receiveTime
+		end
+
+		self.lastReceiveTick = curTick
+	end
 
 	for i=1, #messages do
 		local message = messages[i]
@@ -137,6 +180,22 @@ function GameClient:clientRead()
 
 				self.reliablePackets[i] = notReceived
 			end
+			
+			-- calculate RTT
+			local validRTTs = 0
+			self.averageRTT = 0
+			for i=1, #self.RTTs do
+				if self.RTTs[i].localAck == message.remoteAck then
+					self.RTTs[i].rtt = curTick - self.RTTs[i].tick
+				end
+
+				if self.RTTs[i].rtt > 0 then
+					self.averageRTT = self.averageRTT + self.RTTs[i].rtt
+					validRTTs = validRTTs + 1
+				end
+			end
+
+			self.averageRTT = self.averageRTT / validRTTs
 		end
 	end
 end

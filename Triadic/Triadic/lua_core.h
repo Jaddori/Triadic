@@ -7,5 +7,6 @@ namespace LuaCore
 {
 	void bind( lua_State* lua, CoreData* coreData );
 
-	int exit( lua_State* lua );
+	LDEC( getTicks );
+	LDEC( exit );
 }
