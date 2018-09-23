@@ -4,7 +4,8 @@ StateGame =
 }
 
 function StateGame:load()
-	doscript( "player.lua" )
+	--doscript( "player.lua" )
+	doscript( "game/player_handler.lua" )
 	doscript( "game/chat.lua" )
 
 	if IS_SERVER then
@@ -13,17 +14,20 @@ function StateGame:load()
 		doscript( "game/client.lua" )
 	end
 
-	Player:load()
+	--Player:load()
+	PlayerHandler:load()
 	Chat:load()
 end
 
 function StateGame:unload()
-	Player:unload()
+	--Player:unload()
+	PlayerHandler:unload()
 	Chat:unload()
 end
 
 function StateGame:update( deltaTime )
-	Player:update( deltaTime )
+	--Player:update( deltaTime )
+	PlayerHandler:update( deltaTime )
 
 	if IS_CLIENT then
 		GameClient:update( deltaTime )
@@ -31,7 +35,8 @@ function StateGame:update( deltaTime )
 end
 
 function StateGame:fixedUpdate()
-	Player:fixedUpdate()
+	--Player:fixedUpdate()
+	PlayerHandler:fixedUpdate()
 	Chat:fixedUpdate()
 
 	if IS_SERVER then
@@ -40,7 +45,8 @@ function StateGame:fixedUpdate()
 end
 
 function StateGame:render()
-	Player:render()
+	--Player:render()
+	PlayerHandler:render()
 	Chat:render()
 end
 

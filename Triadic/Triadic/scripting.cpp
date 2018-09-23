@@ -18,10 +18,11 @@ Script::~Script()
 		lua_close( lua );
 }
 
-bool Script::bind( CoreData* coreData, bool _isServer )
+bool Script::bind( CoreData* coreData, bool _isServer, bool _isHost )
 {
 	_coreData = coreData;
 	isServer = _isServer;
+	isHost = _isHost;
 
 	valid = true;
 	LOG_INFO( "Initializing script backend." );
@@ -41,6 +42,8 @@ bool Script::bind( CoreData* coreData, bool _isServer )
 		lua_setglobal( lua, "IS_SERVER" );
 		lua_pushboolean( lua, !isServer );
 		lua_setglobal( lua, "IS_CLIENT" );
+		lua_pushboolean( lua, isHost );
+		lua_setglobal( lua, "IS_HOST" );
 
 		lua_pushnumber( lua, TIMESTEP_MS );
 		lua_setglobal( lua, "TIMESTEP_MS" );
@@ -255,7 +258,7 @@ void Script::reload()
 
 	if( lua )
 		lua_close( lua );
-	bind( _coreData, isServer );
+	bind( _coreData, isServer, isHost );
 	load();
 }
 

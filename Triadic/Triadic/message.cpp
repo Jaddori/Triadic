@@ -2,18 +2,18 @@
 using namespace Network;
 
 Message::Message()
-	: size( 0 ), offset( 0 )
+	: size( 0 ), offset( 0 ), hash( 0 )
 {
 }
 
 Message::Message( char* buf, int len )
-	: size( len ), offset( 0 )
+	: size( len ), offset( 0 ), hash( 0 )
 {
 	memcpy( buffer, buf, len );
 }
 
 Message::Message( const Message& ref )
-	: size( ref.size ), offset( ref.offset )
+	: size( ref.size ), offset( ref.offset ), hash( ref.hash )
 {
 	memcpy( buffer, ref.buffer, size );
 }
@@ -44,6 +44,11 @@ void Message::setBuffer( char* buf, int len )
 	size = len;
 }
 
+void Message::setHash( uint64_t h )
+{
+	hash = h;
+}
+
 int Message::getSize() const
 {
 	return size;
@@ -57,4 +62,9 @@ int Message::getOffset() const
 char* Message::getBuffer()
 {
 	return buffer;
+}
+
+uint64_t Message::getHash() const
+{
+	return hash;
 }

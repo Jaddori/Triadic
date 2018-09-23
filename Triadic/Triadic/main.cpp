@@ -26,7 +26,7 @@ int updateServer( void* args )
 	server.start();
 
 	Script script;
-	script.bind( data->coreData, true );
+	script.bind( data->coreData, true, true );
 	script.load();
 
 	while( *data->coreData->running && server.getValid() )
@@ -152,6 +152,19 @@ int main( int argc, char* argv[] )
 	LOG_WARNINGS();
 	//LOG_INFORMATIONS();
 
+	bool shouldStartServer = ( strcmp( argv[1], "-server" ) == 0 );
+	if( !shouldStartServer )
+		Sleep(1000);
+
+	if( shouldStartServer )
+	{
+		LOG_DEBUG( "Running as server." );
+	}
+	else
+	{
+		LOG_DEBUG( "Running as client." );
+	}
+
 	if( SDL_Init( SDL_INIT_AUDIO | SDL_INIT_EVENTS | SDL_INIT_TIMER ) )
 	{
 		LOG_ERROR( "Failed to initialize SDL." );
@@ -162,7 +175,16 @@ int main( int argc, char* argv[] )
 	SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 2 );
 	SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE );
 
-	SDL_Window* window = SDL_CreateWindow( "Triadic", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL );
+	int windowX = 128, windowY = 128;
+	const char* windowTitle = "Triadic - Server";
+
+	if( !shouldStartServer )
+	{
+		windowX += WINDOW_WIDTH + 128;
+		windowTitle = "Triadic - Client";
+	}
+
+	SDL_Window* window = SDL_CreateWindow( windowTitle, windowX, windowY, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL );
 	if( window )
 	{
 		LOG_INFO( "Window created." );
@@ -234,7 +256,7 @@ int main( int argc, char* argv[] )
 			Entity::setCoreData( &coreData );
 
 			Script script;
-			script.bind( &coreData, false );
+			script.bind( &coreData, false, shouldStartServer );
 			script.load();
 
 			ThreadData threadData;
@@ -244,7 +266,9 @@ int main( int argc, char* argv[] )
 			threadData.script = &script;
 
 			SDL_Thread* updateThread = SDL_CreateThread( update, NULL, &threadData );
-			SDL_Thread* serverThread = SDL_CreateThread( updateServer, NULL, &threadData );
+			SDL_Thread* serverThread = NULL;
+			if( shouldStartServer )
+				serverThread = SDL_CreateThread( updateServer, NULL, &threadData );
 
 			uint64_t lastTick = SDL_GetTicks();
 
@@ -323,8 +347,11 @@ int main( int argc, char* argv[] )
 			LOG_INFO( "Waiting for update thread to finish." );
 			SDL_WaitThread( updateThread, NULL );
 
-			LOG_INFO( "Waiting for server thread to finish." );
-			SDL_WaitThread( serverThread, NULL );
+			if( serverThread )
+			{
+				LOG_INFO( "Waiting for server thread to finish." );
+				SDL_WaitThread( serverThread, NULL );
+			}
 			
 			// UNLOAD
 			threadPool.unload();

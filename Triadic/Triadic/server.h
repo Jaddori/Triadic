@@ -21,18 +21,24 @@ namespace Network
 		void processTick();
 
 		template<typename T>
-		void queue( T value )
+		void queue( uint32_t hash, T value )
 		{
 			SDL_LockMutex( mutex );
-			sendMessage.write( value );
+			//sendMessage.write( value );
+			int index = addressHashes.find( hash );
+			if( index >= 0 )
+				sendMessages[index].write( value );
 			SDL_UnlockMutex( mutex );
 		}
 
 		template<typename T>
-		void queue( T* value, int maxCount )
+		void queue( uint32_t hash, T* value, int maxCount )
 		{
 			SDL_LockMutex( mutex );
-			sendMessage.write( value, maxCount );
+			//sendMessage.write( value, maxCount );
+			int index = addressHashes.find( hash );
+			if( index >= 0 )
+				sendMessages[index].write( value, maxCount );
 			SDL_UnlockMutex( mutex );
 		}
 
@@ -51,10 +57,11 @@ namespace Network
 		bool hasSocket, valid;
 		char buffer[MESSAGE_SIZE];
 
-		Message sendMessage;
+		//Message sendMessage;
+		Array<Message> sendMessages;
 		Array<Message> recvMessages;
 		Array<struct sockaddr_in> remoteAddresses;
-		Array<uint64_t> addressHashes;
+		Array<uint32_t> addressHashes;
 		Array<int> ids;
 		SDL_mutex* mutex;
 		int readOffset;

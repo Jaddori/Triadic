@@ -10,13 +10,14 @@ GameClient =
 	remoteAck = 0,
 	history = 0,
 
-	debug_droprate = 25,
+	debug_droprate = 0,
 	packets = {},
 	reliablePackets = {},
 }
 
 function GameClient:register( object, id )
 	assert( isnumber( id ), "Id must be a number." )
+	assert( self.objects[id] == nil, "ID is already taken: " .. tostring( id ) )
 	
 	self.objects[id] = object
 	self.packets[id] = {}
@@ -34,13 +35,18 @@ function GameClient:update( deltaTime )
 			message.remoteAck = message:readUint()
 			message.history = message:readUint()
 
+			--Log.debug( "GOT MESSAGE" )
+
 			local idCount = message:readInt()
+			--Log.debug( "ID COUNT: " .. tostring( idCount ) )
 			for j=1, idCount do
 				local id = message:readInt()
 
 				if self.objects[id] then
+					--Log.debug( "GOT OBJECT" )
 					self.objects[id]:clientRead( message )
 				else
+					--Log.debug( "NO OBJECT" )
 					break
 				end
 			end

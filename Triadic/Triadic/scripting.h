@@ -27,7 +27,7 @@ namespace Scripting
 		Script();
 		~Script();
 
-		bool bind( CoreData* coreData, bool isServer );
+		bool bind( CoreData* coreData, bool isServer, bool isHost );
 		void update( float deltaTime );
 		void fixedUpdate( float timestep );
 		void reload();
@@ -51,7 +51,7 @@ namespace Scripting
 		int loadFunctionReference, unloadFunctionReference;
 		int updateFunctionReference, fixedUpdateFunctionReference, renderFunctionReference;
 		int clientWriteFunctionReference, serverWriteFunctionReference;
-		bool valid, isServer;
+		bool valid, isServer, isHost;
 
 		CoreData* _coreData;
 	};

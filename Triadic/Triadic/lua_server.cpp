@@ -64,13 +64,15 @@ namespace LuaServer
 
 	LDEC( queueInt )
 	{
-		LUA_EXPECT_ARGS( 1 )
+		LUA_EXPECT_ARGS( 2 )
 		{
-			if( LUA_EXPECT_NUMBER( 1 ) )
+			if( LUA_EXPECT_NUMBER( 1 ) &&
+				LUA_EXPECT_NUMBER( 2 ) )
 			{
-				int value = lua_toint( lua, 1 );
+				uint32_t hash = lua_touint( lua, 1 );
+				int value = lua_toint( lua, 2 );
 
-				g_coreData->server->queue( value );
+				g_coreData->server->queue( hash, value );
 			}
 		}
 
@@ -79,13 +81,15 @@ namespace LuaServer
 
 	LDEC( queueUint )
 	{
-		LUA_EXPECT_ARGS( 1 )
+		LUA_EXPECT_ARGS( 2 )
 		{
-			if( LUA_EXPECT_NUMBER( 1 ) )
+			if( LUA_EXPECT_NUMBER( 1 ) &&
+				LUA_EXPECT_NUMBER( 2 ) )
 			{
-				uint32_t value = (uint32_t)lua_tonumber( lua, 1 );
+				uint32_t hash = lua_touint( lua, 1 );
+				uint32_t value = lua_touint( lua, 2 );
 
-				g_coreData->server->queue( value );
+				g_coreData->server->queue( hash, value );
 			}
 		}
 
@@ -94,13 +98,15 @@ namespace LuaServer
 
 	LDEC( queueFloat )
 	{
-		LUA_EXPECT_ARGS( 1 )
+		LUA_EXPECT_ARGS( 2 )
 		{
-			if( LUA_EXPECT_NUMBER( 1 ) )
+			if( LUA_EXPECT_NUMBER( 1 ) &&
+				LUA_EXPECT_NUMBER( 2 ) )
 			{
-				float value = lua_tofloat( lua, 1 );
+				uint32_t hash = lua_touint( lua, 1 );
+				float value = lua_tofloat( lua, 2 );
 
-				g_coreData->server->queue( value );
+				g_coreData->server->queue( hash, value );
 			}
 		}
 
@@ -109,14 +115,16 @@ namespace LuaServer
 
 	LDEC( queueString )
 	{
-		LUA_EXPECT_ARGS( 1 )
+		LUA_EXPECT_ARGS( 2 )
 		{
-			if( LUA_EXPECT_STRING( 1 ) )
+			if( LUA_EXPECT_NUMBER( 1 ) &&
+				LUA_EXPECT_STRING( 2 ) )
 			{
-				const char* text = lua_tostring( lua, 1 );
+				uint32_t hash = lua_touint( lua, 1 );
+				const char* text = lua_tostring( lua, 2 );
 				int len = strlen( text );
 				
-				g_coreData->server->queue( text, len );
+				g_coreData->server->queue( hash, text, len );
 			}
 		}
 

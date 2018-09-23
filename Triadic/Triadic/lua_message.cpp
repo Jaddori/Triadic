@@ -24,6 +24,8 @@ namespace LuaMessage
 			{ "readFloat", readFloat },
 			{ "readString", readString },
 
+			{ "getHash", getHash },
+
 			{ NULL, NULL }
 		};
 
@@ -260,6 +262,25 @@ namespace LuaMessage
 				text[len] = 0;
 
 				lua_pushstring( lua, text );
+				result = 1;
+			}
+		}
+
+		return result;
+	}
+
+	LDEC( getHash )
+	{
+		int result = 0;
+
+		LUA_EXPECT_ARGS( 1 )
+		{
+			if( LUA_EXPECT_TABLE( 1 ) )
+			{
+				Message* message = lua_getuserdata<Message>( lua, 1 );
+				uint64_t hash = message->getHash();
+
+				lua_pushnumber( lua, hash );
 				result = 1;
 			}
 		}

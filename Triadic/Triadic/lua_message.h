@@ -22,4 +22,6 @@ namespace LuaMessage
 	LDEC( readUint );
 	LDEC( readFloat );
 	LDEC( readString );
+
+	LDEC( getHash );
 }

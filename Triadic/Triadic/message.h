@@ -68,12 +68,15 @@ namespace Network
 		void setSize( int size );
 		void setOffset( int offset );
 		void setBuffer( char* buffer, int length );
+		void setHash( uint64_t hash );
 
 		int getSize() const;
 		int getOffset() const;
 		char* getBuffer();
+		uint64_t getHash() const;
 
 	private:
+		uint64_t hash;
 		int size;
 		int offset;
 		char buffer[MESSAGE_SIZE];

@@ -16,8 +16,10 @@
 
 #define WINDOW_X SDL_WINDOWPOS_UNDEFINED
 #define WINDOW_Y SDL_WINDOWPOS_UNDEFINED
-#define WINDOW_WIDTH 1280
-#define WINDOW_HEIGHT 720
+//#define WINDOW_WIDTH 1280
+//#define WINDOW_HEIGHT 720
+#define WINDOW_WIDTH 640
+#define WINDOW_HEIGHT 480
 #define WINDOW_VIEWPORT glm::vec4( 0.0f, 0.0f, WINDOW_WIDTH, WINDOW_HEIGHT )
 
 #define FPS 200
@@ -72,6 +74,8 @@ const glm::vec3 FORWARD( 0.0f, 0.0f, 1.0f );
 #include "swap.h"
 #include "swap_array.h"
 //#include "Utils.h"
+
+#define addr struct sockaddr*
 
 struct Point
 {

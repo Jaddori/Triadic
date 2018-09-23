@@ -77,15 +77,22 @@ void Server::processTick()
 
 		if( recvLen > 0 )
 		{
-			uint64_t hash = ((uint64_t)remoteAddress.sin_addr.S_un.S_addr << 32) | remoteAddress.sin_port;
+			//uint64_t hash = ((uint64_t)remoteAddress.sin_addr.S_un.S_addr << 32) | remoteAddress.sin_port;
+			uint32_t hash = remoteAddress.sin_addr.S_un.S_addr + remoteAddress.sin_port;
 			if( addressHashes.find( hash ) < 0 )
 			{
 				addressHashes.add( hash );
 				remoteAddresses.add( remoteAddress );
+
+				Message& msg = sendMessages.append();
+				msg.clear();
+
+				LOG_DEBUG( "Adding new remote address with hash: %d", hash );
 			}
 
 			SDL_LockMutex( mutex );
 			Message msg( buffer, recvLen );
+			msg.setHash( hash  );
 			recvMessages.add( msg );
 			SDL_UnlockMutex( mutex );
 		}
@@ -93,7 +100,7 @@ void Server::processTick()
 
 	// SEND
 	SDL_LockMutex( mutex );
-	if( sendMessage.getSize() > 0 )
+	/*if( sendMessage.getSize() > 0 )
 	{
 		const int REMOTE_ADDRESS_COUNT = remoteAddresses.getSize();
 		for( int curAddress = 0; curAddress < REMOTE_ADDRESS_COUNT; curAddress++ )
@@ -108,7 +115,26 @@ void Server::processTick()
 		}
 
 		sendMessage.clear();
+	}*/
+
+	const int REMOTE_ADDRESS_COUNT = remoteAddresses.getSize();
+	for( int curAddress = 0; curAddress < REMOTE_ADDRESS_COUNT; curAddress++ )
+	{
+		Message& message = sendMessages[curAddress];
+		if( message.getSize() > 0 )
+		{
+			int sendLen = sendto( mainSocket, message.getBuffer(), message.getSize(), 0, (addr)&remoteAddresses[curAddress], remoteAddressSize );
+
+			if( sendLen == SOCKET_ERROR )
+			{
+				LOG_ERROR( "Server: sendto failed with error code: %d", WSAGetLastError() );
+				valid = false;
+			}
+
+			message.clear();
+		}
 	}
+
 	SDL_UnlockMutex( mutex );
 }
 
