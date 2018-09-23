@@ -63,18 +63,24 @@ end
 function Chat:serverRead( message )
 	local text = message:readString()
 
-	self.sendMessages[#self.sendMessages+1] = text
+	for _,v in pairs(self.sendMessages) do
+		v[#v+1] = text
+	end
 end
 
 function Chat:serverWrite( hash )
 	local result = false
 
-	if #self.sendMessages > 0 then
-		GameServer:queue( hash, 2, SERVER_STRING, self.sendMessages[1], true )
-		self.sendMessages[1] = nil
+	if #self.sendMessages[hash] > 0 then
+		GameServer:queue( hash, 2, SERVER_STRING, self.sendMessages[hash][1], true )
+		self.sendMessages[hash][1] = nil
 
 		result = true
 	end
 
 	return result
+end
+
+function Chat:serverOnNewHash( hash )
+	self.sendMessages[hash] = {}
 end
