@@ -52,5 +52,5 @@ function StateGame:serverRead()
 	GameServer:serverRead()
 end
 
-Game:addState( StateGame )
-Game:setState( StateGame.name )
+--Game:addState( StateGame )
+--Game:setState( StateGame.name )

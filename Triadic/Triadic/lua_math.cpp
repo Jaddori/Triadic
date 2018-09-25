@@ -78,6 +78,9 @@ namespace LuaMath
 		lua_pushvalue( lua, -1 );
 		lua_setfield( lua, -2, "__index" );
 		lua_setglobal( lua, "Vec4" );
+
+		// QUAT
+		lua_register( lua, "eulerQuat", LuaQuat::eulerQuat );
 	}
 
 	namespace LuaVec2
@@ -1038,6 +1041,30 @@ namespace LuaMath
 					glm::vec4 product = v/m;
 					lua_setvec4( lua, tableIndex, product );
 					luaL_setmetatable( lua, "vec4Meta" );
+				}
+			}
+
+			return result;
+		}
+	}
+
+	namespace LuaQuat
+	{
+		LDEC( eulerQuat )
+		{
+			int result = 0;
+
+			LUA_EXPECT_ARGS( 1 )
+			{
+				if( LUA_EXPECT_TABLE( 1 ) )
+				{
+					glm::vec3 vec;
+					lua_getvec3( lua, 1, vec );
+
+					glm::quat q( vec );
+					lua_newtable( lua );
+					lua_setquat( lua, q );
+					result = 1;
 				}
 			}
 

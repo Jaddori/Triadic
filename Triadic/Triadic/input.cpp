@@ -2,7 +2,7 @@
 using namespace System;
 
 Input::Input()
-	: active( true ), mouseWheel( 0 )
+	: active( true ), mouseWheel( 0 ), updateBound( true )
 {
 	memset( keys, 0, INPUT_MAX_KEYS );
 	memset( prevKeys, 0, INPUT_MAX_KEYS );
@@ -127,6 +127,11 @@ bool Input::buttonReleased( int button )
 	return ( active && !buttons[button] && prevButtons[button] );
 }
 
+void Input::setUpdateBound( bool bound )
+{
+	updateBound = bound;
+}
+
 Point Input::getMousePosition() const
 {
 	return mousePosition;
@@ -156,4 +161,9 @@ const char* Input::getTextInput() const
 bool Input::getActive() const
 {
 	return active;
+}
+
+bool Input::getUpdateBound() const
+{
+	return updateBound;
 }

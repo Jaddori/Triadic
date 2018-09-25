@@ -134,58 +134,57 @@ function Editor:load()
 	
 	self.gui.panel.tabs[GUI_TAB_INFO].positionInputbox.textbox.onFinish = function( textbox )
 		if textbox.text:len() > 0 then
-			local components = split( textbox.text, "," )
-			
-			local x = tonumber( components[1] )
-			local y = tonumber( components[2] )
-			local z = tonumber( components[3] )
+			local newPosition = vecString( textbox.text )
 
 			copyVec( self.selectedEntity.position, self.command.old)
-			copyVec( {x,y,z}, self.command.new )
+			copyVec( newPosition, self.command.new )
 
 			local moveCommand = CommandMove.create( self.command.old, self.command.new, self.selectedEntity )
 			self.commandHistory:addCommand( moveCommand )
 			
-			self.selectedEntity.position = {x,y,z}
+			self.selectedEntity.position = position
 			self.gizmo:setPosition( self.selectedEntity.position )
 		end
 	end
 
 	self.gui.panel.tabs[GUI_TAB_INFO].orientationInputbox.textbox.onFinish = function( textbox )
 		if textbox.text:len() > 0 then
-			local components = split( textbox.text, "," )
+			local newOrientation = vecString( textbox.text )
 
-			local x = tonumber( components[1] )
-			local y = tonumber( components[2] )
-			local z = tonumber( components[3] )
-			local w = tonumber( components[4] )
+			for i=1, #newOrientation do
+				while newOrientation[i] >= 360 do
+					newOrientation[i] = newOrientation[i] - 360
+				end
+
+				while newOrientation[i] < 0 do
+					newOrientation[i] = newOrientation[i] + 360
+				end
+			end
+
+			textbox:setText( stringVec( newOrientation ) )
 
 			copyVec( self.selectedEntity.orientation, self.command.old )
-			copyVec( {x,y,z,w}, self.command.new )
+			copyVec( newOrientation, self.command.new )
 
 			local rotateCommand = CommandRotate.create( self.command.old, self.command.new, self.selectedEntity )
 			self.commandHistory:addCommand( rotateCommand )
 
-			self.selectedEntity.orientation = {x,y,z,w}
+			self.selectedEntity.orientation = newOrientation
 			self.gizmo:setOrientation( self.selectedEntity.orientation )
 		end
 	end
 
 	self.gui.panel.tabs[GUI_TAB_INFO].scaleInputbox.textbox.onFinish = function( textbox )
 		if textbox.text:len() > 0 then
-			local components = split( textbox.text, "," )
-
-			local x = tonumber( components[1] )
-			local y = tonumber( components[2] )
-			local z = tonumber( components[3] )
+			local newScale = vecString( textbox.text )
 
 			copyVec( self.selectedEntity.scale, self.command.old )
-			copyVec( {x,y,z}, self.command.new )
+			copyVec( newScale, self.command.new )
 
 			local scaleCommand = CommandScale.create( self.command.old, self.command.new, self.selectedEntity )
 			self.commandHistory:addCommand( scaleCommand )
 
-			self.selectedEntity.scale = {x,y,z}
+			self.selectedEntity.scale = newScale
 			self.gizmo:setScale( self.selectedEntity.scale )
 		end
 	end
@@ -221,7 +220,6 @@ function Editor:load()
 	end
 
 	self.gui.panel.tabs[GUI_TAB_INFO].prefabNameWindow.onClose = function( window )
-		Log.debug( "POPPPING" )
 		self:popPriorityItem()
 	end
 

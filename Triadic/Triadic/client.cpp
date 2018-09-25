@@ -83,7 +83,7 @@ void Client::processHandshake()
 							salt += rand();
 					}
 
-					LOG_DEBUG( "Client: Sending handshake message #%d", handshakePhase );
+					LOG_INFO( "Client: Sending handshake message #%d", handshakePhase );
 
 					Message msg;
 					msg.write( handshakePhase );
@@ -102,7 +102,7 @@ void Client::processHandshake()
 
 					if( handshakePhase == 1 )
 					{
-						LOG_DEBUG( "Client: Connected!" );
+						LOG_INFO( "Client: Connected!" );
 						connected = true;
 					}
 				}

@@ -16,9 +16,12 @@ namespace LuaInput
 	LDEC( buttonPressed );
 	LDEC( buttonReleased );
 
+	LDEC( setUpdateBound );
+
 	LDEC( getMousePosition );
 	LDEC( getMouseDelta );
 	LDEC( getMouseWheel );
 	LDEC( getTextInput );
 	LDEC( getActive );
+	LDEC( getUpdateBound );
 }

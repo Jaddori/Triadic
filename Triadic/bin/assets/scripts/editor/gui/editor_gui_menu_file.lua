@@ -15,7 +15,7 @@ local file =
 	onSave = nil,
 	onSaveAs = nil,
 	onCompile = nil,
-	onExit = nil
+	onExit = nil,
 }
 
 function file:load( xoffset, items, depth )
@@ -85,11 +85,11 @@ function file:load( xoffset, items, depth )
 	self.exitButton = EditorButton.create( {xoffset, yoffset}, {GUI_MENU_FILE_BUTTON_WIDTH, GUI_BUTTON_HEIGHT}, "Exit" )
 	self.exitButton.depth = self.fileButton.depth + GUI_DEPTH_INC
 	self.exitButton:setTextAlignment( ALIGN_NEAR, ALIGN_NEAR )
-	self.exitButton.onClick = function( self )
-		gui.menu.file.visible = false
-		
-		if gui.menu.file.onExit then
-			gui.menu.file.onExit()
+	self.exitButton.onClick = function( button )
+		self.visible = false
+
+		if self.onExit then
+			self.onExit()
 		end
 	end
 	yoffset = yoffset + GUI_BUTTON_HEIGHT

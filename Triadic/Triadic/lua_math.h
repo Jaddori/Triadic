@@ -53,4 +53,9 @@ namespace LuaMath
 		LDEC( mul );
 		LDEC( div );
 	}
+
+	namespace LuaQuat
+	{
+		LDEC( eulerQuat );
+	}
 }

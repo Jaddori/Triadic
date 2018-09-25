@@ -9,8 +9,10 @@ Entity =
 	position = {0,0,0},
 	prevPosition = {0,0,0},
 	
-	orientation = {0,0,0,1},
-	prevOrientation = {0,0,0,1},
+	orientation = {0,0,0},
+	prevOrientation = {0,0,0},
+
+	quatOrientation = {0,0,0,1},
 	
 	scale = {1,1,1},
 	prevScale = {1,1,1},
@@ -27,8 +29,8 @@ function Entity.create( name, position, orientation, scale)
 		position = position or {0,0,0},
 		prevPosition = {0,0,0},
 		
-		orientation = orientation or {0,0,0,1},
-		prevOrientation = {0,0,0,1},
+		orientation = orientation or {0,0,0},
+		prevOrientation = {0,0,0},
 		
 		scale = scale or {1,1,1},
 		prevScale = {1,1,1},
@@ -38,6 +40,8 @@ function Entity.create( name, position, orientation, scale)
 		selected = false,
 		components = {},
 	}
+
+	result.quatOrientation = eulerQuat( result.orientation )
 	
 	setmetatable( result, { __index = Entity } )
 	
@@ -160,6 +164,12 @@ function Entity:update( deltaTime )
 	
 	-- check if orientation has changed
 	if not equalsVec( self.orientation, self.prevOrientation ) then
+		self.quatOrientation = eulerQuat
+		({
+			math.rad( self.orientation[1] ),
+			math.rad( self.orientation[2] ),
+			math.rad( self.orientation[3] )
+		})
 		self:executeOnComponents( "parentOriented" )
 		copyVec( self.orientation, self.prevOrientation )
 	end

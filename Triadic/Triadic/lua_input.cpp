@@ -90,11 +90,14 @@ namespace LuaInput
 			{ "buttonPressed", buttonPressed },
 			{ "buttonReleased", buttonReleased },
 
+			{ "setUpdateBound", setUpdateBound },
+
 			{ "getMousePosition", getMousePosition },
 			{ "getMouseDelta", getMouseDelta },
 			{ "getMouseWheel", getMouseWheel },
 			{ "getTextInput", getTextInput },
 			{ "getActive", getActive },
+			{ "getUpdateBound", getUpdateBound },
 
 			{ NULL, NULL }
 		};
@@ -233,6 +236,20 @@ namespace LuaInput
 		return result;
 	}
 
+	LDEC( setUpdateBound )
+	{
+		LUA_EXPECT_ARGS( 1 )
+		{
+			if( LUA_EXPECT_BOOL( 1 ) )
+			{
+				bool bound = lua_tobool( lua, 1 );
+				g_coreData->input->setUpdateBound( bound );
+			}
+		}
+
+		return 0;
+	}
+
 	LDEC( getMousePosition )
 	{
 		Point position = g_coreData->input->getMousePosition();
@@ -278,6 +295,15 @@ namespace LuaInput
 		bool active = g_coreData->input->getActive();
 
 		lua_pushboolean( lua, active );
+
+		return 1;
+	}
+
+	LDEC( getUpdateBound )
+	{
+		bool bound = g_coreData->input->getUpdateBound();
+
+		lua_pushboolean( lua, bound );
 
 		return 1;
 	}

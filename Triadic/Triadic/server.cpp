@@ -110,7 +110,7 @@ void Server::processTick()
 
 					index = handshakingHashes.getSize()-1;
 
-					LOG_DEBUG( "Server: Starting handshake with new hash: %d", hash );
+					LOG_INFO( "Server: Starting handshake with new hash: %d", hash );
 				}
 
 				Message msg( buffer, recvLen );
@@ -123,7 +123,7 @@ void Server::processTick()
 						uint32_t phase = msg.read<uint32_t>();
 						if( phase == LOCAL_PHASE )
 						{
-							LOG_DEBUG( "Server: Received handshake message #%d", LOCAL_PHASE );
+							LOG_INFO( "Server: Received handshake message #%d", LOCAL_PHASE );
 
 							uint32_t salt = msg.read<uint32_t>();
 							handshakingSalts[index] = salt;
@@ -137,7 +137,7 @@ void Server::processTick()
 						uint32_t phase = msg.read<uint32_t>();
 						if( phase == LOCAL_PHASE )
 						{
-							LOG_DEBUG( "Server: Received handshake message #%d", LOCAL_PHASE );
+							LOG_INFO( "Server: Received handshake message #%d", LOCAL_PHASE );
 
 							uint32_t fullSalt = msg.read<uint32_t>();
 							uint32_t checkSalt = hash ^ handshakingSalts[index];
@@ -152,7 +152,7 @@ void Server::processTick()
 								Message& msg = sendMessages.append();
 								msg.clear();
 
-								LOG_DEBUG( "Server: Handshaking complete for hash: %d", handshakingHashes[index] );
+								LOG_INFO( "Server: Handshaking complete for hash: %d", handshakingHashes[index] );
 
 								// remove from handshaking lists
 								handshakingAddresses.removeAt( index );
@@ -230,7 +230,7 @@ void Server::processTick()
 
 					handshakes++;
 
-					LOG_DEBUG( "Server: Sending handshake message #%d", LOCAL_PHASE );
+					LOG_INFO( "Server: Sending handshake message #%d", LOCAL_PHASE );
 					
 					int sendLen = sendto( mainSocket, msg.getBuffer(), msg.getSize(), 0, (addr)&handshakingAddresses[curAddress], remoteAddressSize );
 					if( sendLen == SOCKET_ERROR )

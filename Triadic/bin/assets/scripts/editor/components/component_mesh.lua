@@ -33,6 +33,7 @@ function ComponentMesh.create( parent )
 	if result.parent then
 		result.transform = Transform.create()
 		result.transform:setPosition( parent.position )
+		result.transform:setOrientation( parent.quatOrientation )
 	end
 
 	if #ComponentMeshWindow.meshIndices > 0 then
@@ -106,7 +107,7 @@ function ComponentMesh:parentMoved()
 end
 
 function ComponentMesh:parentOriented()
-	self.transform:setOrientation( self.parent.orientation )
+	self.transform:setOrientation( self.parent.quatOrientation )
 end
 
 function ComponentMesh:parentScaled()

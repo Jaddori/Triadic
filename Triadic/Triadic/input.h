@@ -28,11 +28,14 @@ namespace System
 		bool buttonPressed( int button );
 		bool buttonReleased( int button );
 
+		void setUpdateBound( bool bound );
+
 		Point getMousePosition() const;
 		Point getMouseDelta() const;
 		int getMouseWheel() const;
 		const char* getTextInput() const;
 		bool getActive() const;
+		bool getUpdateBound() const;
 
 	private:
 		bool active;
@@ -41,6 +44,7 @@ namespace System
 		bool buttons[INPUT_MAX_BUTTONS];
 		bool prevButtons[INPUT_MAX_BUTTONS];
 		bool repeatedKeys[INPUT_MAX_KEYS];
+		bool updateBound;
 
 		Point mousePosition;
 		Point prevMousePosition;
