@@ -64,8 +64,7 @@ function GameServer:serverWrite()
 						if type == SERVER_INT then Server.queueInt( ackValue.hash, packetValue.value )
 						elseif type == SERVER_UINT then Server.queueUint( ackValue.hash, packetValue.value )
 						elseif type == SERVER_FLOAT then Server.queueFloat( ackValue.hash, packetValue.value )
-						elseif type == SERVER_STRING then
-							Server.queueString( ackValue.hash, packetValue.value )
+						elseif type == SERVER_STRING then Server.queueString( ackValue.hash, packetValue.value )
 						end
 					end
 				end
@@ -172,6 +171,8 @@ end
 
 function GameServer:queue( hash, id, type, value, reliable )
 	assert( type == SERVER_INT or type == SERVER_UINT or type == SERVER_FLOAT or type == SERVER_STRING, "Server: bad type = " .. tostring( type ) )
+	assert( value, "Value was nil." )
+	assert( hash, "Hash was nil." )
 
 	if reliable then
 		local count = #self.reliablePackets[hash][id]

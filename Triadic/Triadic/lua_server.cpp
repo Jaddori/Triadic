@@ -11,6 +11,7 @@ namespace LuaServer
 		luaL_Reg serverRegs[] = 
 		{
 			{ "getMessages", getMessages },
+			{ "getNetworkID", getNetworkID },
 
 			{ "queueInt", queueInt },
 			{ "queueUint", queueUint },
@@ -45,6 +46,26 @@ namespace LuaServer
 		}
 
 		return 1;
+	}
+
+	LDEC( getNetworkID )
+	{
+		int result = 0;
+
+		LUA_EXPECT_ARGS( 1 )
+		{
+			if( LUA_EXPECT_NUMBER( 1 ) )
+			{
+				uint32_t hash = lua_touint( lua, 1 );
+
+				uint32_t networkID = g_coreData->server->getNetworkID( hash );
+
+				lua_pushnumber( lua, networkID );
+				result = 1;
+			}
+		}
+
+		return result;
 	}
 
 	LDEC( queueInt )

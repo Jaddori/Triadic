@@ -2,6 +2,7 @@
 using namespace Network;
 
 Server::Server()
+	: handshakes( 1 )
 {
 }
 
@@ -79,20 +80,99 @@ void Server::processTick()
 		if( recvLen > 0 )
 		{
 			uint32_t hash = remoteAddress.sin_addr.S_un.S_addr + remoteAddress.sin_port;
-			if( addressHashes.find( hash ) < 0 )
+			/*if( addressHashes.find( hash ) < 0 )
 			{
 				addressHashes.add( hash );
 				remoteAddresses.add( remoteAddress );
-
+				
 				Message& msg = sendMessages.append();
 				msg.clear();
-
+				
 				LOG_DEBUG( "Adding new remote address with hash: %d", hash );
 			}
 
 			Message msg( buffer, recvLen );
 			msg.setHash( hash  );
-			recvMessages.add( msg );
+			recvMessages.add( msg );*/
+
+			if( addressHashes.find( hash ) < 0 )
+			{
+				int index = handshakingHashes.find( hash );
+				if( index < 0 )
+				{
+					handshakingHashes.add( hash );
+					handshakingAddresses.add( remoteAddress );
+					handshakingTicks.add( 0 );
+					handshakingPhases.add( 0 );
+					handshakingSalts.add( 0 );
+					handshakingRetries.add( 0 );
+					handshakingNetworkIDs.add( 0 );
+
+					index = handshakingHashes.getSize()-1;
+
+					LOG_DEBUG( "Server: Starting handshake with new hash: %d", hash );
+				}
+
+				Message msg( buffer, recvLen );
+
+				const int LOCAL_PHASE = handshakingPhases[index];
+				switch( LOCAL_PHASE )
+				{
+					case 0: //
+					{
+						uint32_t phase = msg.read<uint32_t>();
+						if( phase == LOCAL_PHASE )
+						{
+							LOG_DEBUG( "Server: Received handshake message #%d", LOCAL_PHASE );
+
+							uint32_t salt = msg.read<uint32_t>();
+							handshakingSalts[index] = salt;
+
+							handshakingPhases[index]++;
+						}
+					} break;
+
+					case 1: //
+					{
+						uint32_t phase = msg.read<uint32_t>();
+						if( phase == LOCAL_PHASE )
+						{
+							LOG_DEBUG( "Server: Received handshake message #%d", LOCAL_PHASE );
+
+							uint32_t fullSalt = msg.read<uint32_t>();
+							uint32_t checkSalt = hash ^ handshakingSalts[index];
+
+							if( fullSalt == checkSalt )
+							{
+								addressHashes.add( hash );
+								remoteAddresses.add( remoteAddress );
+								salts.add( fullSalt );
+								networkIDs.add( handshakingNetworkIDs[index] );
+
+								Message& msg = sendMessages.append();
+								msg.clear();
+
+								LOG_DEBUG( "Server: Handshaking complete for hash: %d", handshakingHashes[index] );
+
+								// remove from handshaking lists
+								handshakingAddresses.removeAt( index );
+								handshakingHashes.removeAt( index );
+								handshakingTicks.removeAt( index );
+								handshakingPhases.removeAt( index );
+								handshakingSalts.removeAt( index );
+								handshakingRetries.removeAt( index );
+								handshakingNetworkIDs.removeAt( index );
+							}
+						}
+					} break;
+				}
+			}
+			else
+			{
+				Message msg( buffer, recvLen );
+				msg.setHash( hash );
+				recvMessages.add( msg );
+			}
 		}
 	} while( recvLen > 0 );
 
@@ -114,6 +194,56 @@ void Server::processTick()
 			message.clear();
 		}
 	}
+
+	// handshaking
+	const int HANDSHAKING_ADDRESSES = handshakingAddresses.getSize();
+	for( int curAddress = 0; curAddress < HANDSHAKING_ADDRESSES; curAddress++ )
+	{
+		const int LOCAL_PHASE = handshakingPhases[curAddress];
+		switch( LOCAL_PHASE )
+		{
+			case 1:
+			{
+				bool shouldSend = false;
+
+				handshakingTicks[curAddress] -= TIMESTEP_MS;
+				if( handshakingTicks[curAddress] <= 0 )
+				{
+					if( handshakingRetries[curAddress] >= SERVER_HANDSHAKE_MAX_RETRIES )
+					{
+						shouldSend = false;
+						LOG_WARNING( "Server: Client timed out when trying to connect." );
+					}
+
+					shouldSend = true;
+				}
+
+				if( shouldSend )
+				{
+					uint32_t fullSalt = handshakingHashes[curAddress] ^ handshakingSalts[curAddress];
+
+					Message msg;
+					msg.write<uint32_t>( LOCAL_PHASE );
+					msg.write( fullSalt );
+					msg.write( handshakes );
+					handshakingNetworkIDs[curAddress] = handshakes;
+
+					handshakes++;
+
+					LOG_DEBUG( "Server: Sending handshake message #%d", LOCAL_PHASE );
+					
+					int sendLen = sendto( mainSocket, msg.getBuffer(), msg.getSize(), 0, (addr)&handshakingAddresses[curAddress], remoteAddressSize );
+					if( sendLen == SOCKET_ERROR )
+					{
+						LOG_ERROR( "Server: sendto failed with error code: %d", WSAGetLastError() );
+						valid = false;
+					}
+
+					handshakingTicks[curAddress] = SERVER_HANDSHAKE_TIMEOUT_MS;
+				}
+			} break;
+		}
+	}
 }
 
 Array<Message>& Server::getMessages()
@@ -124,4 +254,17 @@ Array<Message>& Server::getMessages()
 bool Server::getValid() const
 {
 	return valid;
+}
+
+uint32_t Server::getNetworkID( uint32_t hash )
+{
+	uint32_t result = 0;
+
+	int index = addressHashes.find( hash );
+	if( index >= 0 )
+	{
+		result = networkIDs[index];
+	}
+
+	return result;
 }

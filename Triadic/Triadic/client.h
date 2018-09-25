@@ -6,6 +6,8 @@
 #define CLIENT_TICK_RATE 20
 #define CLIENT_TICK_TIME ( 1000.0f / CLIENT_TICK_RATE )
 #define CLIENT_DEFAULT_PORT 12345
+#define CLIENT_HANDSHAKE_TIMEOUT_MS 1000
+#define CLIENT_HANDSHAKE_MAX_RETRIES 3
 
 namespace Network
 {
@@ -18,6 +20,7 @@ namespace Network
 		void start( int port = CLIENT_DEFAULT_PORT );
 		void stop();
 
+		void processHandshake();
 		void processTick();
 
 		template<typename T>
@@ -39,17 +42,25 @@ namespace Network
 		Array<Message>& getMessages();
 
 		bool getValid() const;
+		bool getConnected() const;
+		uint32_t getNetworkID() const;
 
 	private:
 		SOCKET mainSocket;
 		WSADATA wsaData;
 		struct sockaddr_in remoteAddress;
+		int remoteAddressSize;
 
 		char buffer[MESSAGE_SIZE];
 		bool hasSocket, valid;
 		SDL_mutex* mutex;
 		Message sendMessage;
 		Array<Message> recvMessages;
-		int readOffset;
+		
+		bool connected;
+		uint32_t handshakePhase;
+		int handshakeTicks;
+		uint32_t handshakeRetries;
+		uint32_t salt, networkID;
 	};
 }

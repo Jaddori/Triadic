@@ -64,6 +64,8 @@ int updateServer( void* args )
 
 int update( void* args )
 {
+	srand( (unsigned int)time( NULL ) );
+
 	ThreadData* data = (ThreadData*)args;
 
 	Input& input = *data->coreData->input;
@@ -128,9 +130,14 @@ int update( void* args )
 			uint64_t curClientTick = SDL_GetTicks();
 			if( curClientTick - lastClientTick > CLIENT_TICK_TIME )
 			{
-				script.clientWrite();
-				client.processTick();
-				script.clientRead();
+				if( client.getConnected() )
+				{
+					script.clientWrite();
+					client.processTick();
+					script.clientRead();
+				}
+				else
+					client.processHandshake();
 
 				lastClientTick = SDL_GetTicks();
 			}
