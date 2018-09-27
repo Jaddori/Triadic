@@ -142,7 +142,7 @@ function Editor:load()
 			local moveCommand = CommandMove.create( self.command.old, self.command.new, self.selectedEntity )
 			self.commandHistory:addCommand( moveCommand )
 			
-			self.selectedEntity.position = position
+			self.selectedEntity.position = newPosition
 			self.gizmo:setPosition( self.selectedEntity.position )
 		end
 	end

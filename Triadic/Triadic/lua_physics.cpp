@@ -316,7 +316,7 @@ namespace LuaPhysics
 		if( args == 2 || args == 3 )
 		{
 			if( LUA_EXPECT_TABLE( 1 ) &&
-				LUA_EXPECT_TABLE( 3 ) )
+				LUA_EXPECT_TABLE( 2 ) )
 			{
 				Sphere a = readSphere( lua, 1 );
 				Sphere b = readSphere( lua, 2 );
@@ -340,7 +340,7 @@ namespace LuaPhysics
 		return result;
 	}
 
-	LDEC( aabbAABB )
+	/*LDEC( aabbAABB )
 	{
 		int result = 0;
 
@@ -360,6 +360,27 @@ namespace LuaPhysics
 
 				lua_getvec3( lua, 3, b.minPosition );
 				lua_getvec3( lua, 4, b.maxPosition );
+
+				bool collision = g_coreData->collisionSolver->aabb( a, b );
+				lua_pushboolean( lua, collision );
+				result = 1;
+			}
+		}
+
+		return result;
+	}*/
+
+	LDEC( aabbAABB )
+	{
+		int result = 0;
+
+		LUA_EXPECT_ARGS( 2 )
+		{
+			if( LUA_EXPECT_TABLE( 1 ) &&
+				LUA_EXPECT_TABLE( 2 ) )
+			{
+				AABB a = readAABB( lua, 1 );
+				AABB b = readAABB( lua, 2 );
 
 				bool collision = g_coreData->collisionSolver->aabb( a, b );
 				lua_pushboolean( lua, collision );

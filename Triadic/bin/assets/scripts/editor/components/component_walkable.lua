@@ -39,14 +39,47 @@ function ComponentWalkable:calculate()
 	local startZ = self.parent.position[3]
 	local endZ = self.parent.position[3] + self.size[2]
 
+	local boundingBoxes = {}
+	for _,v in pairs(Editor.entities) do
+		if v.components[ComponentBoundingBox.name] then
+			boundingBoxes[#boundingBoxes+1] = v.components[ComponentBoundingBox.name]
+		end
+	end
+
 	for x = startX, endX, self.interval do
 		for z = startZ, endZ, self.interval do
-			self.nodes[#self.nodes+1] = 
+			local newNode = 
 			{
 				center = {x, 0, z},
 				radius = self.interval*0.5,
 				color = {0,1,0,1},
+				vacant = true,
 			}
+
+			local aabb =
+			{
+				minPosition = {x-self.interval*0.5, -self.interval*0.5, z-self.interval*0.5 },
+				maxPosition = {x+self.interval*0.5, self.interval*0.5, z+self.interval*0.5 }
+			}
+
+			for _,box in pairs(boundingBoxes) do
+				if box.type == BOUNDING_TYPE_AABB then
+					if Physics.aabbAABB( box.aabb, aabb ) then
+						newNode.vacant = false
+						break
+					end
+				elseif box.type == BOUNDING_TYPE_SPHERE then
+					if Physics.sphereSphere( box.sphere, newNode ) then
+						newNode.vacant = false
+						break
+					end
+				end
+			end
+
+			if not newNode.vacant then
+				newNode.color = {1,0,0,1}
+			end
+			self.nodes[#self.nodes+1] = newNode
 		end
 	end
 end

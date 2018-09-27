@@ -1,0 +1,154 @@
+-- camera
+Editor.camera.camera:setPosition( {24.32,38.12,19.14} )
+Editor.camera.camera:setDirection( {-0.68,-0.64,-0.36} )
+
+-- prefabs
+Prefabs["Wall"] =
+{
+	name = "Wall",
+	instances = {},
+	components = {},
+}
+setmetatable( Prefabs["Wall"], { __index = Prefab } )
+
+Prefabs["Wall"].components["Mesh"] = ComponentMesh.create()
+Prefabs["Wall"].components["Mesh"]:loadMesh( "wall.mesh" )
+
+--entities
+local entities = {}
+
+-- Floor
+local Floor = Entity.create( "Floor", {-10,0,0}, {0,0,0}, {4,1,2} )
+Floor.visible = true
+local Floor_component = ComponentMesh.create( Floor )
+Floor_component:loadMesh( "floor.mesh" )
+Floor:addComponent( Floor_component )
+local Floor_component = nil
+entities[#entities+1] = Floor
+-- Floor
+
+-- Wall_BottomRight
+local Wall_BottomRight = Entity.create( "Wall_BottomRight", {15,0,0}, {0,0,0}, {1,1,2} )
+Wall_BottomRight.visible = true
+Wall_BottomRight.prefab = Prefabs["Wall"]
+Prefabs["Wall"].instances[#Prefabs["Wall"].instances+1] = Wall_BottomRight
+local Wall_BottomRight_component = ComponentMesh.create( Wall_BottomRight )
+Wall_BottomRight_component:loadMesh( "wall.mesh" )
+Wall_BottomRight:addComponent( Wall_BottomRight_component )
+local Wall_BottomRight_component = nil
+entities[#entities+1] = Wall_BottomRight
+-- Wall_BottomRight
+
+-- Wall_TopRight
+local Wall_TopRight = Entity.create( "Wall_TopRight", {-10,0,-15}, {0,90,0}, {1,1,4} )
+Wall_TopRight.visible = true
+Wall_TopRight.prefab = Prefabs["Wall"]
+Prefabs["Wall"].instances[#Prefabs["Wall"].instances+1] = Wall_TopRight
+local Wall_TopRight_component = ComponentMesh.create( Wall_TopRight )
+Wall_TopRight_component:loadMesh( "wall.mesh" )
+Wall_TopRight:addComponent( Wall_TopRight_component )
+local Wall_TopRight_component = nil
+entities[#entities+1] = Wall_TopRight
+-- Wall_TopRight
+
+-- Wall_TopLeft
+local Wall_TopLeft = Entity.create( "Wall_TopLeft", {-35,0,0}, {0,180,0}, {1,1,2} )
+Wall_TopLeft.visible = true
+Wall_TopLeft.prefab = Prefabs["Wall"]
+Prefabs["Wall"].instances[#Prefabs["Wall"].instances+1] = Wall_TopLeft
+local Wall_TopLeft_component = ComponentMesh.create( Wall_TopLeft )
+Wall_TopLeft_component:loadMesh( "wall.mesh" )
+Wall_TopLeft:addComponent( Wall_TopLeft_component )
+local Wall_TopLeft_component = nil
+entities[#entities+1] = Wall_TopLeft
+-- Wall_TopLeft
+
+-- Wall_BottomLeft
+local Wall_BottomLeft = Entity.create( "Wall_BottomLeft", {-10,0,15}, {0,270,0}, {1,1,4} )
+Wall_BottomLeft.visible = true
+Wall_BottomLeft.prefab = Prefabs["Wall"]
+Prefabs["Wall"].instances[#Prefabs["Wall"].instances+1] = Wall_BottomLeft
+local Wall_BottomLeft_component = ComponentMesh.create( Wall_BottomLeft )
+Wall_BottomLeft_component:loadMesh( "wall.mesh" )
+Wall_BottomLeft:addComponent( Wall_BottomLeft_component )
+local Wall_BottomLeft_component = nil
+entities[#entities+1] = Wall_BottomLeft
+-- Wall_BottomLeft
+
+-- Light
+local Light = Entity.create( "Light", {4.21,4.83,-6.95}, {0,0,0}, {1,1,1} )
+Light.visible = true
+local Light_component = ComponentPointLight.create( Light )
+Light_component.position = {4.21,4.83,-6.95}
+Light_component.offset = {0,0,0}
+Light_component.color = {0.6,1,1}
+Light_component.intensity = 4
+Light_component.constant = 1
+Light_component.size = 1
+Light:addComponent( Light_component )
+local Light_component = nil
+entities[#entities+1] = Light
+-- Light
+
+-- SunLight
+local SunLight = Entity.create( "SunLight", {-6.78,16.13,15.48}, {0,0,0}, {1,1,1} )
+SunLight.visible = true
+local SunLight_component = ComponentDirectionalLight.create( SunLight )
+SunLight_component.direction = {-1,-1,-1}
+SunLight_component.color = {1,0.7,0.7}
+SunLight_component.intensity = 0.1
+SunLight:addComponent( SunLight_component )
+local SunLight_component = nil
+entities[#entities+1] = SunLight
+-- SunLight
+
+-- Light2
+local Light2 = Entity.create( "Light2", {-15.12,5.9,4.42}, {0,0,0}, {1,1,1} )
+Light2.visible = true
+local Light2_component = ComponentPointLight.create( Light2 )
+Light2_component.position = {-15.12,5.9,4.42}
+Light2_component.offset = {0,0,0}
+Light2_component.color = {0.6,1,1}
+Light2_component.intensity = 4
+Light2_component.constant = 1
+Light2_component.size = 1
+Light2:addComponent( Light2_component )
+local Light2_component = nil
+entities[#entities+1] = Light2
+-- Light2
+
+-- Pillar
+local Pillar = Entity.create( "Pillar", {-15.46,0,4.35}, {0,0,0}, {1,1,1} )
+Pillar.visible = true
+local Pillar_component = ComponentBoundingBox.create( Pillar )
+Pillar_component.type = 3
+Pillar_component.offset = {0,0,0}
+Pillar_component.ray.start = {-15.46,0,4.35}
+Pillar_component.ray.length = 5
+Pillar_component.ray.direction = {0.58,0.58,0.58}
+Pillar_component.sphere.center = {-15.46,0,4.35}
+Pillar_component.sphere.radius = 2
+Pillar_component.aabb.minPosition = {-16.46,0,3.35}
+Pillar_component.aabb.maxPosition = {-14.46,4,5.35}
+Pillar_component.aabb.minOffset = {-1,0,-1}
+Pillar_component.aabb.maxOffset = {1,4,1}
+Pillar:addComponent( Pillar_component )
+local Pillar_component = ComponentMesh.create( Pillar )
+Pillar_component:loadMesh( "pillar05.mesh" )
+Pillar:addComponent( Pillar_component )
+local Pillar_component = nil
+entities[#entities+1] = Pillar
+-- Pillar
+
+-- NewEntity
+local NewEntity = Entity.create( "NewEntity", {-30,0,-10}, {0,0,0}, {1,1,1} )
+NewEntity.visible = true
+local NewEntity_component = ComponentWalkable.create( NewEntity )
+NewEntity_component.size = {40,20}
+NewEntity_component.interval = 1
+NewEntity:addComponent( NewEntity_component )
+local NewEntity_component = nil
+entities[#entities+1] = NewEntity
+-- NewEntity
+
+return entities
