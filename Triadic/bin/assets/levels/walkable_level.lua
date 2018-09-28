@@ -16,6 +16,13 @@ Wall_BottomRight =
 	scale = {1,1,2},
 	components =
 	{
+		local Wall_BottomRight_component = {
+			type = 3,
+			minPosition = {9.5,0,-10},
+			maxPosition = {10,10,10},
+			minOffset = {-5.5,0,-10},
+			maxOffset = {-5,10,10}
+		}
 		local Wall_BottomRight_component = ComponentMesh.create( Wall_BottomRight )
 		Wall_BottomRight_component:loadMesh( "wall.mesh" )
 	}
@@ -27,6 +34,13 @@ Wall_TopRight =
 	scale = {1,1,4},
 	components =
 	{
+		local Wall_TopRight_component = {
+			type = 3,
+			minPosition = {-30,0,-9.5},
+			maxPosition = {10,10,-10},
+			minOffset = {-20,0,5.5},
+			maxOffset = {20,10,5}
+		}
 		local Wall_TopRight_component = ComponentMesh.create( Wall_TopRight )
 		Wall_TopRight_component:loadMesh( "wall.mesh" )
 	}
@@ -38,6 +52,13 @@ Wall_TopLeft =
 	scale = {1,1,2},
 	components =
 	{
+		local Wall_TopLeft_component = {
+			type = 3,
+			minPosition = {-29.5,0,10},
+			maxPosition = {-30,10,-10},
+			minOffset = {5.5,0,10},
+			maxOffset = {5,10,-10}
+		}
 		local Wall_TopLeft_component = ComponentMesh.create( Wall_TopLeft )
 		Wall_TopLeft_component:loadMesh( "wall.mesh" )
 	}
@@ -49,6 +70,13 @@ Wall_BottomLeft =
 	scale = {1,1,4},
 	components =
 	{
+		local Wall_BottomLeft_component = {
+			type = 3,
+			minPosition = {10,0,9.5},
+			maxPosition = {-30,10,10},
+			minOffset = {20,0,-5.5},
+			maxOffset = {-20,10,-5}
+		}
 		local Wall_BottomLeft_component = ComponentMesh.create( Wall_BottomLeft )
 		Wall_BottomLeft_component:loadMesh( "wall.mesh" )
 	}
@@ -109,8 +137,6 @@ Pillar =
 	scale = {1,1,1},
 	components =
 	{
-		local Pillar_component = ComponentMesh.create( Pillar )
-		Pillar_component:loadMesh( "pillar05.mesh" )
 		local Pillar_component = {
 			type = 3,
 			minPosition = {-16.46,0,3.35},
@@ -118,6 +144,8 @@ Pillar =
 			minOffset = {-1,0,-1},
 			maxOffset = {1,4,1}
 		}
+		local Pillar_component = ComponentMesh.create( Pillar )
+		Pillar_component:loadMesh( "pillar05.mesh" )
 	}
 }
 WalkableSurface =

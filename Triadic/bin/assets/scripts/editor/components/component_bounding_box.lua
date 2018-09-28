@@ -318,6 +318,21 @@ function ComponentBoundingBoxWindow:show( component )
 			self.component:parentMoved()
 		end
 		layout:addItem( maxPositionInputbox )
+
+		-- match mesh
+		local matchButton = EditorButton.createWithText( "Match Mesh" )
+		matchButton.onClick = function( button )
+			local localBox = self.component.parent.components[ComponentMesh.name].worldBox
+
+			self.component.aabb.minOffset = subVec( localBox.minPosition, self.component.parent.position )
+			self.component.aabb.maxOffset = subVec( localBox.maxPosition, self.component.parent.position )
+
+			self.component:parentMoved()
+		end
+
+		local meshComponent = self.component.parent.components[ComponentMesh.name]
+		matchButton.disabled = ( meshComponent == nil )
+		layout:addItem( matchButton )
 	end
 
 	self.window:addItem( layout )

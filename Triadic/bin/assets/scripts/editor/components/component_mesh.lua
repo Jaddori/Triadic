@@ -119,7 +119,7 @@ function ComponentMesh:calculateWorldBox()
 		self.worldBox.maxPosition = self.boundingBox.maxPosition:mul( self.parent.scale )
 
 		local euler = self.parent.orientation
-		local rotationQuat = eulerQuat( {math.rad(euler[1]), math.rad(-euler[2]), math.rad(euler[3]) } )
+		local rotationQuat = eulerQuat( {math.rad(-euler[1]), math.rad(-euler[2]), math.rad(-euler[3]) } )
 		local rotationMatrix = quatToMat( rotationQuat )
 
 		self.worldBox.minPosition = self.worldBox.minPosition:mulMat( rotationMatrix )

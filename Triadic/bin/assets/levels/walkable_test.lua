@@ -32,6 +32,19 @@ local Wall_BottomRight = Entity.create( "Wall_BottomRight", {15,0,0}, {0,0,0}, {
 Wall_BottomRight.visible = true
 Wall_BottomRight.prefab = Prefabs["Wall"]
 Prefabs["Wall"].instances[#Prefabs["Wall"].instances+1] = Wall_BottomRight
+local Wall_BottomRight_component = ComponentBoundingBox.create( Wall_BottomRight )
+Wall_BottomRight_component.type = 3
+Wall_BottomRight_component.offset = {0,0,0}
+Wall_BottomRight_component.ray.start = {15,0,0}
+Wall_BottomRight_component.ray.length = 5
+Wall_BottomRight_component.ray.direction = {0.58,0.58,0.58}
+Wall_BottomRight_component.sphere.center = {15,0,0}
+Wall_BottomRight_component.sphere.radius = 2
+Wall_BottomRight_component.aabb.minPosition = {9.5,0,-10}
+Wall_BottomRight_component.aabb.maxPosition = {10,10,10}
+Wall_BottomRight_component.aabb.minOffset = {-5.5,0,-10}
+Wall_BottomRight_component.aabb.maxOffset = {-5,10,10}
+Wall_BottomRight:addComponent( Wall_BottomRight_component )
 local Wall_BottomRight_component = ComponentMesh.create( Wall_BottomRight )
 Wall_BottomRight_component:loadMesh( "wall.mesh" )
 Wall_BottomRight:addComponent( Wall_BottomRight_component )
@@ -44,6 +57,19 @@ local Wall_TopRight = Entity.create( "Wall_TopRight", {-10,0,-15}, {0,90,0}, {1,
 Wall_TopRight.visible = true
 Wall_TopRight.prefab = Prefabs["Wall"]
 Prefabs["Wall"].instances[#Prefabs["Wall"].instances+1] = Wall_TopRight
+local Wall_TopRight_component = ComponentBoundingBox.create( Wall_TopRight )
+Wall_TopRight_component.type = 3
+Wall_TopRight_component.offset = {0,0,0}
+Wall_TopRight_component.ray.start = {-10,0,-15}
+Wall_TopRight_component.ray.length = 5
+Wall_TopRight_component.ray.direction = {0.58,0.58,0.58}
+Wall_TopRight_component.sphere.center = {-10,0,-15}
+Wall_TopRight_component.sphere.radius = 2
+Wall_TopRight_component.aabb.minPosition = {-30,0,-9.5}
+Wall_TopRight_component.aabb.maxPosition = {10,10,-10}
+Wall_TopRight_component.aabb.minOffset = {-20,0,5.5}
+Wall_TopRight_component.aabb.maxOffset = {20,10,5}
+Wall_TopRight:addComponent( Wall_TopRight_component )
 local Wall_TopRight_component = ComponentMesh.create( Wall_TopRight )
 Wall_TopRight_component:loadMesh( "wall.mesh" )
 Wall_TopRight:addComponent( Wall_TopRight_component )
@@ -56,6 +82,19 @@ local Wall_TopLeft = Entity.create( "Wall_TopLeft", {-35,0,0}, {0,180,0}, {1,1,2
 Wall_TopLeft.visible = true
 Wall_TopLeft.prefab = Prefabs["Wall"]
 Prefabs["Wall"].instances[#Prefabs["Wall"].instances+1] = Wall_TopLeft
+local Wall_TopLeft_component = ComponentBoundingBox.create( Wall_TopLeft )
+Wall_TopLeft_component.type = 3
+Wall_TopLeft_component.offset = {0,0,0}
+Wall_TopLeft_component.ray.start = {-35,0,0}
+Wall_TopLeft_component.ray.length = 5
+Wall_TopLeft_component.ray.direction = {0.58,0.58,0.58}
+Wall_TopLeft_component.sphere.center = {-35,0,0}
+Wall_TopLeft_component.sphere.radius = 2
+Wall_TopLeft_component.aabb.minPosition = {-29.5,0,10}
+Wall_TopLeft_component.aabb.maxPosition = {-30,10,-10}
+Wall_TopLeft_component.aabb.minOffset = {5.5,0,10}
+Wall_TopLeft_component.aabb.maxOffset = {5,10,-10}
+Wall_TopLeft:addComponent( Wall_TopLeft_component )
 local Wall_TopLeft_component = ComponentMesh.create( Wall_TopLeft )
 Wall_TopLeft_component:loadMesh( "wall.mesh" )
 Wall_TopLeft:addComponent( Wall_TopLeft_component )
@@ -68,6 +107,19 @@ local Wall_BottomLeft = Entity.create( "Wall_BottomLeft", {-10,0,15}, {0,270,0},
 Wall_BottomLeft.visible = true
 Wall_BottomLeft.prefab = Prefabs["Wall"]
 Prefabs["Wall"].instances[#Prefabs["Wall"].instances+1] = Wall_BottomLeft
+local Wall_BottomLeft_component = ComponentBoundingBox.create( Wall_BottomLeft )
+Wall_BottomLeft_component.type = 3
+Wall_BottomLeft_component.offset = {0,0,0}
+Wall_BottomLeft_component.ray.start = {-10,0,15}
+Wall_BottomLeft_component.ray.length = 5
+Wall_BottomLeft_component.ray.direction = {0.58,0.58,0.58}
+Wall_BottomLeft_component.sphere.center = {-10,0,15}
+Wall_BottomLeft_component.sphere.radius = 2
+Wall_BottomLeft_component.aabb.minPosition = {10,0,9.5}
+Wall_BottomLeft_component.aabb.maxPosition = {-30,10,10}
+Wall_BottomLeft_component.aabb.minOffset = {20,0,-5.5}
+Wall_BottomLeft_component.aabb.maxOffset = {-20,10,-5}
+Wall_BottomLeft:addComponent( Wall_BottomLeft_component )
 local Wall_BottomLeft_component = ComponentMesh.create( Wall_BottomLeft )
 Wall_BottomLeft_component:loadMesh( "wall.mesh" )
 Wall_BottomLeft:addComponent( Wall_BottomLeft_component )
