@@ -107,6 +107,22 @@ function ComponentParticleEmitter:read( file )
 end
 
 function ComponentParticleEmitter:compile( file, level )
+	local name = self.parent.name .. "_component"
+
+	writeIndent( file, level, "local " .. name .. " = ComponentParticleEmitter.create( " .. self.parent.name .. " )\n" )
+
+	writeIndent( file, level, name .. ":setMaxParticles( " .. tostring( self.maxParticles ) .. " )\n" )
+	writeIndent( file, level, name .. ".spherical = " .. tostring( self.spherical ) .. "\n" )
+	writeIndent( file, level, name .. ".minFrequency = " .. tostring( self.minFrequency ) .. "\n" )
+	writeIndent( file, level, name .. ".maxFrequency = " .. tostring( self.maxFrequency ) .. "\n" )
+	writeIndent( file, level, name .. ".minLifetime = " .. tostring( self.minLifetime ) .. "\n" )
+	writeIndent( file, level, name .. ".maxLifetime = " .. tostring( self.maxLifetime ) .. "\n" )
+	writeIndent( file, level, name .. ".minDirection = {" .. stringVec( self.minDirection ) .. "}\n" )
+	writeIndent( file, level, name .. ".maxDirection = {" .. stringVec( self.maxDirection ) .. "}\n" )
+	writeIndent( file, level, name .. ".startSpeed = " .. tostring( self.startSpeed ) .. "\n" )
+	writeIndent( file, level, name .. ".endSpeed = " .. tostring( self.endSpeed ) .. "\n" )
+	writeIndent( file, level, name .. ".startSize = " .. tostring( self.startSize ) .. "\n" )
+	writeIndent( file, level, name .. ".endSize = " .. tostring( self.endSize ) .. "\n" )
 end
 
 function ComponentParticleEmitter:copy( parent )

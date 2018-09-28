@@ -140,15 +140,15 @@ local Pillar_component = nil
 entities[#entities+1] = Pillar
 -- Pillar
 
--- NewEntity
-local NewEntity = Entity.create( "NewEntity", {-30,0,-10}, {0,0,0}, {1,1,1} )
-NewEntity.visible = true
-local NewEntity_component = ComponentWalkable.create( NewEntity )
-NewEntity_component.size = {40,20}
-NewEntity_component.interval = 1
-NewEntity:addComponent( NewEntity_component )
-local NewEntity_component = nil
-entities[#entities+1] = NewEntity
--- NewEntity
+-- WalkableSurface
+local WalkableSurface = Entity.create( "WalkableSurface", {-30,0,-10}, {0,0,0}, {1,1,1} )
+WalkableSurface.visible = true
+local WalkableSurface_component = ComponentWalkable.create( WalkableSurface )
+WalkableSurface_component.size = {40,20}
+WalkableSurface_component.interval = 1
+WalkableSurface:addComponent( WalkableSurface_component )
+local WalkableSurface_component = nil
+entities[#entities+1] = WalkableSurface
+-- WalkableSurface
 
 return entities

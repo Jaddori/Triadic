@@ -51,6 +51,13 @@ function ComponentDirectionalLight:read( file )
 end
 
 function ComponentDirectionalLight:compile( file, level )
+	local name = self.parent.name .. "_component"
+
+	writeIndent( file, level, "local " .. name .. " = ComponentDirectionalLight.create( " .. self.parent.name .. " )\n" )
+
+	writeIndent( file, level, name .. ".direction = {" .. stringVec( self.direction ) .. "}\n" )
+	writeIndent( file, level, name .. ".color = {" .. stringVec( self.color ) .. "}\n" )
+	writeIndent( file, level, name .. ".intensity = " .. tostring( self.intensity ) .. "\n" )
 end
 
 function ComponentDirectionalLight:copy( parent )

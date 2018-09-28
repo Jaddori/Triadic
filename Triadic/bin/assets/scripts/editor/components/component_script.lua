@@ -38,6 +38,10 @@ function ComponentScript:write( file, level, prefabName )
 end
 
 function ComponentScript:compile( file, level )
+	local name = self.parent.name .. "_component"
+
+	writeIndent( file, level, "local " .. name .. " = ComponentScript.create( " .. self.parent.name .. " )\n" )
+	writeIndent( file, level, name .. ".scriptFile = \"" .. self.scriptFile .. "\"\n" )
 end
 
 function ComponentScript:copy( parent )

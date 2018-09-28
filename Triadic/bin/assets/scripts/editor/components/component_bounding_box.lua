@@ -120,6 +120,29 @@ function ComponentBoundingBox:read( file )
 end
 
 function ComponentBoundingBox:compile( file, level )
+	local name = self.parent.name .. "_component"
+
+	writeIndent( file, level, "local " .. name .. " = {\n" )
+	level = level + 1
+
+	writeIndent( file, level, "type = " .. tostring( self.type ) .. ",\n" )
+
+	if self.type == BOUNDING_TYPE_RAY then
+		writeIndent( file, level, "start = {" .. stringVec( self.ray.start ) .. "},\n" )
+		writeIndent( file, level, "length = " .. tostring( self.ray.length ) .. ",\n" )
+		writeIndent( file, level, "direction = {" .. stringVec( self.ray.direction ) .. "}\n" )
+	elseif self.type == BOUNDING_TYPE_SPHERE then
+		writeIndent( file, level, "center = {" .. stringVec( self.sphere.center ) .. "},\n" )
+		writeIndent( file, level, "radius = " .. tostring( self.sphere.radius ) .. "\n" )
+	else -- BOUNDING_TYPE_AABB
+		writeIndent( file, level, "minPosition = {" .. stringVec( self.aabb.minPosition ) .. "},\n" )
+		writeIndent( file, level, "maxPosition = {" .. stringVec( self.aabb.maxPosition ) .. "},\n" )
+		writeIndent( file, level, "minOffset = {" .. stringVec( self.aabb.minOffset ) .. "},\n" )
+		writeIndent( file, level, "maxOffset = {" .. stringVec( self.aabb.maxOffset ) .. "}\n" )
+	end
+	
+	level = level - 1
+	writeIndent( file, level, "}\n" )
 end
 
 function ComponentBoundingBox:copy( parent )

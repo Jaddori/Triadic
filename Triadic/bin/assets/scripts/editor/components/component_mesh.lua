@@ -69,16 +69,21 @@ function ComponentMesh:read( file )
 end
 
 function ComponentMesh:compile( file, level )
-	writeIndent( file, level, "Mesh =\n" )
-	writeIndent( file, level, "{\n" )
-	level = level + 1
+	--writeIndent( file, level, "Mesh =\n" )
+	--writeIndent( file, level, "{\n" )
+	--level = level + 1
+--
+	--writeIndent( file, level, "parent = " .. self.parent.name .. ",\n" )
+	--writeIndent( file, level, "transform = Transform.create(),\n" )
+	--writeIndent( file, level, "meshIndex = Assets.loadMesh( \"" .. self.meshName .. "\" ),\n" )
+--
+	--level = level - 1
+	--writeIndent( file, level, "},\n" )
 
-	writeIndent( file, level, "parent = " .. self.parent.name .. ",\n" )
-	writeIndent( file, level, "transform = Transform.create(),\n" )
-	writeIndent( file, level, "meshIndex = Assets.loadMesh( \"" .. self.meshName .. "\" ),\n" )
+	local name = self.parent.name .. "_component"
 
-	level = level - 1
-	writeIndent( file, level, "},\n" )
+	writeIndent( file, level, "local " .. name .. " = ComponentMesh.create( " .. self.parent.name .. " )\n" )
+	writeIndent( file, level, name .. ":loadMesh( \"" .. self.meshName .. "\" )\n" )
 end
 
 function ComponentMesh:copy( parent )

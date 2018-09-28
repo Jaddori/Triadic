@@ -77,6 +77,18 @@ function ComponentPointLight:read( file )
 end
 
 function ComponentPointLight:compile( file, level )
+	local name = self.parent.name .. "_component"
+
+	writeIndent( file, level, "local " .. name .. " = ComponentPointLight.create( " .. self.parent.name .. " )\n" )
+
+	writeIndent( file, level, name .. ".position = {" .. stringVec( self.position ) .. "}\n" )
+	writeIndent( file, level, name .. ".offset = {" .. stringVec( self.offset ) .. "}\n" )
+	writeIndent( file, level, name .. ".color = {" .. stringVec( self.color ) .. "}\n" )
+	writeIndent( file, level, name .. ".intensity = " .. tostring( self.intensity ) .. "\n" )
+	writeIndent( file, level, name .. ".linear = " .. tostring( self.linear ) .. "\n" )
+	writeIndent( file, level, name .. ".constant = " .. tostring( self.constant ) .. "\n" )
+	writeIndent( file, level, name .. ".exponent = " .. tostring( self.exponent ) .. "\n" )
+	writeIndent( file, level, name .. ".size = " .. tostring( self.size ) .. "\n" )
 end
 
 function ComponentPointLight:copy( parent )
