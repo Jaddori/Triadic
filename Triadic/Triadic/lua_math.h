@@ -36,6 +36,8 @@ namespace LuaMath
 		LDEC( sub );
 		LDEC( mul );
 		LDEC( div );
+
+		LDEC( mulMat );
 	}
 
 	namespace LuaVec4
@@ -57,5 +59,6 @@ namespace LuaMath
 	namespace LuaQuat
 	{
 		LDEC( eulerQuat );
+		LDEC( quatToMat );
 	}
 }

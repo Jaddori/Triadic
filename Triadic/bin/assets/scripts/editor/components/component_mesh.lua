@@ -10,6 +10,7 @@ ComponentMesh =
 	meshName = "",
 	parent = nil,
 	boundingBox = nil,
+	worldBox = nil,
 }
 
 ComponentMeshWindow =
@@ -27,6 +28,7 @@ function ComponentMesh.create( parent )
 		parent = parent,
 		meshIndex = -1,
 		boundingBox = nil,
+		worldBox = nil,
 		meshName = "",
 	}
 
@@ -43,6 +45,8 @@ function ComponentMesh.create( parent )
 	end
 	
 	setmetatable( result, { __index = ComponentMesh } )
+
+	result:calculateWorldBox()
 	
 	return result
 end
@@ -107,33 +111,60 @@ function ComponentMesh:loadMesh( path )
 	end
 end
 
+function ComponentMesh:calculateWorldBox()
+	if self.parent and self.boundingBox then
+		self.worldBox = self.worldBox or {}
+
+		self.worldBox.minPosition = self.boundingBox.minPosition:mul( self.parent.scale )
+		self.worldBox.maxPosition = self.boundingBox.maxPosition:mul( self.parent.scale )
+
+		local euler = self.parent.orientation
+		local rotationQuat = eulerQuat( {math.rad(euler[1]), math.rad(-euler[2]), math.rad(euler[3]) } )
+		local rotationMatrix = quatToMat( rotationQuat )
+
+		self.worldBox.minPosition = self.worldBox.minPosition:mulMat( rotationMatrix )
+		self.worldBox.maxPosition = self.worldBox.maxPosition:mulMat( rotationMatrix )
+
+		self.worldBox.minPosition = self.worldBox.minPosition:add( self.parent.position )
+		self.worldBox.maxPosition = self.worldBox.maxPosition:add( self.parent.position )
+	end
+end
+
 function ComponentMesh:parentMoved()
 	self.transform:setPosition( self.parent.position )
+	self:calculateWorldBox()
 end
 
 function ComponentMesh:parentOriented()
 	self.transform:setOrientation( self.parent.quatOrientation )
+	self:calculateWorldBox()
 end
 
 function ComponentMesh:parentScaled()
 	self.transform:setScale( self.parent.scale )
+	self:calculateWorldBox()
 end
 
 function ComponentMesh:select( ray )
 	local result = -1
 
 	if self.boundingBox then
-		local worldBox =
-		{
-			minPosition = self.boundingBox.minPosition:mul( self.parent.scale ),
-			maxPosition = self.boundingBox.maxPosition:mul( self.parent.scale )
-		}
+		--local worldBox =
+		--{
+		--	minPosition = self.boundingBox.minPosition:mul( self.parent.scale ),
+		--	maxPosition = self.boundingBox.maxPosition:mul( self.parent.scale )
+		--}
+--
+		--worldBox.minPosition = worldBox.minPosition:add( self.parent.position )
+		--worldBox.maxPosition = worldBox.maxPosition:add( self.parent.position )
+		--
+		--local hit = {}
+		--if Physics.rayAABB( ray, worldBox, hit ) then
+		--	result = hit.length
+		--end
 
-		worldBox.minPosition = worldBox.minPosition:add( self.parent.position )
-		worldBox.maxPosition = worldBox.maxPosition:add( self.parent.position )
-		
 		local hit = {}
-		if Physics.rayAABB( ray, worldBox, hit ) then
+		if Physics.rayAABB( ray, self.worldBox, hit ) then
 			result = hit.length
 		end
 	end
@@ -155,16 +186,18 @@ function ComponentMesh:render()
 					color[1] = 1
 				end
 
-				local worldBox =
-				{
-					minPosition = self.boundingBox.minPosition:mul( self.parent.scale ),
-					maxPosition = self.boundingBox.maxPosition:mul( self.parent.scale )
-				}
+				--local worldBox =
+				--{
+				--	minPosition = self.boundingBox.minPosition:mul( self.parent.scale ),
+				--	maxPosition = self.boundingBox.maxPosition:mul( self.parent.scale )
+				--}
+--
+				--worldBox.minPosition = worldBox.minPosition:add( self.parent.position )
+				--worldBox.maxPosition = worldBox.maxPosition:add( self.parent.position )
+--
+				--DebugShapes.addAABB( worldBox.minPosition, worldBox.maxPosition, color, false )
 
-				worldBox.minPosition = worldBox.minPosition:add( self.parent.position )
-				worldBox.maxPosition = worldBox.maxPosition:add( self.parent.position )
-
-				DebugShapes.addAABB( worldBox.minPosition, worldBox.maxPosition, color, false )
+				DebugShapes.addAABB( self.worldBox.minPosition, self.worldBox.maxPosition, color, false )
 			end
 		end
 	end

@@ -419,6 +419,7 @@ function Editor:update( deltaTime )
 						if Physics.rayPlane( ray, self.xplane, hit ) then
 							self.xoffset = hit.position[1] - self.selectedEntity.position[1]
 							self.xscale = hit.position[1] - self.selectedEntity.scale[1]
+							self.xrotate = hit.position[1] - self.selectedEntity.orientation[1]
 							self.gizmo.selectedAxis = 1
 
 							-- TODO: save commmand
@@ -444,6 +445,7 @@ function Editor:update( deltaTime )
 						if Physics.rayPlane( ray, self.yplane, hit ) then
 							self.yoffset = hit.position[2] - self.selectedEntity.position[2]
 							self.yscale = hit.position[2] - self.selectedEntity.scale[2]
+							self.yrotate = hit.position[2] - self.selectedEntity.orientation[2]
 							self.gizmo.selectedAxis = 2
 							
 							-- TODO: save command
@@ -458,6 +460,7 @@ function Editor:update( deltaTime )
 						if Physics.rayPlane( ray, self.zplane, hit ) then
 							self.zoffset = hit.position[3] - self.selectedEntity.position[3]
 							self.zscale = hit.position[3] - self.selectedEntity.scale[3]
+							self.zrotate = hit.position[3] - self.selectedEntity.orientation[3]
 							self.gizmo.selectedAxis = 3
 
 							-- TODO: save command
@@ -512,6 +515,20 @@ function Editor:update( deltaTime )
 
 								entityMoved = true
 							elseif self.mode == MODE_ROTATE then
+								local rot = hit.position[1] - self.xrotate
+
+								-- clamp rotation
+								while rot >= 360 do
+									rot = rot - 360
+								end
+
+								while rot < 0 do
+									rot = rot + 360
+								end
+
+								self.selectedEntity.orientation[1] = rot
+
+								entityRotated = true
 							elseif self.mode == MODE_SCALE then
 								self.selectedEntity.scale[1]= hit.position[1] - self.xscale
 
@@ -534,6 +551,20 @@ function Editor:update( deltaTime )
 
 								entityMoved = true
 							elseif self.mode == MODE_ROTATE then
+								local rot = hit.position[2] - self.yrotate
+
+								-- clamp rotation
+								while rot >= 360 do
+									rot = rot - 360
+								end
+
+								while rot < 0 do
+									rot = rot + 360
+								end
+
+								self.selectedEntity.orientation[2] = rot
+
+								entityRotated = true
 							elseif self.mode == MODE_SCALE then
 								self.selectedEntity.scale[2] = hit.position[2] - self.yscale
 
@@ -556,6 +587,20 @@ function Editor:update( deltaTime )
 
 								entityMoved = true
 							elseif self.mode == MODE_ROTATE then
+								local rot = hit.position[3] - self.zrotate
+
+								-- clamp rotation
+								while rot >= 360 do
+									rot = rot - 360
+								end
+
+								while rot < 0 do
+									rot = rot + 360
+								end
+
+								self.selectedEntity.orientation[3] = rot
+
+								entityRotated = true
 							elseif self.mode == MODE_SCALE then
 								self.selectedEntity.scale[3] = hit.position[3] - self.zscale
 
@@ -577,6 +622,7 @@ function Editor:update( deltaTime )
 					self.gizmo:setPosition( self.selectedEntity.position )
 					self.gui.panel.tabs[GUI_TAB_INFO]:refresh()
 				elseif entityRotated then
+					self.gui.panel.tabs[GUI_TAB_INFO]:refresh()
 				elseif entityScaled then
 					self.gizmo:setScale( self.selectedEntity.scale )
 					self.gui.panel.tabs[GUI_TAB_INFO]:refresh()

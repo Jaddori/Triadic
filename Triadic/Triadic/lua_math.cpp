@@ -46,6 +46,8 @@ namespace LuaMath
 			{ "mul", LuaVec3::mul },
 			{ "div", LuaVec3::div },
 
+			{ "mulMat", LuaVec3::mulMat },
+
 			{ NULL, NULL }
 		};
 
@@ -81,6 +83,7 @@ namespace LuaMath
 
 		// QUAT
 		lua_register( lua, "eulerQuat", LuaQuat::eulerQuat );
+		lua_register( lua, "quatToMat", LuaQuat::quatToMat );
 	}
 
 	namespace LuaVec2
@@ -723,6 +726,47 @@ namespace LuaMath
 
 			return result;
 		}
+
+		LDEC( mulMat )
+		{
+			int result = 0;
+
+			LUA_EXPECT_ARGS( 2 )
+			{
+				if( LUA_EXPECT_TABLE( 1 ) &&
+					LUA_EXPECT_TABLE( 2 ) )
+				{
+					glm::vec3 v;
+					lua_getvec3( lua, 1, v );
+					glm::vec4 v4( v.x, v.y, v.z, 1.0 );
+
+					glm::mat4 m;
+					for( int i=0; i<4; i++ )
+					{
+						for( int j=0; j<4; j++ )
+						{
+							lua_rawgeti( lua, 2, i*4+j+1 );
+							float value = lua_tofloat( lua, -1 );
+							m[i][j] = value;
+						}
+					}
+
+					glm::vec4 f = (v4 * m);
+					v.x = f.x;
+					v.y = f.y;
+					v.z = f.z;
+
+					lua_newtable( lua );
+					lua_setvec3( lua, v );
+
+					luaL_setmetatable( lua, "vec3Meta" );
+
+					result = 1;
+				}
+			}
+
+			return result;
+		}
 	}
 
 	namespace LuaVec4
@@ -1064,6 +1108,35 @@ namespace LuaMath
 					glm::quat q( vec );
 					lua_newtable( lua );
 					lua_setquat( lua, q );
+					result = 1;
+				}
+			}
+
+			return result;
+		}
+
+		LDEC( quatToMat )
+		{
+			int result = 0;
+
+			LUA_EXPECT_ARGS( 1 )
+			{
+				if( LUA_EXPECT_TABLE( 1 ) )
+				{
+					glm::quat q;
+					lua_getquat( lua, 1, q );
+
+					glm::mat4 m = glm::toMat4( q );
+					lua_newtable( lua );
+					for( int i=0; i<4; i++ )
+					{
+						for( int j=0; j<4; j++ )
+						{
+							lua_pushnumber( lua, m[i][j] );
+							lua_rawseti( lua, -2, i*4+j+1 );
+						}
+					}
+
 					result = 1;
 				}
 			}
