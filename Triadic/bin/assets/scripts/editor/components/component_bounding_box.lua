@@ -116,17 +116,11 @@ function ComponentBoundingBox:write( file, level, prefabName )
 	end
 end
 
-function ComponentBoundingBox:read( file )
-end
-
 function ComponentBoundingBox:compile( file, level )
-	local name = self.parent.name .. "_component"
+	writeIndent( file, level, "local boundingBox =\n" )
+	writeIndent( file, level, "{\n" )
 
-	writeIndent( file, level, "local " .. name .. " = {\n" )
 	level = level + 1
-
-	writeIndent( file, level, "type = " .. tostring( self.type ) .. ",\n" )
-
 	if self.type == BOUNDING_TYPE_RAY then
 		writeIndent( file, level, "start = {" .. stringVec( self.ray.start ) .. "},\n" )
 		writeIndent( file, level, "length = " .. tostring( self.ray.length ) .. ",\n" )
@@ -136,13 +130,19 @@ function ComponentBoundingBox:compile( file, level )
 		writeIndent( file, level, "radius = " .. tostring( self.sphere.radius ) .. "\n" )
 	else -- BOUNDING_TYPE_AABB
 		writeIndent( file, level, "minPosition = {" .. stringVec( self.aabb.minPosition ) .. "},\n" )
-		writeIndent( file, level, "maxPosition = {" .. stringVec( self.aabb.maxPosition ) .. "},\n" )
-		writeIndent( file, level, "minOffset = {" .. stringVec( self.aabb.minOffset ) .. "},\n" )
-		writeIndent( file, level, "maxOffset = {" .. stringVec( self.aabb.maxOffset ) .. "}\n" )
+		writeIndent( file, level, "maxPosition = {" .. stringVec( self.aabb.maxPosition ) .. "}\n" )
 	end
-	
+
 	level = level - 1
 	writeIndent( file, level, "}\n" )
+
+	if self.type == BOUNDING_TYPE_RAY then
+		writeIndent( file, level, "BoundingBoxes:addRay( boundingBox )\n" )
+	elseif self.type == BOUNDING_TYPE_SPHERE then
+		writeIndent( file, level, "BoundingBoxes:addSphere( boundingBox )\n" )
+	else -- BOUNDING_TYPE_AABB
+		writeIndent( file, level, "BoundingBoxes:addAABB( boundingBox )\n" )
+	end
 end
 
 function ComponentBoundingBox:copy( parent )
@@ -163,13 +163,34 @@ function ComponentBoundingBox:copy( parent )
 	return result
 end
 
+function ComponentBoundingBox:confineOffset()
+	local tempMin =
+	{
+		math.min( self.aabb.minOffset[1], self.aabb.maxOffset[1] ),
+		math.min( self.aabb.minOffset[2], self.aabb.maxOffset[2] ),
+		math.min( self.aabb.minOffset[3], self.aabb.maxOffset[3] )
+	}
+
+	self.aabb.maxOffset[1] = math.max( self.aabb.minOffset[1], self.aabb.maxOffset[1] )
+	self.aabb.maxOffset[2] = math.max( self.aabb.minOffset[2], self.aabb.maxOffset[2] )
+	self.aabb.maxOffset[3] = math.max( self.aabb.minOffset[3], self.aabb.maxOffset[3] )
+
+	self.aabb.minOffset[1] = tempMin[1]
+	self.aabb.minOffset[2] = tempMin[2]
+	self.aabb.minOffset[3] = tempMin[3]
+end
+
 function ComponentBoundingBox:parentMoved()
 	local center = addVec( self.parent.position, self.offset )
 
 	copyVec( center, self.ray.start )
 	copyVec( center, self.sphere.center )
+
+	self:confineOffset()
+
 	self.aabb.minPosition = addVec( center, self.aabb.minOffset )
 	self.aabb.maxPosition = addVec( center, self.aabb.maxOffset )
+
 end
 
 function ComponentBoundingBox:select( ray )

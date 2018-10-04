@@ -103,26 +103,27 @@ function ComponentParticleEmitter:write( file, level, prefabName )
 	end
 end
 
-function ComponentParticleEmitter:read( file )
-end
-
 function ComponentParticleEmitter:compile( file, level )
-	local name = self.parent.name .. "_component"
+	writeIndent( file, level, "local emitter =\n" )
+	writeIndent( file, level, "{\n" )
 
-	writeIndent( file, level, "local " .. name .. " = ComponentParticleEmitter.create( " .. self.parent.name .. " )\n" )
+	level = level + 1
+	writeIndent( file, level, "spherical = " .. tostring( self.spherical ) .. ",\n" )
+	writeIndent( file, level, "minFrequency = " .. tostring( self.minFrequency ) .. ",\n" )
+	writeIndent( file, level, "maxFrequency = " .. tostring( self.maxFrequency ) .. ",\n" )
+	writeIndent( file, level, "minLifetime = " .. tostring( self.minLifetime ) .. ",\n" )
+	writeIndent( file, level, "maxLifetime = " .. tostring( self.maxLifetime ) .. ",\n" )
+	writeIndent( file, level, "minDirection = {" .. stringVec( self.minDirection ) .. "},\n" )
+	writeIndent( file, level, "maxDirection = {" .. stringVec( self.maxDirection ) .. "},\n" )
+	writeIndent( file, level, "startSpeed = " .. tostring( self.startSpeed ) .. ",\n" )
+	writeIndent( file, level, "endSpeed = " .. tostring( self.endSpeed ) .. ",\n" )
+	writeIndent( file, level, "startSize = " .. tostring( self.startSize ) .. ",\n" )
+	writeIndent( file, level, "endSize = " .. tostring( self.endSize ) .. ",\n" )
 
-	writeIndent( file, level, name .. ":setMaxParticles( " .. tostring( self.maxParticles ) .. " )\n" )
-	writeIndent( file, level, name .. ".spherical = " .. tostring( self.spherical ) .. "\n" )
-	writeIndent( file, level, name .. ".minFrequency = " .. tostring( self.minFrequency ) .. "\n" )
-	writeIndent( file, level, name .. ".maxFrequency = " .. tostring( self.maxFrequency ) .. "\n" )
-	writeIndent( file, level, name .. ".minLifetime = " .. tostring( self.minLifetime ) .. "\n" )
-	writeIndent( file, level, name .. ".maxLifetime = " .. tostring( self.maxLifetime ) .. "\n" )
-	writeIndent( file, level, name .. ".minDirection = {" .. stringVec( self.minDirection ) .. "}\n" )
-	writeIndent( file, level, name .. ".maxDirection = {" .. stringVec( self.maxDirection ) .. "}\n" )
-	writeIndent( file, level, name .. ".startSpeed = " .. tostring( self.startSpeed ) .. "\n" )
-	writeIndent( file, level, name .. ".endSpeed = " .. tostring( self.endSpeed ) .. "\n" )
-	writeIndent( file, level, name .. ".startSize = " .. tostring( self.startSize ) .. "\n" )
-	writeIndent( file, level, name .. ".endSize = " .. tostring( self.endSize ) .. "\n" )
+	level = level - 1
+	writeIndent( file, level, "}\n" )
+	
+	writeIndent( file, level, "Particles:addEmitter( emitter )\n" )
 end
 
 function ComponentParticleEmitter:copy( parent )

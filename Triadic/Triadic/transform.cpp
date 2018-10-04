@@ -21,7 +21,7 @@ void Transform::addPosition( const glm::vec3& p )
 
 void Transform::addOrientation( const glm::quat& o )
 {
-	orientation *= o;
+	orientation *= glm::normalize( o );
 	dirty = true;
 }
 
@@ -44,7 +44,7 @@ void Transform::setPosition( const glm::vec3& p )
 
 void Transform::setOrientation( const glm::quat& o )
 {
-	orientation = o;
+	orientation = glm::normalize( o );
 	dirty = true;
 }
 

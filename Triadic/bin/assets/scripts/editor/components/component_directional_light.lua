@@ -47,17 +47,19 @@ function ComponentDirectionalLight:write( file, level, prefabName )
 	end
 end
 
-function ComponentDirectionalLight:read( file )
-end
-
 function ComponentDirectionalLight:compile( file, level )
-	local name = self.parent.name .. "_component"
+	writeIndent( file, level, "local light =\n" )
+	writeIndent( file, level, "{\n" )
 
-	writeIndent( file, level, "local " .. name .. " = ComponentDirectionalLight.create( " .. self.parent.name .. " )\n" )
+	level = level + 1
+	writeIndent( file, level, "direction = {" .. stringVec( self.direction ) .. "}\n" )
+	writeIndent( file, level, "color = {" .. stringVec( self.color ) .. "}\n" )
+	writeIndent( file, level, "intensity = " .. tostring( self.intensity ) .. "\n" )
 
-	writeIndent( file, level, name .. ".direction = {" .. stringVec( self.direction ) .. "}\n" )
-	writeIndent( file, level, name .. ".color = {" .. stringVec( self.color ) .. "}\n" )
-	writeIndent( file, level, name .. ".intensity = " .. tostring( self.intensity ) .. "\n" )
+	level = level - 1
+	writeIndent( file, level, "}\n" )
+
+	writeIndent( file, level, "Lights:addDirectionalLight( light )\n" )
 end
 
 function ComponentDirectionalLight:copy( parent )

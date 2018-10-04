@@ -762,7 +762,7 @@ void Graphics::queueBillboard( int diffuseIndex, int normalIndex, int specularIn
 void Graphics::queueDirectionalLight( const glm::vec3& direction, const glm::vec3& color, float intensity )
 {
 	DirectionalLight& light = directionalLights.getWrite().append();
-	light.direction = direction;
+	light.direction = glm::normalize( direction );
 	light.color = color;
 	light.intensity = intensity;
 }

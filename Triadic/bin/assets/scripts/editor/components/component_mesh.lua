@@ -69,25 +69,12 @@ function ComponentMesh:write( file, level, prefabName )
 	end
 end
 
-function ComponentMesh:read( file )
-end
-
 function ComponentMesh:compile( file, level )
-	--writeIndent( file, level, "Mesh =\n" )
-	--writeIndent( file, level, "{\n" )
-	--level = level + 1
---
-	--writeIndent( file, level, "parent = " .. self.parent.name .. ",\n" )
-	--writeIndent( file, level, "transform = Transform.create(),\n" )
-	--writeIndent( file, level, "meshIndex = Assets.loadMesh( \"" .. self.meshName .. "\" ),\n" )
---
-	--level = level - 1
-	--writeIndent( file, level, "},\n" )
+	local position = self.parent.position
+	local quatOrientation = self.parent.quatOrientation
+	local scale = self.parent.scale
 
-	local name = self.parent.name .. "_component"
-
-	writeIndent( file, level, "local " .. name .. " = ComponentMesh.create( " .. self.parent.name .. " )\n" )
-	writeIndent( file, level, name .. ":loadMesh( \"" .. self.meshName .. "\" )\n" )
+	writeIndent( file, level, "Props:add( {" .. stringVec( position ) .. "}, {" .. stringVec( quatOrientation ) .. "}, {" .. stringVec( scale ) .. "}, \"" .. self.meshName .. "\" )\n" )
 end
 
 function ComponentMesh:copy( parent )

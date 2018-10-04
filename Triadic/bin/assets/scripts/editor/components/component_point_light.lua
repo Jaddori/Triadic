@@ -73,22 +73,24 @@ function ComponentPointLight:write( file, level, prefabName )
 	end
 end
 
-function ComponentPointLight:read( file )
-end
-
 function ComponentPointLight:compile( file, level )
-	local name = self.parent.name .. "_component"
+	writeIndent( file, level, "local light =\n" )
+	writeIndent( file, level, "{\n" )
 
-	writeIndent( file, level, "local " .. name .. " = ComponentPointLight.create( " .. self.parent.name .. " )\n" )
+	level = level + 1
+	writeIndent( file, level, "position = {" .. stringVec( self.position ) .. "},\n" )
+	writeIndent( file, level, "offset = {" .. stringVec( self.offset ) .. "},\n" )
+	writeIndent( file, level, "color = {" .. stringVec( self.color ) .. "},\n" )
+	writeIndent( file, level, "intensity = " .. tostring( self.intensity ) .. ",\n" )
+	writeIndent( file, level, "linear = " .. tostring( self.linear ) .. ",\n" )
+	writeIndent( file, level, "constant = " .. tostring( self.constant ) .. ",\n" )
+	writeIndent( file, level, "exponent = " .. tostring( self.exponent ) .. ",\n" )
+	writeIndent( file, level, "size = " .. tostring( self.size ) .. "\n" )
 
-	writeIndent( file, level, name .. ".position = {" .. stringVec( self.position ) .. "}\n" )
-	writeIndent( file, level, name .. ".offset = {" .. stringVec( self.offset ) .. "}\n" )
-	writeIndent( file, level, name .. ".color = {" .. stringVec( self.color ) .. "}\n" )
-	writeIndent( file, level, name .. ".intensity = " .. tostring( self.intensity ) .. "\n" )
-	writeIndent( file, level, name .. ".linear = " .. tostring( self.linear ) .. "\n" )
-	writeIndent( file, level, name .. ".constant = " .. tostring( self.constant ) .. "\n" )
-	writeIndent( file, level, name .. ".exponent = " .. tostring( self.exponent ) .. "\n" )
-	writeIndent( file, level, name .. ".size = " .. tostring( self.size ) .. "\n" )
+	level = level - 1
+	writeIndent( file, level, "}\n" )
+
+	writeIndent( file, level, "Lights:addPointLight( light )\n" )
 end
 
 function ComponentPointLight:copy( parent )

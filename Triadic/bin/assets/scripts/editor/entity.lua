@@ -102,7 +102,7 @@ end
 function Entity:compile( file, level )
 	level = level or 0
 
-	writeIndent( file, level, self.name .. " =\n" )
+	--[[writeIndent( file, level, self.name .. " =\n" )
 	writeIndent( file, level, "{\n" )
 	level = level + 1
 
@@ -122,7 +122,13 @@ function Entity:compile( file, level )
 	writeIndent( file, level, "}\n" )
 
 	level = level - 1
-	writeIndent( file, level, "}\n" )
+	writeIndent( file, level, "}\n" )--]]
+
+	writeIndent( file, level, "-- " .. self.name .. "\n" )
+	for _,v in pairs(self.components) do
+		v:compile( file, level )
+		writeIndent( file, level, "\n" )
+	end
 end
 
 function Entity:select( ray )

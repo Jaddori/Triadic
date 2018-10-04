@@ -6,6 +6,10 @@ StateGame =
 function StateGame:load()
 	doscript( "game/player_handler.lua" )
 	doscript( "game/chat.lua" )
+	
+	doscript( "game/bounding_boxes.lua" )
+	doscript( "game/lights.lua" )
+	doscript( "game/props.lua" )
 
 	if IS_SERVER then
 		doscript( "game/server.lua" )
@@ -15,6 +19,14 @@ function StateGame:load()
 
 	PlayerHandler:load()
 	Chat:load()
+
+	self:loadLevel( "walkable_level.lua" )
+
+	Graphics.setLightingEnabled( true )
+end
+
+function StateGame:loadLevel( level )
+	dofile( "./assets/levels/" .. level )
 end
 
 function StateGame:unload()
@@ -29,11 +41,19 @@ end
 function StateGame:fixedUpdate()
 	PlayerHandler:fixedUpdate()
 	Chat:fixedUpdate()
+
+	if Input.keyReleased( Keys.T ) then
+		Graphics.setLightingEnabled( not Graphics.getLightingEnabled() )
+	end
 end
 
 function StateGame:render()
 	PlayerHandler:render()
 	Chat:render()
+
+	BoundingBoxes:render()
+	Lights:render()
+	Props:render()
 end
 
 function StateGame:clientWrite()
@@ -52,5 +72,5 @@ function StateGame:serverRead()
 	GameServer:serverRead()
 end
 
---Game:addState( StateGame )
---Game:setState( StateGame.name )
+Game:addState( StateGame )
+Game:setState( StateGame.name )

@@ -70,7 +70,7 @@ int update( void* args )
 
 	Input& input = *data->coreData->input;
 	Script& script = *data->script;
-	//Client& client = *data->coreData->client;
+	Client& client = *data->coreData->client;
 
 	uint64_t lastTick = SDL_GetTicks();
 	uint64_t lastClientTick = SDL_GetTicks();
@@ -78,7 +78,7 @@ int update( void* args )
 
 	uint64_t* updateAccumulator = data->coreData->updateAccumulator;
 
-	//client.start();
+	client.start();
 
 	while( *data->coreData->running )
 	{
@@ -108,8 +108,20 @@ int update( void* args )
 					{
 						script.fixedUpdate( TIMESTEP_MS );
 					}
+
+					if( input.keyPressed( SDL_SCANCODE_G ) )
+					{
+						data->coreData->graphics->getGbuffer()->toggleDebugMode();
+					}
 				}
 				*updateAccumulator = acc;
+			}
+			else
+			{
+				if( input.keyPressed( SDL_SCANCODE_G ) )
+				{
+					data->coreData->graphics->getGbuffer()->toggleDebugMode();
+				}
 			}
 
 			// update subsystems
@@ -124,26 +136,21 @@ int update( void* args )
 
 			data->coreData->systemInfo->stopUpdate();
 
-			if( input.keyPressed( SDL_SCANCODE_G ) )
-			{
-				data->coreData->graphics->getGbuffer()->toggleDebugMode();
-			}
-
 			// update client
-			//uint64_t curClientTick = SDL_GetTicks();
-			//if( curClientTick - lastClientTick > CLIENT_TICK_TIME )
-			//{
-			//	if( client.getConnected() )
-			//	{
-			//		script.clientWrite();
-			//		client.processTick();
-			//		script.clientRead();
-			//	}
-			//	else
-			//		client.processHandshake();
-			//
-			//	lastClientTick = SDL_GetTicks();
-			//}
+			uint64_t curClientTick = SDL_GetTicks();
+			if( curClientTick - lastClientTick > CLIENT_TICK_TIME )
+			{
+				if( client.getConnected() )
+				{
+					script.clientWrite();
+					client.processTick();
+					script.clientRead();
+				}
+				else
+					client.processHandshake();
+			
+				lastClientTick = SDL_GetTicks();
+			}
 
 			SDL_SemPost( data->updateDone );
 		}
@@ -153,7 +160,7 @@ int update( void* args )
 		}
 	}
 
-	//data->coreData->client->stop();
+	data->coreData->client->stop();
 
 	return 0;
 }
@@ -260,8 +267,8 @@ int main( int argc, char* argv[] )
 			coreData.debugShapes = &debugShapes;
 			coreData.transientMemory = (char*)malloc( CORE_DATA_TRANSIENT_MEMORY_SIZE );
 			coreData.collisionSolver = &collisionSolver;
-			//coreData.client = &client;
-			//coreData.server = &server;
+			coreData.client = &client;
+			coreData.server = &server;
 			coreData.updateAccumulator = &updateAccumulator;
 
 			LOG_INFO( "Initializing Entity." );
@@ -278,9 +285,9 @@ int main( int argc, char* argv[] )
 			threadData.script = &script;
 
 			SDL_Thread* updateThread = SDL_CreateThread( update, NULL, &threadData );
-			//SDL_Thread* serverThread = NULL;
-			//if( shouldStartServer )
-			//	serverThread = SDL_CreateThread( updateServer, NULL, &threadData );
+			SDL_Thread* serverThread = NULL;
+			if( shouldStartServer )
+				serverThread = SDL_CreateThread( updateServer, NULL, &threadData );
 
 			uint64_t lastTick = SDL_GetTicks();
 
@@ -375,11 +382,11 @@ int main( int argc, char* argv[] )
 			LOG_INFO( "Waiting for update thread to finish." );
 			SDL_WaitThread( updateThread, NULL );
 
-			//if( serverThread )
-			//{
-			//	LOG_INFO( "Waiting for server thread to finish." );
-			//	SDL_WaitThread( serverThread, NULL );
-			//}
+			if( serverThread )
+			{
+				LOG_INFO( "Waiting for server thread to finish." );
+				SDL_WaitThread( serverThread, NULL );
+			}
 			
 			// UNLOAD
 			threadPool.unload();
