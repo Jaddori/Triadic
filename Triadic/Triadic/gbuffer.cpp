@@ -436,7 +436,7 @@ void Gbuffer::beginDirectionalLightPass( int target, Camera* camera )
 	glBlendFunc( GL_ONE, GL_ONE );
 
 	directionalLightPass.bind();
-	directionalLightPass.setVec3( directionalLightCameraPosition, camera->getPosition() );
+	directionalLightPass.setVec3( directionalLightCameraPosition, camera->getFinalPosition() );
 	// TEMP: Magic number
 	directionalLightPass.setFloat( directionalLightSpecularPower, 8.0f );
 
@@ -499,9 +499,7 @@ void Gbuffer::beginDirectionalShadowPass( Camera* camera, const DirectionalLight
 	float halfResolution = GBUFFER_SHADOW_MAP_RESOLUTION * 0.5f;
 	glm::mat4 projectionMatrix = glm::ortho( -halfResolution, halfResolution, -halfResolution, halfResolution, 0.01f, 100.0f );
 	
-
 	directionalShadowPass.setMat4( directionalShadowProjectionMatrix, projectionMatrix );
-	
 }
 
 void Gbuffer::endDirectionalShadowPass()
@@ -544,7 +542,7 @@ void Gbuffer::beginPointLightPass( int target, Camera* camera )
 
 	pointLightPass.setMat4( pointLightProjectionMatrix, camera->getProjectionMatrix() );
 	pointLightPass.setMat4( pointLightViewMatrix, camera->getViewMatrix() );
-	pointLightPass.setVec3( pointLightCameraPosition, camera->getPosition() );
+	pointLightPass.setVec3( pointLightCameraPosition, camera->getFinalPosition() );
 	pointLightPass.setVec2( pointLightScreenSize, glm::vec2( WINDOW_WIDTH, WINDOW_HEIGHT ) );
 	// TEMP: Magic numbers
 	pointLightPass.setFloat( pointLightSpecularPower, 8.0f );

@@ -73,4 +73,5 @@ void main()
 	float shadowFactor = calculateShadowFactor( position );
 	
 	finalColor = vec4( diffuse, 1.0 ) * calculateDirectionalLight( normal, position ) * shadowFactor;
+	//finalColor = vec4( diffuse, 1.0 ) * 0.01;
 }

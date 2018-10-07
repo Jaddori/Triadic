@@ -24,6 +24,11 @@ void Camera::finalize()
 	if( dirtyFrustum )
 	{
 	}
+
+	finalPosition = position;
+	finalDirection = direction;
+	finalRight = right;
+	finalUp = up;
 }
 
 void Camera::project( const glm::vec3& worldCoordinates, Point& result )
@@ -250,4 +255,29 @@ const glm::vec3& Camera::getRight() const
 const glm::vec3& Camera::getUp() const
 {
 	return up;
+}
+
+const glm::vec3& Camera::getFinalPosition() const
+{
+	return finalPosition;
+}
+
+const glm::vec3& Camera::getFinalDirection() const
+{
+	return finalDirection;
+}
+
+const glm::vec3& Camera::getFinalForward() const
+{
+	return finalDirection;
+}
+
+const glm::vec3& Camera::getFinalRight() const
+{
+	return finalRight;
+}
+
+const glm::vec3& Camera::getFinalUp() const
+{
+	return finalUp;
 }
