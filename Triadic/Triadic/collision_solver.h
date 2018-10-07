@@ -31,6 +31,7 @@ namespace Physics
 	{
 		glm::vec3 position;
 		float length;
+		glm::vec3 normal;
 	};
 
 	class CollisionSolver

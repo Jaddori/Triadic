@@ -264,7 +264,12 @@ namespace LuaPhysics
 					lua_newtable( lua );
 					lua_setvec3( lua, hit.position );
 					lua_setfield( lua, 3, "position" );
+
 					lua_setnumber( lua, 3, "length", hit.length );
+					
+					lua_newtable( lua );
+					lua_setvec3( lua, hit.normal );
+					lua_setfield( lua, 3, "normal" );
 				}
 
 				lua_pushboolean( lua, collision );

@@ -16,6 +16,9 @@ Player =
 	isLocal = false,
 	commands = {},
 
+	movementRays = {},
+	collisionMargin = 0.1,
+
 	-- DEBUG
 	fontIndex = -1,
 }
@@ -34,10 +37,16 @@ function Player.create( isLocal )
 	
 		isLocal = isLocal,
 		commands = {},
+
+		movementRays = {},
 	}
 
 	if IS_CLIENT then
 		player.ghostTransform = Transform.create()
+
+		for i=1, 50 do
+			player.movementRays[i] = { first = {0,0,0}, last = {0,0,0}, color = {0,0,0,0} }
+		end
 
 		if player.isLocal then
 			player.camera = Graphics.getPerspectiveCamera()
@@ -136,10 +145,90 @@ function Player:processCommand( command )
 		self.nextPosition[3] = self.nextPosition[3] + command.vertical*0.5
 
 		self.elapsedTime = 0
+
+		-- check collision
+		local movement = subVec( self.nextPosition, self.prevPosition )
+		local ray = Physics.createRayFromPoints( self.prevPosition, self.nextPosition )
+
+		local shortest = ray.length
+		local collisionHit = {}
+		local collisionBox = {}
+		for _,v in pairs(BoundingBoxes.aabbs) do
+			local hit = {}
+			if Physics.rayAABB( ray, v, hit ) then
+				if hit.length < shortest then
+					shortest = hit.length
+					collisionHit = hit
+					collisionBox = v
+				end
+			end
+		end
+
+		if collisionHit.position then
+			--self.nextPosition[1] = collisionHit.position[1] + collisionHit.normal[1]*0.5
+			--self.nextPosition[3] = collisionHit.position[3] + collisionHit.normal[3]*0.5
+
+			if math.abs( collisionHit.normal[1] ) > 0 then
+				self.nextPosition[1] = collisionBox.center[1] + (collisionBox.extents[1] + self.collisionMargin) * collisionHit.normal[1]
+			else
+				self.nextPosition[3] = collisionBox.center[3] + (collisionBox.extents[3] + self.collisionMargin) * collisionHit.normal[3]
+			end
+		end
+
+		local color = { 0, 1, 0, 1 }
+		if shortest < ray.length then
+			color = { 1, 0, 0, 1 }
+		end
+
+		local movementRay = { first = {0,0,0}, last = {0,0,0}, color = color }
+		copyVec( self.prevPosition, movementRay.first )
+		copyVec( self.nextPosition, movementRay.last )
+		--self:addMovementRay( movementRay )
 	else -- IS_SERVER
-		local movement = { command.horizontal * 0.5, 0, command.vertical * 0.5 }
-		self.transform:addPosition( movement )
+		--local movement = { command.horizontal * 0.5, 0, command.vertical * 0.5 }
+		--self.transform:addPosition( movement )
+
+		local curPosition = self.transform:getPosition()
+		local newPosition = addVec( curPosition, { command.horizontal * 0.5, 0, command.vertical * 0.5 } )
+
+		local ray = Physics.createRayFromPoints( curPosition, newPosition )
+
+		local shortest = ray.length
+		local collisionHit = {}
+		local collisionBox = {}
+
+		for _,v in pairs(BoundingBoxes.aabbs) do
+			local hit = {}
+			if Physics.rayAABB( ray, v, hit ) then
+				if hit.length < shortest then
+					shortest = hit.length
+					collisionHit = hit
+					collisionBox = v
+				end
+			end
+		end
+
+		if collisionHit.normal then
+			--newPosition[1] = collisionHit.position[1] + collisionHit.normal[1]*0.5
+			--newPosition[3] = collisionHit.position[3] + collisionHit.normal[3]*0.5
+
+			if math.abs( collisionHit.normal[1] ) > 0 then
+				newPosition[1] = collisionBox.center[1] + (collisionBox.extents[1] + self.collisionMargin) * collisionHit.normal[1]
+			else
+				newPosition[3] = collisionBox.center[3] + (collisionBox.extents[3] + self.collisionMargin) * collisionHit.normal[3]
+			end
+		end
+
+		self.transform:setPosition( newPosition )
 	end
+end
+
+function Player:addMovementRay( ray )
+	for i=#self.movementRays, 2, -1 do
+		self.movementRays[i] = self.movementRays[i-1]
+	end
+	
+	self.movementRays[1] = ray
 end
 
 function Player:render()
@@ -151,6 +240,12 @@ function Player:render()
 	local ghostMax = { position[1]+1, position[2]+1, position[3]+1 }
 	DebugShapes.addAABB( ghostMin, ghostMax, {0,1,0,1}, false )
 
+	-- render movement rays
+	for _,v in pairs(self.movementRays) do
+		DebugShapes.addLine( v.first, v.last, v.color, true )
+	end
+
+	-- render debug information
 	if self.isLocal then
 		self.grid:render()
 
