@@ -138,86 +138,56 @@ end
 
 function Player:processCommand( command )
 	if IS_CLIENT and self.isLocal then
-		self.prevPosition[1] = self.nextPosition[1]
-		self.prevPosition[3] = self.nextPosition[3]
-
-		self.nextPosition[1] = self.nextPosition[1] + command.horizontal*0.5
-		self.nextPosition[3] = self.nextPosition[3] + command.vertical*0.5
-
-		self.elapsedTime = 0
-
-		-- check collision
-		local movement = subVec( self.nextPosition, self.prevPosition )
-		local ray = Physics.createRayFromPoints( self.prevPosition, self.nextPosition )
-
-		local shortest = ray.length
-		local collisionHit = {}
-		local collisionBox = {}
-		for _,v in pairs(BoundingBoxes.aabbs) do
-			local hit = {}
-			if Physics.rayAABB( ray, v, hit ) then
-				if hit.length < shortest then
-					shortest = hit.length
-					collisionHit = hit
-					collisionBox = v
-				end
-			end
-		end
-
-		if collisionHit.position then
-			--self.nextPosition[1] = collisionHit.position[1] + collisionHit.normal[1]*0.5
-			--self.nextPosition[3] = collisionHit.position[3] + collisionHit.normal[3]*0.5
-
-			if math.abs( collisionHit.normal[1] ) > 0 then
-				self.nextPosition[1] = collisionBox.center[1] + (collisionBox.extents[1] + self.collisionMargin) * collisionHit.normal[1]
-			else
-				self.nextPosition[3] = collisionBox.center[3] + (collisionBox.extents[3] + self.collisionMargin) * collisionHit.normal[3]
-			end
-		end
-
-		local color = { 0, 1, 0, 1 }
-		if shortest < ray.length then
-			color = { 1, 0, 0, 1 }
-		end
-
-		local movementRay = { first = {0,0,0}, last = {0,0,0}, color = color }
-		copyVec( self.prevPosition, movementRay.first )
-		copyVec( self.nextPosition, movementRay.last )
-		--self:addMovementRay( movementRay )
-	else -- IS_SERVER
-		--local movement = { command.horizontal * 0.5, 0, command.vertical * 0.5 }
-		--self.transform:addPosition( movement )
-
-		local curPosition = self.transform:getPosition()
-		local newPosition = addVec( curPosition, { command.horizontal * 0.5, 0, command.vertical * 0.5 } )
+		local movement = { command.horizontal * 0.5, 0, command.vertical * 0.5 }
+		local curPosition = {0,0,0}
+		copyVec( self.nextPosition, curPosition )
+		local newPosition = addVec( curPosition, movement )
 
 		local ray = Physics.createRayFromPoints( curPosition, newPosition )
 
-		local shortest = ray.length
-		local collisionHit = {}
-		local collisionBox = {}
-
 		for _,v in pairs(BoundingBoxes.aabbs) do
 			local hit = {}
 			if Physics.rayAABB( ray, v, hit ) then
-				if hit.length < shortest then
-					shortest = hit.length
-					collisionHit = hit
-					collisionBox = v
+				if hit.length < ray.length then
+					if math.abs( hit.normal[1] ) > 0 then
+						movement[1] = movement[1] + ( hit.normal[1] * ( ray.length - hit.length + self.collisionMargin ) )
+					else
+						movement[3] = movement[3] + ( hit.normal[3] * ( ray.length - hit.length + self.collisionMargin ) )
+					end
 				end
 			end
 		end
 
-		if collisionHit.normal then
-			--newPosition[1] = collisionHit.position[1] + collisionHit.normal[1]*0.5
-			--newPosition[3] = collisionHit.position[3] + collisionHit.normal[3]*0.5
+		newPosition[1] = curPosition[1] + movement[1]
+		newPosition[3] = curPosition[3] + movement[3]
 
-			if math.abs( collisionHit.normal[1] ) > 0 then
-				newPosition[1] = collisionBox.center[1] + (collisionBox.extents[1] + self.collisionMargin) * collisionHit.normal[1]
-			else
-				newPosition[3] = collisionBox.center[3] + (collisionBox.extents[3] + self.collisionMargin) * collisionHit.normal[3]
+		self.prevPosition[1] = curPosition[1]
+		self.prevPosition[3] = curPosition[3]
+
+		self.nextPosition[1] = newPosition[1]
+		self.nextPosition[3] = newPosition[3]
+	else -- IS_SERVER
+		local movement = { command.horizontal * 0.5, 0, command.vertical * 0.5 }
+		local curPosition = self.transform:getPosition()
+		local newPosition = addVec( curPosition, movement )
+
+		local ray = Physics.createRayFromPoints( curPosition, newPosition )
+
+		for _,v in pairs(BoundingBoxes.aabbs) do
+			local hit = {}
+			if Physics.rayAABB( ray, v, hit ) then
+				if hit.length < ray.length then
+					if math.abs( hit.normal[1] ) > 0 then
+						movement[1] = movement[1] + ( hit.normal[1] * ( ray.length - hit.length + self.collisionMargin ) )
+					else
+						movement[3] = movement[3] + ( hit.normal[3] * ( ray.length - hit.length + self.collisionMargin ) )
+					end
+				end
 			end
 		end
+
+		newPosition[1] = curPosition[1] + movement[1]
+		newPosition[3] = curPosition[3] + movement[3]
 
 		self.transform:setPosition( newPosition )
 	end
