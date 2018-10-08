@@ -52,8 +52,8 @@ function ComponentDirectionalLight:compile( file, level )
 	writeIndent( file, level, "{\n" )
 
 	level = level + 1
-	writeIndent( file, level, "direction = {" .. stringVec( self.direction ) .. "}\n" )
-	writeIndent( file, level, "color = {" .. stringVec( self.color ) .. "}\n" )
+	writeIndent( file, level, "direction = {" .. stringVec( self.direction ) .. "},\n" )
+	writeIndent( file, level, "color = {" .. stringVec( self.color ) .. "},\n" )
 	writeIndent( file, level, "intensity = " .. tostring( self.intensity ) .. "\n" )
 
 	level = level - 1
