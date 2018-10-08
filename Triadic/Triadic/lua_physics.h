@@ -18,6 +18,7 @@ namespace LuaPhysics
 
 	LDEC( raySphere );
 	LDEC( rayAABB );
+	LDEC( rayExpandedAABB );
 	LDEC( rayPlane );
 	LDEC( sphereSphere );
 	LDEC( aabbAABB );

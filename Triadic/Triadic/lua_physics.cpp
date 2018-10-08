@@ -21,6 +21,7 @@ namespace LuaPhysics
 
 			{ "raySphere", raySphere },
 			{ "rayAABB", rayAABB },
+			{ "rayExpandedAABB", rayExpandedAABB },
 			{ "rayPlane", rayPlane },
 			{ "sphereSphere", sphereSphere },
 			{ "aabbAABB", aabbAABB },
@@ -270,6 +271,49 @@ namespace LuaPhysics
 					lua_newtable( lua );
 					lua_setvec3( lua, hit.normal );
 					lua_setfield( lua, 3, "normal" );
+				}
+
+				lua_pushboolean( lua, collision );
+				result = 1;
+			}
+		}
+
+		return result;
+	}
+
+	LDEC( rayExpandedAABB )
+	{
+		int result = 0;
+
+		int args = lua_gettop( lua );
+		if( args == 3 || args == 4 )
+		{
+			if( LUA_EXPECT_TABLE( 1 ) &&
+				LUA_EXPECT_TABLE( 2 ) &&
+				LUA_EXPECT_NUMBER( 3 ) )
+			{
+				Ray ray = readRay( lua, 1 );
+				AABB aabb = readAABB( lua, 2 );
+				float expanse = lua_tofloat( lua, 3 );
+				Hit hit = {};
+
+				// expand the aabb
+				aabb.minPosition -= glm::vec3( expanse );
+				aabb.maxPosition += glm::vec3( expanse );
+
+				bool collision = g_coreData->collisionSolver->ray( ray, aabb, &hit );
+
+				if( args == 4 && LUA_EXPECT_TABLE( 4 ) )
+				{
+					lua_newtable( lua );
+					lua_setvec3( lua, hit.position );
+					lua_setfield( lua, 4, "position" );
+
+					lua_setnumber( lua, 4, "length", hit.length );
+
+					lua_newtable( lua );
+					lua_setvec3( lua, hit.normal );
+					lua_setfield( lua, 4, "normal" );
 				}
 
 				lua_pushboolean( lua, collision );

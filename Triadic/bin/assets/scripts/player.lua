@@ -147,7 +147,7 @@ function Player:processCommand( command )
 
 		for _,v in pairs(BoundingBoxes.aabbs) do
 			local hit = {}
-			if Physics.rayAABB( ray, v, hit ) then
+			if Physics.rayExpandedAABB( ray, v, 1, hit ) then
 				if hit.length < ray.length then
 					if math.abs( hit.normal[1] ) > 0 then
 						movement[1] = movement[1] + ( hit.normal[1] * ( ray.length - hit.length + self.collisionMargin ) )
@@ -175,7 +175,7 @@ function Player:processCommand( command )
 
 		for _,v in pairs(BoundingBoxes.aabbs) do
 			local hit = {}
-			if Physics.rayAABB( ray, v, hit ) then
+			if Physics.rayExpandedAABB( ray, v, 1, hit ) then
 				if hit.length < ray.length then
 					if math.abs( hit.normal[1] ) > 0 then
 						movement[1] = movement[1] + ( hit.normal[1] * ( ray.length - hit.length + self.collisionMargin ) )
