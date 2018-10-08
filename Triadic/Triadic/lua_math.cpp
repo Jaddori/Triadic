@@ -15,6 +15,8 @@ namespace LuaMath
 			{ "normalize", LuaVec2::normalize },
 			{ "length", LuaVec2::length },
 			{ "distance", LuaVec2::distance },
+			{ "lerp", LuaVec2::lerp },
+			{ "equals", LuaVec2::equals },
 			
 			{ "add", LuaVec2::add },
 			{ "sub", LuaVec2::sub },
@@ -40,6 +42,8 @@ namespace LuaMath
 			{ "normalize", LuaVec3::normalize },
 			{ "length", LuaVec3::length },
 			{ "distance", LuaVec3::distance },
+			{ "lerp", LuaVec3::lerp },
+			{ "equals", LuaVec3::equals },
 
 			{ "add", LuaVec3::add },
 			{ "sub", LuaVec3::sub },
@@ -67,6 +71,8 @@ namespace LuaMath
 			{ "normalize", LuaVec4::normalize },
 			{ "length", LuaVec4::length },
 			{ "distance", LuaVec4::distance },
+			{ "lerp", LuaVec4::lerp },
+			{ "equals", LuaVec4::equals },
 
 			{ "add", LuaVec4::add },
 			{ "sub", LuaVec4::sub },
@@ -90,8 +96,6 @@ namespace LuaMath
 	{
 		LDEC( create )
 		{
-			int result = 0;
-
 			int args = lua_gettop( lua );
 			if( args <= 0 )
 			{
@@ -102,13 +106,11 @@ namespace LuaMath
 
 				lua_pushnumber( lua, 0 );
 				lua_rawseti( lua, -2, 2 );
-
-				result = 1;
 			}
 
 			luaL_setmetatable( lua, "vec2Meta" );
 
-			return result;
+			return 1;
 		}
 
 		LDEC( copy )
@@ -223,6 +225,60 @@ namespace LuaMath
 
 					float distance = glm::distance( a, b );
 					lua_pushnumber( lua, distance );
+					result = 1;
+				}
+			}
+
+			return result;
+		}
+
+		LDEC( lerp )
+		{
+			int result = 0;
+
+			LUA_EXPECT_ARGS( 3 )
+			{
+				if( LUA_EXPECT_TABLE( 1 ) &&
+					LUA_EXPECT_TABLE( 2 ) &&
+					LUA_EXPECT_NUMBER( 3 ) )
+				{
+					glm::vec2 a, b;
+					lua_getvec2( lua, 1, a );
+					lua_getvec2( lua, 2, b );
+
+					float t = lua_tofloat( lua, 3 );
+
+					glm::vec2 c = a + ( b - a ) * t;
+
+					lua_newtable( lua );
+					lua_setvec2( lua, c );
+					luaL_setmetatable( lua, "vec2Meta" );
+					result = 1;
+				}
+			}
+
+			return result;
+		}
+
+		LDEC( equals )
+		{
+			int result = 0;
+
+			LUA_EXPECT_ARGS( 2 )
+			{
+				if( LUA_EXPECT_TABLE( 1 ) &&
+					LUA_EXPECT_TABLE( 2 ) )
+				{
+					glm::vec2 a, b;
+					lua_getvec2( lua, 1, a );
+					lua_getvec2( lua, 2, b );
+
+					bool equal = true;
+					for( int i=0; i<2 && equal; i++ )
+						if( fabs( a[i] - b[i] ) > EPSILON )
+							equal = false;
+
+					lua_pushboolean( lua, equal );
 					result = 1;
 				}
 			}
@@ -403,8 +459,6 @@ namespace LuaMath
 	{
 		LDEC( create )
 		{
-			int result = 0;
-
 			int args = lua_gettop( lua );
 			if( args <= 0 )
 			{
@@ -418,13 +472,11 @@ namespace LuaMath
 
 				lua_pushnumber( lua, 0 );
 				lua_rawseti( lua, -2, 3 );
-
-				result = 1;
 			}
 
 			luaL_setmetatable( lua, "vec3Meta" );
 
-			return result;
+			return 1;
 		}
 
 		LDEC( copy )
@@ -551,6 +603,60 @@ namespace LuaMath
 
 					float distance = glm::distance( a, b );
 					lua_pushnumber( lua, distance );
+					result = 1;
+				}
+			}
+
+			return result;
+		}
+
+		LDEC( lerp )
+		{
+			int result = 0;
+
+			LUA_EXPECT_ARGS( 3 )
+			{
+				if( LUA_EXPECT_TABLE( 1 ) &&
+					LUA_EXPECT_TABLE( 2 ) &&
+					LUA_EXPECT_NUMBER( 3 ) )
+				{
+					glm::vec3 a, b;
+					lua_getvec3( lua, 1, a );
+					lua_getvec3( lua, 2, b );
+
+					float t = lua_tofloat( lua, 3 );
+
+					glm::vec3 c = a + ( b - a ) * t;
+
+					lua_newtable( lua );
+					lua_setvec3( lua, c );
+					luaL_setmetatable( lua, "vec3Meta" );
+					result = 1;
+				}
+			}
+
+			return result;
+		}
+
+		LDEC( equals )
+		{
+			int result = 0;
+
+			LUA_EXPECT_ARGS( 2 )
+			{
+				if( LUA_EXPECT_TABLE( 1 ) &&
+					LUA_EXPECT_TABLE( 2 ) )
+				{
+					glm::vec3 a, b;
+					lua_getvec3( lua, 1, a );
+					lua_getvec3( lua, 2, b );
+
+					bool equal = true;
+					for( int i=0; i<3 && equal; i++ )
+						if( fabs( a[i] - b[i] ) > EPSILON )
+							equal = false;
+
+					lua_pushboolean( lua, equal );
 					result = 1;
 				}
 			}
@@ -773,8 +879,6 @@ namespace LuaMath
 	{
 		LDEC( create )
 		{
-			int result = 0;
-
 			int args = lua_gettop( lua );
 			if( args <= 0 )
 			{
@@ -791,13 +895,11 @@ namespace LuaMath
 
 				lua_pushnumber( lua, 0 );
 				lua_rawseti( lua, -2, 4 );
-
-				result = 1;
 			}
 
 			luaL_setmetatable( lua, "vec4Meta" );
 
-			return result;
+			return 1;
 		}
 
 		LDEC( copy )
@@ -916,6 +1018,60 @@ namespace LuaMath
 
 					float distance = glm::distance( a, b );
 					lua_pushnumber( lua, distance );
+					result = 1;
+				}
+			}
+
+			return result;
+		}
+
+		LDEC( lerp )
+		{
+			int result = 0;
+
+			LUA_EXPECT_ARGS( 3 )
+			{
+				if( LUA_EXPECT_TABLE( 1 ) &&
+					LUA_EXPECT_TABLE( 2 ) &&
+					LUA_EXPECT_NUMBER( 3 ) )
+				{
+					glm::vec4 a, b;
+					lua_getvec4( lua, 1, a );
+					lua_getvec4( lua, 2, b );
+
+					float t = lua_tofloat( lua, 3 );
+
+					glm::vec4 c = a + ( b - a ) * t;
+
+					lua_newtable( lua );
+					lua_setvec4( lua, c );
+					luaL_setmetatable( lua, "vec4Meta" );
+					result = 1;
+				}
+			}
+
+			return result;
+		}
+
+		LDEC( equals )
+		{
+			int result = 0;
+
+			LUA_EXPECT_ARGS( 2 )
+			{
+				if( LUA_EXPECT_TABLE( 1 ) &&
+					LUA_EXPECT_TABLE( 2 ) )
+				{
+					glm::vec4 a, b;
+					lua_getvec4( lua, 1, a );
+					lua_getvec4( lua, 2, b );
+
+					bool equal = true;
+					for( int i=0; i<4 && equal; i++ )
+						if( fabs( a[i] - b[i] ) > EPSILON )
+							equal = false;
+
+					lua_pushboolean( lua, equal );
 					result = 1;
 				}
 			}

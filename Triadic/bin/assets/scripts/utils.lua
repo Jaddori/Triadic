@@ -17,68 +17,68 @@ function insideRect( position, size, point )
 				point[2] <= position[2] + size[2] );
 end
 
-function addVec( a, b )
-	assert( istable( a ) and istable( b ), "Both arguments must be tables." )
-	assert( #a == #b, "Mismatch in table size." )
-
-	local result = {}
-	for i=1, #a do
-		result[i] = a[i] + b[i]
-	end
-	
-	return result
-end
-
-function subVec( a, b )
-	assert( istable( a ) and istable( b ), "Both arguments must be tables." )
-	assert( #a == #b, "Mismatch in table size." )
-
-	local result = {}
-	for i=1, #a do
-		result[i] = a[i] - b[i]
-	end
-	
-	return result
-end
-
-function copyVec( src, dst )
-	assert( istable( src ), "Source must be a table." )
-	assert( istable( dst ), "Destination must be a table." )
-
-	for i=1, #src do
-		dst[i] = src[i]
-	end
-end
-
-function normalizeVec( vec )
-	assert( istable( vec ), "Input must be a table." )
-
-	local result = {}
-
-	local magnitude = 0
-	for i=1, #vec do
-		magnitude = magnitude + (vec[i]*vec[i])
-	end
-
-	magnitude = math.sqrt( magnitude )
-
-	for i=1, #vec do
-		result[i] = vec[i] / magnitude
-	end
-
-	return result
-end
-
-function lerpVec( a, b, t )
-	assert( #a == #b, "Vectors must have same dimension." )
-
-	local result = {}
-	for i=1, #a do
-		result[i] = lerp( a[i], b[i], t )
-	end
-
-	return result
-end
+--function addVec( a, b )
+--	assert( istable( a ) and istable( b ), "Both arguments must be tables." )
+--	assert( #a == #b, "Mismatch in table size." )
+--
+--	local result = {}
+--	for i=1, #a do
+--		result[i] = a[i] + b[i]
+--	end
+--	
+--	return result
+--end
+--
+--function subVec( a, b )
+--	assert( istable( a ) and istable( b ), "Both arguments must be tables." )
+--	assert( #a == #b, "Mismatch in table size." )
+--
+--	local result = {}
+--	for i=1, #a do
+--		result[i] = a[i] - b[i]
+--	end
+--	
+--	return result
+--end
+--
+--function copyVec( src, dst )
+--	assert( istable( src ), "Source must be a table." )
+--	assert( istable( dst ), "Destination must be a table." )
+--
+--	for i=1, #src do
+--		dst[i] = src[i]
+--	end
+--end
+--
+--function normalizeVec( vec )
+--	assert( istable( vec ), "Input must be a table." )
+--
+--	local result = {}
+--
+--	local magnitude = 0
+--	for i=1, #vec do
+--		magnitude = magnitude + (vec[i]*vec[i])
+--	end
+--
+--	magnitude = math.sqrt( magnitude )
+--
+--	for i=1, #vec do
+--		result[i] = vec[i] / magnitude
+--	end
+--
+--	return result
+--end
+--
+--function lerpVec( a, b, t )
+--	assert( #a == #b, "Vectors must have same dimension." )
+--
+--	local result = {}
+--	for i=1, #a do
+--		result[i] = lerp( a[i], b[i], t )
+--	end
+--
+--	return result
+--end
 
 function stringVec( vec )
 	assert( istable( vec ), "Input must be a table." )

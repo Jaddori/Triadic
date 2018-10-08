@@ -28,8 +28,10 @@ function Player.create( isLocal )
 	{
 		transform = Transform.create(),
 		velocity = {0,0,0},
-		prevPosition = {0,0,0},
-		nextPosition = {0,0,0},
+		--prevPosition = {0,0,0},
+		--nextPosition = {0,0,0},
+		prevPosition = Vec3.create(),
+		nextPosition = Vec3.create(),
 		elapsedTime = 0,
 	
 		ghostTransform = nil,
@@ -44,9 +46,9 @@ function Player.create( isLocal )
 	if IS_CLIENT then
 		player.ghostTransform = Transform.create()
 
-		for i=1, 50 do
-			player.movementRays[i] = { first = {0,0,0}, last = {0,0,0}, color = {0,0,0,0} }
-		end
+		--for i=1, 50 do
+		--	player.movementRays[i] = { first = {0,0,0}, last = {0,0,0}, color = {0,0,0,0} }
+		--end
 
 		if player.isLocal then
 			player.camera = Graphics.getPerspectiveCamera()
@@ -84,7 +86,8 @@ function Player:update( deltaTime )
 				t = 1.0
 			end
 
-			local position = lerpVec( self.prevPosition, self.nextPosition, t )
+			--local position = lerpVec( self.prevPosition, self.nextPosition, t )
+			local position = Vec3.lerp( self.prevPosition, self.nextPosition, t )
 
 			self.transform:setPosition( position )
 
@@ -104,7 +107,8 @@ function Player:update( deltaTime )
 				t = 1.0
 			end
 
-			position = lerpVec( self.prevPosition, self.nextPosition, t )
+			--position = lerpVec( self.prevPosition, self.nextPosition, t )
+			local position = Vec3.lerp( self.prevPosition, self.nextPosition, t )
 
 			self.transform:setPosition( position )
 		end
@@ -138,10 +142,9 @@ end
 
 function Player:processCommand( command )
 	if IS_CLIENT and self.isLocal then
-		local movement = { command.horizontal * 0.5, 0, command.vertical * 0.5 }
-		local curPosition = {0,0,0}
-		copyVec( self.nextPosition, curPosition )
-		local newPosition = addVec( curPosition, movement )
+		local movement = Vec3.create( { command.horizontal * 0.5, 0, command.vertical * 0.5 } )
+		local curPosition = self.nextPosition:copy()
+		local newPosition = curPosition:add( movement )
 
 		local ray = Physics.createRayFromPoints( curPosition, newPosition )
 
@@ -158,18 +161,14 @@ function Player:processCommand( command )
 			end
 		end
 
-		newPosition[1] = curPosition[1] + movement[1]
-		newPosition[3] = curPosition[3] + movement[3]
+		newPosition = curPosition:add( movement )
 
-		self.prevPosition[1] = curPosition[1]
-		self.prevPosition[3] = curPosition[3]
-
-		self.nextPosition[1] = newPosition[1]
-		self.nextPosition[3] = newPosition[3]
+		self.prevPosition = curPosition:copy()
+		self.nextPosition = newPosition:copy()
 	else -- IS_SERVER
-		local movement = { command.horizontal * 0.5, 0, command.vertical * 0.5 }
+		local movement = Vec3.create( { command.horizontal * 0.5, 0, command.vertical * 0.5 } )
 		local curPosition = self.transform:getPosition()
-		local newPosition = addVec( curPosition, movement )
+		local newPosition = curPosition:add( movement )
 
 		local ray = Physics.createRayFromPoints( curPosition, newPosition )
 
@@ -186,8 +185,7 @@ function Player:processCommand( command )
 			end
 		end
 
-		newPosition[1] = curPosition[1] + movement[1]
-		newPosition[3] = curPosition[3] + movement[3]
+		newPosition = curPosition:add( movement )
 
 		self.transform:setPosition( newPosition )
 	end
@@ -211,9 +209,9 @@ function Player:render()
 	DebugShapes.addAABB( ghostMin, ghostMax, {0,1,0,1}, false )
 
 	-- render movement rays
-	for _,v in pairs(self.movementRays) do
-		DebugShapes.addLine( v.first, v.last, v.color, true )
-	end
+	--for _,v in pairs(self.movementRays) do
+	--	DebugShapes.addLine( v.first, v.last, v.color, true )
+	--end
 
 	-- render debug information
 	if self.isLocal then
@@ -248,18 +246,18 @@ function Player:clientWrite()
 end
 
 function Player:clientRead( message )
-	local position = {0,0,0}
+	local position = Vec3.create( {0,0,0} )
 
 	position[1] = message:readFloat()
 	position[2] = message:readFloat()
 	position[3] = message:readFloat()
 
 	if self.isLocal then
-		copyVec( position, self.ghostPosition )
+		self.ghostPosition = position:copy()
 		self.ghostTransform:setPosition( self.ghostPosition )
 
-		copyVec( position, self.prevPosition )
-		copyVec( position, self.nextPosition )
+		self.prevPosition = position:copy()
+		self.nextPosition = position:copy()
 
 		local newCommands = {}
 		local count = #self.commands
@@ -272,12 +270,12 @@ function Player:clientRead( message )
 
 		self.commands = newCommands
 	else
-		copyVec( position, self.ghostPosition )
+		self.ghostPosition = position:copy()
 		self.ghostTransform:setPosition( self.ghostPosition )
 
 		local currentPosition = self.transform:getPosition()
-		copyVec( currentPosition, self.prevPosition )
-		copyVec( position, self.nextPosition )
+		self.prevPosition = currentPosition:copy()
+		self.nextPosition = position:copy()
 
 		self.elapsedTime = 0
 	end

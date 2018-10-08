@@ -15,6 +15,8 @@ namespace LuaMath
 		LDEC( normalize );
 		LDEC( length );
 		LDEC( distance );
+		LDEC( lerp );
+		LDEC( equals );
 
 		LDEC( add );
 		LDEC( sub );
@@ -31,6 +33,8 @@ namespace LuaMath
 		LDEC( normalize );
 		LDEC( length );
 		LDEC( distance );
+		LDEC( lerp );
+		LDEC( equals );
 
 		LDEC( add );
 		LDEC( sub );
@@ -49,6 +53,8 @@ namespace LuaMath
 		LDEC( normalize );
 		LDEC( length );
 		LDEC( distance );
+		LDEC( lerp );
+		LDEC( equals );
 
 		LDEC( add );
 		LDEC( sub );
