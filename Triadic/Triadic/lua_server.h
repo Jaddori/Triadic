@@ -8,7 +8,7 @@ namespace LuaServer
 	void bind( lua_State* lua, CoreData* coreData );
 
 	LDEC( getMessages );
-	LDEC( getNetworkID );
+	//LDEC( getNetworkID );
 
 	LDEC( queueInt );
 	LDEC( queueUint );

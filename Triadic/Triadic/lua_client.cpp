@@ -11,8 +11,8 @@ namespace LuaClient
 		luaL_Reg clientRegs[] = 
 		{
 			{ "getMessages", getMessages },
-			{ "getConnected", getConnected },
-			{ "getNetworkID", getNetworkID },
+			//{ "getConnected", getConnected },
+			//{ "getNetworkID", getNetworkID },
 
 			{ "queueInt", queueInt },
 			{ "queueUint", queueUint },
@@ -49,7 +49,7 @@ namespace LuaClient
 		return 1;
 	}
 
-	LDEC( getConnected )
+	/*LDEC( getConnected )
 	{
 		lua_pushboolean( lua, g_coreData->client->getConnected() );
 		return 1;
@@ -59,7 +59,7 @@ namespace LuaClient
 	{
 		lua_pushnumber( lua, g_coreData->client->getNetworkID() );
 		return 1;
-	}
+	}*/
 
 	LDEC( queueInt )
 	{

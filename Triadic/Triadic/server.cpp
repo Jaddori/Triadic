@@ -2,7 +2,7 @@
 using namespace Network;
 
 Server::Server()
-	: handshakes( 1 )
+	//: handshakes( 1 )
 {
 }
 
@@ -80,7 +80,7 @@ void Server::processTick()
 		if( recvLen > 0 )
 		{
 			uint32_t hash = remoteAddress.sin_addr.S_un.S_addr + remoteAddress.sin_port;
-			/*if( addressHashes.find( hash ) < 0 )
+			if( addressHashes.find( hash ) < 0 )
 			{
 				addressHashes.add( hash );
 				remoteAddresses.add( remoteAddress );
@@ -93,9 +93,9 @@ void Server::processTick()
 
 			Message msg( buffer, recvLen );
 			msg.setHash( hash  );
-			recvMessages.add( msg );*/
+			recvMessages.add( msg );
 
-			if( addressHashes.find( hash ) < 0 )
+			/*if( addressHashes.find( hash ) < 0 )
 			{
 				int index = handshakingHashes.find( hash );
 				if( index < 0 )
@@ -172,7 +172,7 @@ void Server::processTick()
 				Message msg( buffer, recvLen );
 				msg.setHash( hash );
 				recvMessages.add( msg );
-			}
+			}*/
 		}
 	} while( recvLen > 0 );
 
@@ -196,7 +196,7 @@ void Server::processTick()
 	}
 
 	// handshaking
-	const int HANDSHAKING_ADDRESSES = handshakingAddresses.getSize();
+	/*const int HANDSHAKING_ADDRESSES = handshakingAddresses.getSize();
 	for( int curAddress = 0; curAddress < HANDSHAKING_ADDRESSES; curAddress++ )
 	{
 		const int LOCAL_PHASE = handshakingPhases[curAddress];
@@ -243,7 +243,7 @@ void Server::processTick()
 				}
 			} break;
 		}
-	}
+	}*/
 }
 
 Array<Message>& Server::getMessages()
@@ -256,7 +256,7 @@ bool Server::getValid() const
 	return valid;
 }
 
-uint32_t Server::getNetworkID( uint32_t hash )
+/*uint32_t Server::getNetworkID( uint32_t hash )
 {
 	uint32_t result = 0;
 
@@ -267,4 +267,4 @@ uint32_t Server::getNetworkID( uint32_t hash )
 	}
 
 	return result;
-}
+}*/

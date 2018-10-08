@@ -2,7 +2,8 @@
 using namespace Network;
 
 Client::Client()
-	: handshakePhase( 0 ), salt( 0 ), remoteAddressSize( sizeof(remoteAddress) ), handshakeRetries( 0 ), connected( false ), networkID( 0 )
+	: remoteAddressSize( sizeof(remoteAddress) )//,
+	//handshakePhase( 0 ), salt( 0 ), , handshakeRetries( 0 ), connected( false ), networkID( 0 )
 {
 }
 
@@ -55,7 +56,7 @@ void Client::stop()
 	WSACleanup();
 }
 
-void Client::processHandshake()
+/*void Client::processHandshake()
 {
 	if( !valid )
 		return;
@@ -137,7 +138,7 @@ void Client::processHandshake()
 			} break;
 		}
 	}
-}
+}*/
 
 void Client::processTick()
 {
@@ -189,7 +190,7 @@ bool Client::getValid() const
 	return valid;
 }
 
-bool Client::getConnected() const
+/*bool Client::getConnected() const
 {
 	return connected;
 }
@@ -197,4 +198,4 @@ bool Client::getConnected() const
 uint32_t Client::getNetworkID() const
 {
 	return networkID;
-}
+}*/

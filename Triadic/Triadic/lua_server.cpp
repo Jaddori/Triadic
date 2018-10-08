@@ -11,7 +11,7 @@ namespace LuaServer
 		luaL_Reg serverRegs[] = 
 		{
 			{ "getMessages", getMessages },
-			{ "getNetworkID", getNetworkID },
+			//{ "getNetworkID", getNetworkID },
 
 			{ "queueInt", queueInt },
 			{ "queueUint", queueUint },
@@ -48,7 +48,7 @@ namespace LuaServer
 		return 1;
 	}
 
-	LDEC( getNetworkID )
+	/*LDEC( getNetworkID )
 	{
 		int result = 0;
 
@@ -66,7 +66,7 @@ namespace LuaServer
 		}
 
 		return result;
-	}
+	}*/
 
 	LDEC( queueInt )
 	{

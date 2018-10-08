@@ -140,14 +140,14 @@ int update( void* args )
 			uint64_t curClientTick = SDL_GetTicks();
 			if( curClientTick - lastClientTick > CLIENT_TICK_TIME )
 			{
-				if( client.getConnected() )
-				{
+				//if( client.getConnected() )
+				//{
 					script.clientWrite();
 					client.processTick();
 					script.clientRead();
-				}
-				else
-					client.processHandshake();
+				//}
+				//else
+				//	client.processHandshake();
 			
 				lastClientTick = SDL_GetTicks();
 			}

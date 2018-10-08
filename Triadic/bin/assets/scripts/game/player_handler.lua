@@ -1,6 +1,7 @@
 PlayerHandler =
 {
 	playerCount = 0,
+	handshakeCompleted = false,
 }
 
 function PlayerHandler:load()
@@ -41,7 +42,7 @@ function PlayerHandler:update( deltaTime )
 end
 
 function PlayerHandler:fixedUpdate()
-	if IS_CLIENT then
+	if IS_CLIENT and self.handshakeCompleted then
 		self.localPlayer:fixedUpdate()
 	end
 end
@@ -78,7 +79,8 @@ function PlayerHandler:clientRead( message )
 
 	for i=1, playerCount do
 		local networkID = message:readInt()
-		if networkID == Client.getNetworkID() then
+		--if networkID == Client.getNetworkID() then
+		if networkID == GameClient.networkID then
 			self.localPlayer:clientRead( message )
 		else
 			self.remotePlayers[remoteIndex]:clientRead( message )
@@ -108,10 +110,23 @@ function PlayerHandler:serverRead( message )
 end
 
 function PlayerHandler:serverOnNewHash( hash )
+	--local newPlayer = Player.create( false )
+	--newPlayer.hash = hash
+	----newPlayer.networkID = Server.getNetworkID( hash )
+	--
+	--self.players[#self.players+1] = newPlayer
+	--Log.debug( "PlayerHandler: Adding player #" .. tostring( #self.players ) .. " with hash " .. tostring( hash ) )
+end
+
+function PlayerHandler:serverOnHandshakeCompleted( hash, networkID )
 	local newPlayer = Player.create( false )
 	newPlayer.hash = hash
-	newPlayer.networkID = Server.getNetworkID( hash )
-	
+	newPlayer.networkID = networkID
+
 	self.players[#self.players+1] = newPlayer
 	Log.debug( "PlayerHandler: Adding player #" .. tostring( #self.players ) .. " with hash " .. tostring( hash ) )
+end
+
+function PlayerHandler:clientOnHandshakeCompleted()
+	self.handshakeCompleted = true
 end
