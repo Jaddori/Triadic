@@ -130,7 +130,13 @@ function ComponentBoundingBox:compile( file, level )
 		writeIndent( file, level, "radius = " .. tostring( self.sphere.radius ) .. "\n" )
 	else -- BOUNDING_TYPE_AABB
 		writeIndent( file, level, "minPosition = {" .. stringVec( self.aabb.minPosition ) .. "},\n" )
-		writeIndent( file, level, "maxPosition = {" .. stringVec( self.aabb.maxPosition ) .. "}\n" )
+		writeIndent( file, level, "maxPosition = {" .. stringVec( self.aabb.maxPosition ) .. "},\n" )
+
+		local center = Physics.getAABBCenter( self.aabb )
+		writeIndent( file, level, "center = {" .. stringVec( center ) .. "},\n" )
+
+		local extents = subVec( center, self.aabb.minPosition )
+		writeIndent( file, level, "extents = {" .. stringVec( extents ) .. "},\n" )
 	end
 
 	level = level - 1
