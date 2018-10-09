@@ -29,6 +29,16 @@ namespace LuaMath
 		luaL_setfuncs( lua, vec2Regs, 0 );
 		lua_pushvalue( lua, -1 );
 		lua_setfield( lua, -2, "__index" );
+		lua_pushcfunction( lua, LuaVec2::add );
+		lua_setfield( lua, -2, "__add" );
+		lua_pushcfunction( lua, LuaVec2::sub );
+		lua_setfield( lua, -2, "__sub" );
+		lua_pushcfunction( lua, LuaVec2::mul );
+		lua_setfield( lua, -2, "__mul" );
+		lua_pushcfunction( lua, LuaVec2::div );
+		lua_setfield( lua, -2, "__div" );
+		lua_pushcfunction( lua, LuaVec2::equals );
+		lua_setfield( lua, -2, "__eq" );
 		lua_setglobal( lua, "Vec2" );
 
 		// VEC3
@@ -58,6 +68,16 @@ namespace LuaMath
 		luaL_setfuncs( lua, vec3Regs, 0 );
 		lua_pushvalue( lua, -1 );
 		lua_setfield( lua, -2, "__index" );
+		lua_pushcfunction( lua, LuaVec3::add );
+		lua_setfield( lua, -2, "__add" );
+		lua_pushcfunction( lua, LuaVec3::sub );
+		lua_setfield( lua, -2, "__sub" );
+		lua_pushcfunction( lua, LuaVec3::mul );
+		lua_setfield( lua, -2, "__mul" );
+		lua_pushcfunction( lua, LuaVec3::div );
+		lua_setfield( lua, -2, "__div" );
+		lua_pushcfunction( lua, LuaVec3::equals );
+		lua_setfield( lua, -2, "__eq" );
 		lua_setglobal( lua, "Vec3" );
 
 		// VEC4
@@ -85,6 +105,16 @@ namespace LuaMath
 		luaL_setfuncs( lua, vec4Regs, 0 );
 		lua_pushvalue( lua, -1 );
 		lua_setfield( lua, -2, "__index" );
+		lua_pushcfunction( lua, LuaVec4::add );
+		lua_setfield( lua, -2, "__add" );
+		lua_pushcfunction( lua, LuaVec4::sub );
+		lua_setfield( lua, -2, "__sub" );
+		lua_pushcfunction( lua, LuaVec4::mul );
+		lua_setfield( lua, -2, "__mul" );
+		lua_pushcfunction( lua, LuaVec4::div );
+		lua_setfield( lua, -2, "__div" );
+		lua_pushcfunction( lua, LuaVec4::equals );
+		lua_setfield( lua, -2, "__eq" );
 		lua_setglobal( lua, "Vec4" );
 
 		// QUAT

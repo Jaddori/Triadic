@@ -5,13 +5,12 @@ Player =
 	meshIndex = -1,
 	camera = nil,
 	grid = nil,
-	velocity = {0,0,0},
-	prevPosition = {0,0,0},
-	nextPosition = {0,0,0},
+	prevPosition = Vec3.create(),
+	nextPosition = Vec3.create(),
 	elapsedTime = 0,
 
 	ghostTransform = nil,
-	ghostPosition = {0,0,0},
+	ghostPosition = Vec3.create(),
 
 	isLocal = false,
 	commands = {},
@@ -27,15 +26,12 @@ function Player.create( isLocal )
 	local player = 
 	{
 		transform = Transform.create(),
-		velocity = {0,0,0},
-		--prevPosition = {0,0,0},
-		--nextPosition = {0,0,0},
 		prevPosition = Vec3.create(),
 		nextPosition = Vec3.create(),
 		elapsedTime = 0,
 	
 		ghostTransform = nil,
-		ghostPosition = {0,0,0},
+		ghostPosition = Vec3.create(),
 	
 		isLocal = isLocal,
 		commands = {},
@@ -86,7 +82,6 @@ function Player:update( deltaTime )
 				t = 1.0
 			end
 
-			--local position = lerpVec( self.prevPosition, self.nextPosition, t )
 			local position = Vec3.lerp( self.prevPosition, self.nextPosition, t )
 
 			self.transform:setPosition( position )
@@ -107,7 +102,6 @@ function Player:update( deltaTime )
 				t = 1.0
 			end
 
-			--position = lerpVec( self.prevPosition, self.nextPosition, t )
 			local position = Vec3.lerp( self.prevPosition, self.nextPosition, t )
 
 			self.transform:setPosition( position )
@@ -144,7 +138,7 @@ function Player:processCommand( command )
 	if IS_CLIENT and self.isLocal then
 		local movement = Vec3.create( { command.horizontal * 0.5, 0, command.vertical * 0.5 } )
 		local curPosition = self.nextPosition:copy()
-		local newPosition = curPosition:add( movement )
+		local newPosition = curPosition + movement
 
 		local ray = Physics.createRayFromPoints( curPosition, newPosition )
 
@@ -161,14 +155,14 @@ function Player:processCommand( command )
 			end
 		end
 
-		newPosition = curPosition:add( movement )
+		newPosition = curPosition + movement
 
 		self.prevPosition = curPosition:copy()
 		self.nextPosition = newPosition:copy()
 	else -- IS_SERVER
 		local movement = Vec3.create( { command.horizontal * 0.5, 0, command.vertical * 0.5 } )
 		local curPosition = self.transform:getPosition()
-		local newPosition = curPosition:add( movement )
+		local newPosition = curPosition + movement
 
 		local ray = Physics.createRayFromPoints( curPosition, newPosition )
 
@@ -185,7 +179,7 @@ function Player:processCommand( command )
 			end
 		end
 
-		newPosition = curPosition:add( movement )
+		newPosition = curPosition + movement
 
 		self.transform:setPosition( newPosition )
 	end
@@ -246,7 +240,7 @@ function Player:clientWrite()
 end
 
 function Player:clientRead( message )
-	local position = Vec3.create( {0,0,0} )
+	local position = Vec3.create()
 
 	position[1] = message:readFloat()
 	position[2] = message:readFloat()

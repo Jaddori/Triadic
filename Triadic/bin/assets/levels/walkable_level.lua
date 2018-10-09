@@ -66,8 +66,8 @@ Lights:addPointLight( light )
 -- SunLight
 local light =
 {
-	direction = {-1,-1,-1}
-	color = {1,0.7,0.7}
+	direction = {-1,-1,-1},
+	color = {1,0.7,0.7},
 	intensity = 0.1
 }
 Lights:addDirectionalLight( light )
