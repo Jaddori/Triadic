@@ -1,7 +1,7 @@
 CommandMove = 
 {
-	oldPosition = {0,0,0},
-	newPosition = {0,0,0},
+	oldPosition = Vec3.create( {0,0,0} ),
+	newPosition = Vec3.create( {0,0,0} ),
 	entity = nil,
 }
 
@@ -12,8 +12,8 @@ function CommandMove.create( oldPosition, newPosition, entity )
 
 	local command = 
 	{
-		oldPosition = {0,0,0},
-		newPosition = {0,0,0},
+		oldPosition = Vec3.create( {0,0,0} ),
+		newPosition = Vec3.create( {0,0,0} ),
 		entity = entity
 	}
 

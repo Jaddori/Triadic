@@ -1,7 +1,7 @@
 CommandScale = 
 {
-	oldScale = {0,0,0},
-	newScale = {0,0,0},
+	oldScale = Vec3.create( {0,0,0} ),
+	newScale = Vec3.create( {0,0,0} ),
 	entity = nil,
 }
 
@@ -12,8 +12,8 @@ function CommandScale.create( oldScale, newScale, entity )
 
 	local command = 
 	{
-		oldScale = {0,0,0},
-		newScale = {0,0,0},
+		oldScale = Vec3.create( {0,0,0} ),
+		newScale = Vec3.create( {0,0,0} ),
 		entity = entity
 	}
 

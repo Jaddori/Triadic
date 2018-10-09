@@ -4,10 +4,10 @@ GUI_CONTEXT_MENU_DEPTH = -0.9
 local menu =
 {
 	textureIndex = -1,
-	position = {0,0},
-	size = {GUI_CONTEXT_MENU_WIDTH,0},
-	depth = GUI_CONTEXT_MENU_DEPTH,
-	color = {0.5, 0.5, 0.5, 1.0},
+	position = Vec2.create({0,0}),
+	size = Vec2.create({GUI_CONTEXT_MENU_WIDTH,0}),
+	depth = Vec2.create(GUI_CONTEXT_MENU_DEPTH),
+	color = Vec2.create({0.5, 0.5, 0.5, 1.0}),
 	visible = false,
 	
 	items = {},
@@ -21,7 +21,7 @@ end
 function menu:addItem( text, tag )
 	local count = #self.items
 	
-	local button = EditorButton.create( {0, count*GUI_BUTTON_HEIGHT}, {self.size[1], GUI_BUTTON_HEIGHT}, text )
+	local button = EditorButton.create( Vec2.create({0, count*GUI_BUTTON_HEIGHT}), Vec2.create({self.size[1], GUI_BUTTON_HEIGHT}), text )
 	button:setDepth( self.depth + GUI_DEPTH_SMALL_INC )
 	button:setTextAlignment( ALIGN_NEAR, ALIGN_NEAR )
 	button.tag = tag
@@ -38,12 +38,11 @@ function menu:addItem( text, tag )
 end
 
 function menu:show( position )
-	self.position[1] = position[1]
-	self.position[2] = position[2]
+	self.position = position:copy()
 	self.visible = true
 	
 	for i=1, #self.items do
-		local position = {self.position[1], self.position[2] + (i-1) * GUI_BUTTON_HEIGHT}
+		local position = Vec2.create({self.position[1], self.position[2] + (i-1) * GUI_BUTTON_HEIGHT})
 		self.items[i]:setPosition( position )
 	end
 end
@@ -88,20 +87,6 @@ function menu:update( deltaTime, mousePosition )
 			v:update( deltaTime, mousePosition )
 		end
 	end
-
-	--[[
-	local capture = { mouseCaptured = false, keyboardCaptured = false }
-
-	for _,v in pairs(self.items) do
-		local result = v:update( deltaTime )
-		setCapture( result, capture )
-	end
-	
-	if Input.buttonReleased( Buttons.Left ) then
-		self.visible = false
-	end
-	
-	return capture--]]
 end
 
 function menu:render()

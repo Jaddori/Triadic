@@ -168,7 +168,7 @@ function ComponentMesh:render()
 		
 		if self.boundingBox then
 			if self.parent.selected or self.parent.hovered then
-				local color = {0,1,0,1}
+				local color = Vec4.create({0,1,0,1})
 				if self.parent.hovered then
 					color[1] = 1
 				end
@@ -250,7 +250,7 @@ function ComponentMeshWindow:load()
 	end
 
 	-- layout
-	local layout = EditorLayoutTopdown.create( {0,0}, self.window.size[1] )
+	local layout = EditorLayoutTopdown.create( Vec2.create({0,0}), self.window.size[1] )
 
 	-- mesh name
 	local meshInput = EditorInputbox.createWithText( "Mesh:" )
@@ -258,7 +258,7 @@ function ComponentMeshWindow:load()
 	layout:addItem( meshInput )
 
 	-- mesh list
-	local meshList = EditorListbox.create( nil, {0, MESH_LIST_PANEL_HEIGHT} )
+	local meshList = EditorListbox.create( nil, Vec2.create({0, MESH_LIST_PANEL_HEIGHT}) )
 	for i=1, #self.meshNames do
 		meshList:addItem( self.meshNames[i], i )
 	end

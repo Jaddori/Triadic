@@ -15,7 +15,7 @@ function camera:update( deltaTime )
 	if Input.buttonDown( Buttons.Middle ) then
 		self.camera:updateDirection( mouseDelta )
 		
-		local movement = {0,0,0}
+		local movement = Vec3.create({0,0,0})
 		if Input.keyDown( Keys.A ) then
 			movement[1] = movement[1] - 1
 		end
@@ -39,7 +39,7 @@ function camera:update( deltaTime )
 	else
 		local mouseWheel = Input.getMouseWheel()
 		if mouseWheel ~= 0 then
-			local movement = { 0, 0, mouseWheel * self.scrollSpeed }
+			local movement = Vec3.create({ 0, 0, mouseWheel * self.scrollSpeed })
 			self.camera:relativeMovement( movement )
 
 			capture.mouseCaptured = true

@@ -7,7 +7,7 @@ EditorAlignText =
 	parent = {},
 	fontIndex = -1,
 	text = "",
-	position = {0,0},
+	position = Vec2.create({0,0}),
 	horizontal = ALIGN_NEAR,
 	vertical = ALIGN_NEAR,
 	horizontalPadding = 4,
@@ -20,7 +20,7 @@ function EditorAlignText.create( parent, fontIndex, text )
 		parent = parent,
 		fontIndex = fontIndex,
 		text = text,
-		position = {0,0},
+		position = Vec2.create({0,0}),
 		horizontal = ALIGN_NEAR,
 		vertical = ALIGN_NEAR,
 	}

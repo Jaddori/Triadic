@@ -1,7 +1,7 @@
 CommandRotate = 
 {
-	oldOrientation = {0,0,0,1},
-	newOrientation = {0,0,0,1},
+	oldOrientation = Vec4.create( {0,0,0,1} ),
+	newOrientation = Vec4.create( {0,0,0,1} ),
 	entity = nil,
 }
 
@@ -12,8 +12,8 @@ function CommandRotate.create( oldOrientation, newOrientation, entity )
 
 	local command = 
 	{
-		oldOrientation = {0,0,0},
-		newOrientation = {0,0,0},
+		oldOrientation = Vec4.create( {0,0,0} ),
+		newOrientation = Vec4.create( {0,0,0} ),
 		entity = entity
 	}
 

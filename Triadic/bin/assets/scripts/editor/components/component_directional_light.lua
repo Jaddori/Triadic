@@ -2,8 +2,8 @@ ComponentDirectionalLight =
 {
 	name = "Directional Light",
 	parent = nil,
-	direction = {1,0,0},
-	color = {1,1,1},
+	direction = Vec3.create({1,0,0}),
+	color = Vec3.create({1,1,1}),
 	intensity = 2,
 }
 
@@ -17,8 +17,8 @@ function ComponentDirectionalLight.create( parent )
 	local result =
 	{
 		parent = parent,
-		direction = {1,0,0},
-		color = {1,1,1},
+		direction = Vec3.create({1,0,0}),
+		color = Vec3.create({1,1,1}),
 		intensity = 2,
 	}
 
@@ -52,8 +52,8 @@ function ComponentDirectionalLight:compile( file, level )
 	writeIndent( file, level, "{\n" )
 
 	level = level + 1
-	writeIndent( file, level, "direction = {" .. stringVec( self.direction ) .. "}\n" )
-	writeIndent( file, level, "color = {" .. stringVec( self.color ) .. "}\n" )
+	writeIndent( file, level, "direction = {" .. stringVec( self.direction ) .. "},\n" )
+	writeIndent( file, level, "color = {" .. stringVec( self.color ) .. "},\n" )
 	writeIndent( file, level, "intensity = " .. tostring( self.intensity ) .. "\n" )
 
 	level = level - 1
@@ -65,8 +65,10 @@ end
 function ComponentDirectionalLight:copy( parent )
 	local result = self.create( parent )
 
-	copyVec( self.direction, result.direction )
-	copyVec( self.color, result.color )
+	--copyVec( self.direction, result.direction )
+	--copyVec( self.color, result.color )
+	result.direction = self.direction:copy()
+	result.color = self.color:copy()
 	result.intensity = self.intensity
 
 	return result
@@ -82,23 +84,29 @@ end
 function ComponentDirectionalLight:render()
 	Graphics.queueDirectionalLight( self.direction, self.color, self.intensity )
 
-	local color = {0,0,0}
-	copyVec( self.color, color )
+	local color = Vec4.create({0,0,0,0})
+	--copyVec( self.color, color )
+	color[1] = self.color[1]
+	color[2] = self.color[2]
+	color[3] = self.color[3]
 	color[4] = 1
 
 	for i=1, 4 do
-		local rayStart =
-		{
-			self.parent.position[1] + self.direction[1] * i,
-			self.parent.position[2] + self.direction[2] * i,
-			self.parent.position[3] + self.direction[3] * i,
-		}
-		local rayEnd =
-		{
-			rayStart[1] + self.direction[1]*0.5,
-			rayStart[2] + self.direction[2]*0.5,
-			rayStart[3] + self.direction[3]*0.5
-		}
+		--local rayStart =
+		--{
+		--	self.parent.position[1] + self.direction[1] * i,
+		--	self.parent.position[2] + self.direction[2] * i,
+		--	self.parent.position[3] + self.direction[3] * i,
+		--}
+		--local rayEnd =
+		--{
+		--	rayStart[1] + self.direction[1]*0.5,
+		--	rayStart[2] + self.direction[2]*0.5,
+		--	rayStart[3] + self.direction[3]*0.5
+		--}
+
+		local rayStart = self.parent.position:add( self.direction:mul( i ) )
+		local rayEnd = rayStart:add( self.direction:mul( 0.5 ) )
 		
 		DebugShapes.addLine( rayStart, rayEnd, color )
 	end
@@ -148,7 +156,7 @@ function ComponentDirectionalLightWindow:load()
 	self.window.visible = false
 
 	-- layout
-	local layout = EditorLayoutTopdown.create( {0,0}, self.window.size[1] )
+	local layout = EditorLayoutTopdown.create( Vec2.create({0,0}), self.window.size[1] )
 
 	-- direction
 	local directionInputbox = EditorInputbox.createWithText( "Direction:" )

@@ -8,10 +8,10 @@ local menu =
 {
 	textureIndex = -1,
 	items = {},
-	position = {0,0},
-	size = {0,0},
+	position = Vec2.create({0,0}),
+	size = Vec2.create({0,0}),
 	depth = GUI_MENU_DEPTH,
-	color = {0.5, 0.5, 0.5, 1.0},
+	color = Vec4.create({0.5, 0.5, 0.5, 1.0}),
 
 	file = {},
 	settings = {},
@@ -19,7 +19,7 @@ local menu =
 
 function menu:load()
 	self.textureIndex = Assets.loadTexture( "./assets/textures/white.dds" )
-	self.size = {WINDOW_WIDTH, GUI_MENU_HEIGHT}
+	self.size = Vec2.create({WINDOW_WIDTH, GUI_MENU_HEIGHT})
 
 	self.file = doscript( "editor/gui/editor_gui_menu_file.lua" )
 	self.settings = doscript( "editor/gui/editor_gui_menu_settings.lua" )
@@ -45,22 +45,6 @@ function menu:update( deltaTime, mousePosition )
 	for _,v in pairs(self.items) do
 		v:update( deltaTime, mousePosition )
 	end
-
-	--[[
-	local capture = { mouseCaptured = false, keyboardCaptured = false }
-
-	local result = self.file:update( deltaTime )
-	setCapture( result, capture )
-
-	result = self.settings:update( deltaTime )
-	setCapture( result, capture )
-
-	for _,v in pairs(self.items) do
-		result = v:update( deltaTime )
-		setCapture( result, capture )
-	end
-
-	return capture--]]
 end
 
 function menu:render()

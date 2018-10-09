@@ -26,4 +26,4 @@ function StateEditor:render()
 	Editor:render()
 end
 
---Game:addState( StateEditor )
+Game:addState( StateEditor )

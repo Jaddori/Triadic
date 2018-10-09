@@ -4,10 +4,10 @@ GUI_COMPONENT_LIST_DEPTH = 0.7
 local list =
 {
 	textureIndex = -1,
-	position = {0,0},
-	size = {0,0},
+	position = Vec2.create({0,0}),
+	size = Vec2.create({0,0}),
 	depth = GUI_COMPONENT_LIST_DEPTH,
-	color = {0.35, 0.35, 0.35, 1.0},
+	color = Vec2.create({0.35, 0.35, 0.35, 1.0}),
 	visible = false,
 
 	items = {},
@@ -18,8 +18,8 @@ local list =
 function list:load()
 	self.textureIndex = Assets.loadTexture( GUI_DEFAULT_BACKGROUND_TEXTURE )
 
-	self.position = {WINDOW_WIDTH - GUI_PANEL_WIDTH - GUI_COMPONENT_LIST_WIDTH, GUI_MENU_HEIGHT}
-	self.size = {GUI_COMPONENT_LIST_WIDTH, WINDOW_HEIGHT-GUI_MENU_HEIGHT}
+	self.position = Vec2.create({WINDOW_WIDTH - GUI_PANEL_WIDTH - GUI_COMPONENT_LIST_WIDTH, GUI_MENU_HEIGHT})
+	self.size = Vec2.create({GUI_COMPONENT_LIST_WIDTH, WINDOW_HEIGHT-GUI_MENU_HEIGHT})
 end
 
 function list:addItem( text, tag )
@@ -27,7 +27,12 @@ function list:addItem( text, tag )
 
 	local padding = 4
 
-	local button = EditorButton.create( {self.position[1]+padding, self.position[2]+padding+count*(GUI_BUTTON_HEIGHT+padding)}, {self.size[1]-padding*2, GUI_BUTTON_HEIGHT}, text )
+	local button = EditorButton.create
+	(
+		Vec2.create({self.position[1]+padding, self.position[2]+padding+count*(GUI_BUTTON_HEIGHT+padding)}),
+		Vec2.create({self.size[1]-padding*2, GUI_BUTTON_HEIGHT}),
+		text
+	)
 	button:setTextAlignment( ALIGN_NEAR, ALIGN_NEAR )
 	button:setDepth( self.depth + GUI_DEPTH_SMALL_INC )
 	button.tag = tag
@@ -62,19 +67,6 @@ function list:update( deltaTime, mousePosition )
 	for _,v in pairs(self.items) do
 		v:update( deltaTime, mousePosition )
 	end
-
-	--[[
-	local capture = { mouseCaptured = false, keyboardCaptured = false }
-
-	local mousePosition = Input.getMousePosition()
-	capture.mouseCaptured = insideRect( self.position, self.size, mousePosition )
-
-	for _,v in pairs(self.items) do
-		local result = v:update( deltaTime )
-		setCapture( result, capture )
-	end
-
-	return capture--]]
 end
 
 function list:render()

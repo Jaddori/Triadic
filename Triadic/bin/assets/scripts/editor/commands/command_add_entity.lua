@@ -2,7 +2,7 @@ CommandAddEntity =
 {
 	editor = nil,
 	entity = nil,
-	position = {0,0,0},
+	position = Vec3.create( {0,0,0} ),
 }
 
 function CommandAddEntity.create( editor, entity )

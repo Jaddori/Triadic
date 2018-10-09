@@ -7,31 +7,31 @@ ComponentBoundingBox =
 	name = "Bounding Box",
 	parent = nil,
 	type = BOUNDING_TYPE_SPHERE,
-	color = { 1,0,1,1 },
-	offset = {0,0,0},
+	color = Vec4.create({1,0,1,1}),
+	offset = Vec3.create({0,0,0}),
 
 	-- ray
 	ray =
 	{
-		start = {0,0,0},
+		start = Vec3.create({0,0,0}),
 		length = 1.0,
-		direction = normalizeVec({1,1,1}),
+		direction = Vec3.normalize({1,1,1}),
 	},
 
 	-- sphere
 	sphere =
 	{
-		center = {0,0,0},
+		center = Vec3.create({0,0,0}),
 		radius = 2.0,
 	},
 
 	-- aabb
 	aabb =
 	{
-		minPosition = {-2,-2,-2},
-		maxPosition = {2,2,2},
-		minOffset = {-2,-2,-2},
-		maxOffset = {2,2,2},
+		minPosition = Vec3.create({-2,-2,-2}),
+		maxPosition = Vec3.create({2,2,2}),
+		minOffset = Vec3.create({-2,-2,-2}),
+		maxOffset = Vec3.create({2,2,2}),
 	},
 }
 
@@ -46,25 +46,25 @@ function ComponentBoundingBox.create( parent )
 	{
 		parent = parent,
 		type = BOUNDING_TYPE_SPHERE,
-		offset = {0,0,0},
+		offset = Vec3.create({0,0,0}),
 
 		ray =
 		{
-			start = {0,0,0},
+			start = Vec3.create({0,0,0}),
 			length = 5.0,
-			direction = normalizeVec({1,1,1}),
+			direction = Vec3.normalize({1,1,1}),
 		},
 		sphere =
 		{
-			center = {0,0,0},
+			center = Vec3.create({0,0,0}),
 			radius = 2.0,
 		},
 		aabb =
 		{
-			minPosition = {-2,-2,-2},
-			maxPosition = {2,2,2},
-			minOffset = {-2,-2,-2},
-			maxOffset = {2,2,2},
+			minPosition = Vec3.create({-2,-2,-2}),
+			maxPosition = Vec3.create({2,2,2}),
+			minOffset = Vec3.create({-2,-2,-2}),
+			maxOffset = Vec3.create({2,2,2}),
 		}
 	}
 
@@ -130,7 +130,13 @@ function ComponentBoundingBox:compile( file, level )
 		writeIndent( file, level, "radius = " .. tostring( self.sphere.radius ) .. "\n" )
 	else -- BOUNDING_TYPE_AABB
 		writeIndent( file, level, "minPosition = {" .. stringVec( self.aabb.minPosition ) .. "},\n" )
-		writeIndent( file, level, "maxPosition = {" .. stringVec( self.aabb.maxPosition ) .. "}\n" )
+		writeIndent( file, level, "maxPosition = {" .. stringVec( self.aabb.maxPosition ) .. "},\n" )
+
+		local center = Physics.getAABBCenter( self.aabb )
+		writeIndent( file, level, "center = {" .. stringVec( center ) .. "},\n" )
+
+		local extents = subVec( center, self.aabb.minPosition )
+		writeIndent( file, level, "extents = {" .. stringVec( extents ) .. "},\n" )
 	end
 
 	level = level - 1
@@ -148,13 +154,21 @@ end
 function ComponentBoundingBox:copy( parent )
 	local result = self.create( parent )
 
+	--result.type = self.type
+	--copyVec( self.color, result.color )
+	--result.ray.length = self.ray.length
+	--copyVec( self.ray.direction, result.ray.direction )
+	--result.sphere.radius = self.sphere.radius
+	--copyVec( self.aabb.minPosition, result.aabb.minPosition )
+	--copyVec( self.aabb.maxPosition, result.aabb.maxPosition )
+
 	result.type = self.type
-	copyVec( self.color, result.color )
+	result.color = self.color:copy()
 	result.ray.length = self.ray.length
-	copyVec( self.ray.direction, result.ray.direction )
+	result.ray.direction = self.ray.direction:copy()
 	result.sphere.radius = self.sphere.radius
-	copyVec( self.aabb.minPosition, result.aabb.minPosition )
-	copyVec( self.aabb.maxPosition, result.aabb.maxPosition )
+	result.aabb.minPosition = self.aabb.minPosition:copy()
+	result.aabb.maxPosition = self.aabb.maxPosition:copy()
 
 	if self.parent then
 		self:parentMoved()
@@ -181,16 +195,22 @@ function ComponentBoundingBox:confineOffset()
 end
 
 function ComponentBoundingBox:parentMoved()
-	local center = addVec( self.parent.position, self.offset )
+	--local center = addVec( self.parent.position, self.offset )
+	local center = self.parent.position:add( self.offset )
 
-	copyVec( center, self.ray.start )
-	copyVec( center, self.sphere.center )
+	--copyVec( center, self.ray.start )
+	--copyVec( center, self.sphere.center )
+
+	self.ray.start = center:copy()
+	self.sphere.center = center:copy()
 
 	self:confineOffset()
 
-	self.aabb.minPosition = addVec( center, self.aabb.minOffset )
-	self.aabb.maxPosition = addVec( center, self.aabb.maxOffset )
+	--self.aabb.minPosition = addVec( center, self.aabb.minOffset )
+	--self.aabb.maxPosition = addVec( center, self.aabb.maxOffset )
 
+	self.aabb.minPosition = center:add( self.aabb.minOffset )
+	self.aabb.maxPosition = center:add( self.aabb.maxOffset )
 end
 
 function ComponentBoundingBox:select( ray )
@@ -220,18 +240,22 @@ function ComponentBoundingBox:render()
 
 	local color = self.color
 	if self.parent.hovered then
-		color = {1,1,0,1}
+		color = Vec4.create({1,1,0,1})
 	end
 
 	-- ray
 	if self.type == BOUNDING_TYPE_RAY then
-		local rayEnd =
-		{
-			self.ray.direction[1] * self.ray.length,
-			self.ray.direction[2] * self.ray.length,
-			self.ray.direction[3] * self.ray.length
-		}
-		rayEnd = addVec( self.ray.start, rayEnd )
+		--local rayEnd =
+		--{
+		--	self.ray.direction[1] * self.ray.length,
+		--	self.ray.direction[2] * self.ray.length,
+		--	self.ray.direction[3] * self.ray.length
+		--}
+		--rayEnd = addVec( self.ray.start, rayEnd )
+
+		local rayEnd = self.ray.direction:mul( self.ray.length )
+		rayEnd = self.ray.start:add( rayEnd )
+
 		DebugShapes.addLine( self.ray.start, rayEnd, color )
 
 		result = false -- super hard to select a ray, just show the normal sphere
@@ -275,13 +299,13 @@ function ComponentBoundingBoxWindow:show( component )
 	end
 
 	-- layout
-	local layout = EditorLayoutTopdown.create( {0,0}, self.window.size[1] )
+	local layout = EditorLayoutTopdown.create( Vec2.create({0,0}), self.window.size[1] )
 
 	-- type
 	local typeLabel = EditorLabel.createWithText( "Type:" )
 	layout:addItem( typeLabel )
 
-	local typeDropdown = EditorDropdown.create( {0,0}, {0, GUI_BUTTON_HEIGHT} )
+	local typeDropdown = EditorDropdown.create( Vec2.create({0,0}), Vec2.create({0, GUI_BUTTON_HEIGHT}) )
 	typeDropdown:addItem( "Ray", BOUNDING_TYPE_RAY )
 	typeDropdown:addItem( "Sphere", BOUNDING_TYPE_SPHERE )
 	typeDropdown:addItem( "AABB", BOUNDING_TYPE_AABB )
@@ -381,13 +405,13 @@ function ComponentBoundingBoxWindow:load()
 	self.window.visible = false
 
 	-- layout
-	local layout = EditorLayoutTopdown.create( {0,0}, self.window.size[1] )
+	local layout = EditorLayoutTopdown.create( Vec2.create({0,0}), self.window.size[1] )
 
 	-- type
 	local typeLabel = EditorLabel.createWithText( "Type:" )
 	layout:addItem( typeLabel )
 
-	local typeDropdown = EditorDropdown.create( {0,0}, {0, GUI_BUTTON_HEIGHT} )
+	local typeDropdown = EditorDropdown.create( Vec2.create({0,0}), Vec2.create({0, GUI_BUTTON_HEIGHT}) )
 	typeDropdown:addItem( "Ray", BOUNDING_TYPE_RAY )
 	typeDropdown:addItem( "Sphere", BOUNDING_TYPE_SPHERE )
 	typeDropdown:addItem( "AABB", BOUNDING_TYPE_AABB )

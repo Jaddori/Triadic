@@ -11,33 +11,33 @@ EditorWindow =
 {
 	visible = false,
 	title = "",
-	position = {0,0},
-	size = {0,0},
+	position = Vec2.create({0,0}),
+	size = Vec2.create({0,0}),
 	depth = 0,
-	titlebarSize = {0,EDITOR_WINDOW_TITLEBAR_HEIGHT},
+	titlebarSize = Vec2.create({0,EDITOR_WINDOW_TITLEBAR_HEIGHT}),
 
-	crossSize = {EDITOR_WINDOW_CROSS_SIZE, EDITOR_WINDOW_CROSS_SIZE},
+	crossSize = Vec2.create({EDITOR_WINDOW_CROSS_SIZE, EDITOR_WINDOW_CROSS_SIZE}),
 	crossCaptured = false,
 	crossHovered = false,
 	crossPressed = false,
-	crossColor = {1,1,1,1},
-	crossHoverColor = {1,0,0,1},
-	crossPressColor = {0.5,0,0,1},
+	crossColor = Vec4.create({1,1,1,1}),
+	crossHoverColor = Vec4.create({1,0,0,1}),
+	crossPressColor = Vec4.create({0.5,0,0,1}),
 
 	textureIndex = -1,
 	crossTextureIndex = -1,
-	backgroundColor = {0.35, 0.35, 0.35, 1.0},
+	backgroundColor = Vec4.create({0.35, 0.35, 0.35, 1.0}),
 
 	fontIndex = -1,
-	titlebarColor = {0.45, 0.45, 0.45, 1.0},
-	titlebarTextColor = {1,1,1,1},
+	titlebarColor = Vec4.create({0.45, 0.45, 0.45, 1.0}),
+	titlebarTextColor = Vec4.create({1,1,1,1}),
 
 	items = {},
 
 	hovered = false,
 	pressed = false,
 	focused = false,
-	movementOffset = {0,0},
+	movementOffset = Vec2.create({0,0}),
 
 	padding = 4,
 	onFocus = nil,
@@ -56,27 +56,27 @@ function EditorWindow.create( title, position, size )
 		visible = true,
 		title = title,
 		depth = 0,
-		titlebarSize = {0, EDITOR_WINDOW_TITLEBAR_HEIGHT},
+		titlebarSize = Vec2.create({0, EDITOR_WINDOW_TITLEBAR_HEIGHT}),
 
 		items = {},
 
 		hovered = false,
 		pressed = false,
 		focused = false,
-		movementOffset = {0,0},
+		movementOffset = Vec2.create({0,0}),
 
-		crossSize = {EDITOR_WINDOW_CROSS_SIZE, EDITOR_WINDOW_CROSS_SIZE},
+		crossSize = Vec2.create({EDITOR_WINDOW_CROSS_SIZE, EDITOR_WINDOW_CROSS_SIZE}),
 		crossCaptured = false,
 	}
 
 	if position then
-		result.position = tableVal( position )
+		result.position = position:copy()
 	else
 		result.position = {0, GUI_MENU_HEIGHT}
 	end
 
 	if size then
-		result.size = tableVal( size )
+		result.size = size:copy()
 	else
 		result.size = {EDITOR_WINDOW_DEFAULT_WIDTH, EDITOR_WINDOW_DEFAULT_HEIGHT}
 	end
@@ -89,13 +89,13 @@ function EditorWindow.create( title, position, size )
 end
 
 function EditorWindow:setPosition( position )
-	copyVec( position, self.position )
+	self.position = position:copy()
 
 	self:layout()
 end
 
 function EditorWindow:setSize( size )
-	copyVec( size, self.size )
+	self.size = size:copy()
 
 	self:layout()
 end
@@ -118,8 +118,8 @@ function EditorWindow:layout()
 	local penultimateHeight = 0
 	local yoffset = self.titlebarSize[2] + self.padding
 	for _,v in pairs(self.items) do
-		v:setPosition( {self.position[1], self.position[2] + yoffset} )
-		v:setSize( {self.size[1], v.size[2]} )
+		v:setPosition( Vec2.create({self.position[1], self.position[2] + yoffset}) )
+		v:setSize( Vec2.create({self.size[1], v.size[2]}) )
 
 		yoffset = yoffset + v.size[2] + self.padding
 		penultimateHeight = yoffset + self.padding
@@ -155,10 +155,11 @@ end
 
 function EditorWindow:updateMouseInput( deltaTime, mousePosition )
 	if self.crossCaptured then
-		local crossPosition = { self.position[1] + self.size[1] - self.crossSize[1], self.position[2] }
+		local crossPosition = Vec2.create({ self.position[1] + self.size[1] - self.crossSize[1], self.position[2] })
 		self.crossPressed = insideRect( crossPosition, self.crossSize, mousePosition )
 	elseif self.titlebarCaptured then
-		self.position = subVec( mousePosition, self.movementOffset )
+		--self.position = subVec( mousePosition, self.movementOffset )
+		self.position = mousePosition:sub( movementOffset )
 
 		-- clamp position to be inside window
 		local minx = 0
@@ -188,7 +189,7 @@ function EditorWindow:press( mousePosition )
 	self.titlebarCaptured = false
 
 	-- check interation with cross
-	local crossPosition = { self.position[1] + self.size[1] - self.crossSize[1], self.position[2] }
+	local crossPosition = Vec2.create({ self.position[1] + self.size[1] - self.crossSize[1], self.position[2] })
 	if insideRect( crossPosition, self.crossSize, mousePosition ) then
 		self.crossCaptured = true
 		self.crossHovered = true
@@ -210,7 +211,7 @@ function EditorWindow:release( mousePosition )
 	local closed = false
 
 	if self.crossCaptured then
-		local crossPosition = { self.position[1] + self.size[1] - self.crossSize[1], self.position[2] }
+		local crossPosition = Vec2.create({ self.position[1] + self.size[1] - self.crossSize[1], self.position[2] })
 		if insideRect( crossPosition, self.crossSize, mousePosition ) then
 			self:close()
 			closed = true
@@ -243,7 +244,7 @@ end
 
 function EditorWindow:update( deltaTime, mousePosition )
 	if self.visible then
-		local crossPosition = { self.position[1] + self.size[1] - self.crossSize[1], self.position[2] }
+		local crossPosition = Vec2.create({ self.position[1] + self.size[1] - self.crossSize[1], self.position[2] })
 		if insideRect( crossPosition, self.crossSize, mousePosition ) then
 			self.crossHovered = true
 		else
@@ -265,7 +266,7 @@ function EditorWindow:render()
 
 		-- render title
 		local padding = 4
-		local textPosition = {self.position[1] + padding, self.position[2]}
+		local textPosition = Vec2.create({self.position[1] + padding, self.position[2]})
 		Graphics.queueText( self.fontIndex, self.title, textPosition, self.depth + GUI_DEPTH_SMALL_INC*2, self.titlebarTextColor )
 
 		-- render cross
@@ -276,7 +277,7 @@ function EditorWindow:render()
 			crossColor = self.crossHoverColor
 		end
 		padding = ( EDITOR_WINDOW_TITLEBAR_HEIGHT - self.crossSize[1] ) * 0.5
-		local crossPosition = {self.position[1] + self.size[1] - self.crossSize[1] - padding, self.position[2] + padding }
+		local crossPosition = Vec2.create({self.position[1] + self.size[1] - self.crossSize[1] - padding, self.position[2] + padding })
 		Graphics.queueQuad( self.crossTextureIndex, crossPosition, self.crossSize, self.depth + GUI_DEPTH_SMALL_INC*2, crossColor )
 
 		-- render items

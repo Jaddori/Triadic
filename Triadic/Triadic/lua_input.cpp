@@ -257,6 +257,7 @@ namespace LuaInput
 
 		lua_newtable( lua );
 		lua_setvec2( lua, value );
+		luaL_setmetatable( lua, "vec2Meta" );
 
 		return 1;
 	}
@@ -268,6 +269,7 @@ namespace LuaInput
 
 		lua_newtable( lua );
 		lua_setvec2( lua, value );
+		luaL_setmetatable( lua, "vec2Meta" );
 
 		return 1;
 	}

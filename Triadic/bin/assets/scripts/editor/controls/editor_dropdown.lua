@@ -7,13 +7,13 @@ EditorDropdown =
 	fontIndex = -1,
 	fontHeight = -1,
 	textureIndex = -1,
-	position = {0,0},
-	size = {0,0},
+	position = Vec2.create({0,0}),
+	size = Vec2.create({0,0}),
 	depth = 0,
-	color = {0.5, 0.5, 0.5, 1.0},
-	hoverColor = {0.75, 0.75, 0.75, 1.0},
-	pressColor = {0.35, 0.35, 0.35, 1.0},
-	textColor = {1,1,1,1},
+	color = Vec4.create({0.5, 0.5, 0.5, 1.0}),
+	hoverColor = Vec4.create({0.75, 0.75, 0.75, 1.0}),
+	pressColor = Vec4.create({0.35, 0.35, 0.35, 1.0}),
+	textColor = Vec4.create({1,1,1,1}),
 	expanded = false,
 	hovered = false,
 	pressed = false,
@@ -23,9 +23,9 @@ EditorDropdown =
 	-- arrow
 	arrowDownTextureIndex = -1,
 	arrowUpTextureIndex = -1,
-	arrowPosition = {0,0},
-	arrowSize = {DEFAULT_ARROW_SIZE, DEFAULT_ARROW_SIZE},
-	arrowColor = {1,1,1,1},
+	arrowPosition = Vec2.create({0,0}),
+	arrowSize = Vec2.create({DEFAULT_ARROW_SIZE, DEFAULT_ARROW_SIZE}),
+	arrowColor = Vec4.create({1,1,1,1}),
 
 	-- menu
 	menu =
@@ -54,15 +54,17 @@ function EditorDropdown.create( position, size )
 
 	local result = 
 	{
-		position = tableVal( position ),
-		size = tableVal( size ),
+		--position = tableVal( position ),
+		position = position and position:copy() or Vec2.create({0,0}),
+		--size = tableVal( size ),
+		size = size and size:copy() or Vec2.create({0,0}),
 		depth = 0,
 		hovered = false,
 		pressed = false,
 		expanded = false,
 		selectedIndex = 0,
 
-		arrowPosition = {0,0},
+		arrowPosition = Vec2.create({0,0}),
 
 		menu = 
 		{
@@ -77,7 +79,7 @@ function EditorDropdown.create( position, size )
 end
 
 function EditorDropdown.createDefault()
-	return EditorDropdown.create( nil, { 0, GUI_BUTTON_HEIGHT } )
+	return EditorDropdown.create( nil, Vec2.create({ 0, GUI_BUTTON_HEIGHT }) )
 end
 
 function EditorDropdown:expand( expanded )
@@ -112,15 +114,13 @@ function EditorDropdown:updateArrowPosition()
 end
 
 function EditorDropdown:setPosition( position )
-	self.position[1] = position[1]
-	self.position[2] = position[2]
+	self.position = position:copy()
 
 	self:updateArrowPosition()
 end
 
 function EditorDropdown:setSize( size )
-	self.size[1] = size[1]
-	self.size[2] = size[2]
+	self.size = size:copy()
 
 	self:updateArrowPosition()
 end
@@ -132,8 +132,8 @@ end
 function EditorDropdown:checkCapture( capture, mousePosition )
 	if capture.depth < self.depth + GUI_DEPTH_SMALL_INC*4 then
 		if self.expanded then
-			local position = {self.position[1], self.position[2] + self.size[2]}
-			local size = {self.size[1], self.size[2]}
+			local position = Vec2.create({self.position[1], self.position[2] + self.size[2]})
+			local size = self.size:copy()
 			if self.menu.itemSize > size[1] then
 				size[1] = self.menu.itemSize
 			end
@@ -163,8 +163,8 @@ function EditorDropdown:updateMouseInput( deltaTime, mousePosition )
 	if self.capturedIndex < 0 then
 		self.pressed = insideRect( self.position, self.size, mousePosition )
 	else
-		local position = {self.position[1], self.position[2] + self.size[2]*self.capturedIndex}
-		local size = { math.max(self.size[1], self.menu.itemSize), self.size[2] }
+		local position = Vec2.create({self.position[1], self.position[2] + self.size[2]*self.capturedIndex})
+		local size = Vec2.create({ math.max(self.size[1], self.menu.itemSize), self.size[2] })
 
 		self.menu.items[self.capturedIndex].pressed = insideRect( position, size, mousePosition )
 	end
@@ -172,8 +172,8 @@ end
 
 function EditorDropdown:press( mousePosition )
 	if self.expanded then
-		local position = {self.position[1], self.position[2] + self.size[2]}
-		local size = {math.max(self.size[1], self.menu.itemSize), self.size[2]}
+		local position = Vec2.create({self.position[1], self.position[2] + self.size[2]})
+		local size = Vec2.create({math.max(self.size[1], self.menu.itemSize), self.size[2]})
 
 		for _,v in pairs(self.menu.items) do
 			if insideRect( position, size, mousePosition ) then
@@ -189,8 +189,8 @@ end
 function EditorDropdown:release( mousePosition )
 	-- check items
 	if self.expanded then
-		local position = {self.position[1], self.position[2] + self.size[2]*self.capturedIndex}
-		local size = { math.max(self.size[1], self.menu.itemSize), self.size[2] }
+		local position = Vec2.create({self.position[1], self.position[2] + self.size[2]*self.capturedIndex})
+		local size = Vec2.create({ math.max(self.size[1], self.menu.itemSize), self.size[2] })
 
 		if insideRect( position, size, mousePosition ) then
 			self.selectedIndex = self.capturedIndex
@@ -217,8 +217,8 @@ function EditorDropdown:update( deltaTime, mousePosition )
 	if self.expanded then
 		self.hovered = false
 
-		local position = {self.position[1], self.position[2] + self.size[2]}
-		local size = {math.max(self.size[1], self.menu.itemSize), self.size[2]}
+		local position = Vec2.create({self.position[1], self.position[2] + self.size[2]})
+		local size = Vec2.create({math.max(self.size[1], self.menu.itemSize), self.size[2]})
 
 		for _,v in pairs(self.menu.items) do
 			v.hovered = insideRect( position, size, mousePosition )
@@ -249,7 +249,7 @@ function EditorDropdown:render()
 
 	-- draw selected item text
 	if self.selectedIndex > 0 then
-		local textPosition = { self.position[1] + textPadding, self.position[2] }
+		local textPosition = Vec2.create({ self.position[1] + textPadding, self.position[2] })
 		Graphics.queueText( self.fontIndex, self.menu.items[self.selectedIndex].text, textPosition, self.depth + GUI_DEPTH_SMALL_INC, self.textColor )
 	end
 
@@ -262,8 +262,8 @@ function EditorDropdown:render()
 
 	-- draw menu
 	if self.expanded then
-		local position = { self.position[1], self.position[2] + self.size[2] }
-		local size = { math.max(self.size[1], self.menu.itemSize), self.size[2] }
+		local position = Vec2.create({ self.position[1], self.position[2] + self.size[2] })
+		local size = Vec2.create({ math.max(self.size[1], self.menu.itemSize), self.size[2] })
 		
 		for _,v in pairs(self.menu.items) do
 			local color = self.color

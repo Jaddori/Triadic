@@ -3,7 +3,7 @@ local DEFAULT_TEXTURE = "./assets/textures/white.dds"
 ComponentWalkable =
 {
 	name = "Walkable",
-	size = {20,20},
+	size = Vec2.create({20,20}),
 	interval = 1,
 	parent = nil,
 	nodes = {},
@@ -19,7 +19,7 @@ function ComponentWalkable.create( parent )
 	local result =
 	{
 		parent = parent,
-		size = {20,20},
+		size = Vec2.create({20,20}),
 		interval = 1,
 		nodes = {},
 	}
@@ -50,16 +50,16 @@ function ComponentWalkable:calculate()
 		for z = startZ, endZ, self.interval do
 			local newNode = 
 			{
-				center = {x, 0, z},
+				center = Vec3.create({x, 0, z}),
 				radius = self.interval*0.5,
-				color = {0,1,0,1},
+				color = Vec4.create({0,1,0,1}),
 				vacant = true,
 			}
 
 			local aabb =
 			{
-				minPosition = {x-self.interval*0.5, -self.interval*0.5, z-self.interval*0.5 },
-				maxPosition = {x+self.interval*0.5, self.interval*0.5, z+self.interval*0.5 }
+				minPosition = Vec3.create({x-self.interval*0.5, -self.interval*0.5, z-self.interval*0.5 }),
+				maxPosition = Vec3.create({x+self.interval*0.5, self.interval*0.5, z+self.interval*0.5 })
 			}
 
 			for _,box in pairs(boundingBoxes) do
@@ -77,7 +77,7 @@ function ComponentWalkable:calculate()
 			end
 
 			if not newNode.vacant then
-				newNode.color = {1,0,0,1}
+				newNode.color = Vec4.create({1,0,0,1})
 			end
 			self.nodes[#self.nodes+1] = newNode
 		end
@@ -127,8 +127,8 @@ end
 function ComponentWalkable:select( ray )
 	local result = -1
 
-	local minPosition = {self.parent.position[1], -0.5, self.parent.position[3]}
-	local maxPosition = {self.parent.position[1]+self.size[1], 0.5, self.parent.position[3]+self.size[2]}
+	local minPosition = Vec3.create({self.parent.position[1], -0.5, self.parent.position[3]})
+	local maxPosition = Vec3.create({self.parent.position[1]+self.size[1], 0.5, self.parent.position[3]+self.size[2]})
 	local boundingBox = Physics.createAABB( minPosition, maxPosition )
 
 	local hit = {}
@@ -144,12 +144,12 @@ end
 
 function ComponentWalkable:render()
 	-- render bounds
-	local color = {0,1,0,1}
+	local color = Vec4.create({0,1,0,1})
 	if self.parent.hovered then
 		color[1] = 1
 	end
-	local minPosition = {self.parent.position[1], -0.5, self.parent.position[3]}
-	local maxPosition = {self.parent.position[1]+self.size[1], 0.5, self.parent.position[3]+self.size[2]}
+	local minPosition = Vec3.create({self.parent.position[1], -0.5, self.parent.position[3]})
+	local maxPosition = Vec3.create({self.parent.position[1]+self.size[1], 0.5, self.parent.position[3]+self.size[2]})
 
 	DebugShapes.addAABB( minPosition, maxPosition, color )
 
@@ -207,7 +207,7 @@ function ComponentWalkableWindow:load()
 	if self.window.onFocus then self.window:onFocus() end
 
 	-- layout
-	local layout = EditorLayoutTopdown.create( {0,0}, self.window.size[1] )
+	local layout = EditorLayoutTopdown.create( Vec2.create({0,0}), self.window.size[1] )
 
 	-- size
 	local sizeInput = EditorInputbox.createWithText( "Size:" )

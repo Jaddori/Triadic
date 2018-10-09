@@ -21,12 +21,11 @@ ComponentParticleEmitter =
 	elapsedTime = 0.0,
 	minLifetime = 1.5,
 	maxLifetime = 2.5,
-	--velocity = {1,1,1},
-	minDirection = {-1,-1,-1},
-	maxDirection = {1,1,1},
+	minDirection = Vec3.create({-1,-1,-1}),
+	maxDirection = Vec3.create({1,1,1}),
 	startSpeed = 1.0,
 	endSpeed = 0.1,
-	scroll = {0,0,0},
+	scroll = Vec3.create({0,0,0}),
 	startSize = 5,
 	endSize = 4,
 }
@@ -50,8 +49,8 @@ function ComponentParticleEmitter.create( parent )
 		parent = parent,
 		particles = {},
 		spherical = true,
-		minDirection = {-1,-1,-1},
-		maxDirection = {1,1,1},
+		minDirection = Vec3.create({-1,-1,-1}),
+		maxDirection = Vec3.create({1,1,1}),
 	}
 
 	setmetatable( result, { __index = ComponentParticleEmitter } )
@@ -62,8 +61,8 @@ function ComponentParticleEmitter.create( parent )
 		result.particles[i] = 
 		{
 			alive = false,
-			position = {0,0,0},
-			velocity = {0,1,0},
+			position = Vec3.create({0,0,0}),
+			velocity = Vec3.create({0,1,0}),
 			lifetime = 0,
 			elapsed = 0,
 			size = 0,
@@ -148,8 +147,8 @@ function ComponentParticleEmitter:setMaxParticles( amount )
 			self.particles[i] = 
 			{
 				alive = false,
-				size = {1,1},
-				position = {0,0,0},
+				size = Vec2.create({1,1}),
+				position = Vec3.create({0,0,0}),
 			}
 		end
 	elseif count > self.maxParticles then
@@ -170,7 +169,9 @@ function ComponentParticleEmitter:update( deltaTime )
 		for _,v in pairs(self.particles) do
 			if not v.alive then
 				v.alive = true
-				copyVec( self.parent.position, v.position )
+				--copyVec( self.parent.position, v.position )
+				v.position = self.parent.position:copy()
+
 				v.direction = 
 				{
 					lerp( self.minDirection[1], self.maxDirection[1], math.random() ),
@@ -276,7 +277,7 @@ function ComponentParticleEmitterWindow:load()
 	self.window.visible = false
 
 	-- layout
-	local layout = EditorLayoutTopdown.create( {0,0}, self.window.size[1] )
+	local layout = EditorLayoutTopdown.create( Vec2.create({0,0}), self.window.size[1] )
 	
 	-- max particles
 	local maxParticles = EditorInputbox.createWithText( "Max particles:" )

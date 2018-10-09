@@ -108,7 +108,7 @@ function ComponentScriptWindow:load()
 	self.window.visible = false
 
 	-- layout
-	local layout = EditorLayoutTopdown.create( {0,0}, self.window.size[1] )
+	local layout = EditorLayoutTopdown.create( Vec2.create({0,0}), self.window.size[1] )
 
 	-- script file input
 	local scriptFileInput = EditorInputbox.createWithText( "Script file:" )
@@ -119,12 +119,12 @@ function ComponentScriptWindow:load()
 	layout:addItem( scriptFileInput )
 
 	-- horizontal layout
-	local horizontalLayout = EditorLayoutHorizontal.create( {0,0}, 0 )
+	local horizontalLayout = EditorLayoutHorizontal.create( Vec2.create({0,0}), 0 )
 
 	-- update button
 	local updateButton = EditorButton.createWithText( "Update" )
 	updateButton.disabled = true
-	updateButton.disabledColor = {0.4, 0.4, 0.4, 1.0}
+	updateButton.disabledColor = Vec4.create({0.4, 0.4, 0.4, 1.0})
 	updateButton.onClick = function( button )
 		self.component.scriptFile = self.scriptFileInput.textbox.text
 		self.prevText = self.scriptFileInput.textbox.text
@@ -137,7 +137,7 @@ function ComponentScriptWindow:load()
 	-- revert button
 	local revertButton = EditorButton.createWithText( "Revert" )
 	revertButton.disabled = true
-	revertButton.disabledColor = {0.4, 0.4, 0.4, 1.0}
+	revertButton.disabledColor = Vec4.create({0.4, 0.4, 0.4, 1.0})
 	revertButton.onClick = function( button )
 		self.scriptFileInput.textbox:setText( self.prevText )
 

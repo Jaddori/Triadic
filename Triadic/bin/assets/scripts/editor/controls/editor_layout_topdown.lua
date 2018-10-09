@@ -1,7 +1,7 @@
 EditorLayoutTopdown =
 {
-	position = {0,0},
-	size = {0,0},
+	position = Vec2.create({0,0}),
+	size = Vec2.create({0,0}),
 	padding = 4,
 	items = {},
 	displayItems = {},
@@ -16,8 +16,9 @@ function EditorLayoutTopdown.create( position, width )
 
 	local result = 
 	{
-		position = tableVal( position ),
-		size = { width or 0, 0 },
+		--position = tableVal( position ),
+		position = position and position:copy() or Vec2.create({0,0}),
+		size = Vec2.create({ width or 0, 0 }),
 		items = {},
 		displayItems = {},
 	}
@@ -94,10 +95,10 @@ function EditorLayoutTopdown:layout()
 
 	for i=1, #self.items do
 		if #self.items[i] == 0 then
-			local position = { xoffset, yoffset }
+			local position = Vec2.create({ xoffset, yoffset })
 			self.items[i]:setPosition( position )
 
-			local size = { itemWidth, self.items[i].size[2] }
+			local size = Vec2.create({ itemWidth, self.items[i].size[2] })
 			if self.items[i].size[1] <= 0 then
 				self.items[i]:setSize( size )
 			end
@@ -122,14 +123,14 @@ function EditorLayoutTopdown:layout()
 			local maxHeight = 0
 			for j=1, #self.items[i] do
 				-- set position
-				local position = { xposition, yoffset }
+				local position = Vec2.create({ xposition, yoffset })
 				if self.items[i][j].position[2] > 0 then
 					position[2] = position[2] + self.items[i][j].relativePosition[2]
 				end
 				self.items[i][j]:setPosition( position )
 				
 				-- set size
-				local size = { itemWidth - fixedWidth, self.items[i][j].size[2] }
+				local size = Vec2.create({ itemWidth - fixedWidth, self.items[i][j].size[2] })
 				if self.items[i][j].size[1] <= 0 then
 					self.items[i][j]:setSize( size )
 				end
@@ -150,12 +151,14 @@ function EditorLayoutTopdown:layout()
 end
 
 function EditorLayoutTopdown:setPosition( position )
-	self.position = tableVal( position )
+	--self.position = tableVal( position )
+	self.position = position and position:copy() or Vec2.create({0,0})
 	self:layout()
 end
 
 function EditorLayoutTopdown:setSize( size )
-	self.size = tableVal( size )
+	--self.size = tableVal( size )
+	self.size = size and size:copy() or Vec2.create({0,0})
 	self:layout()
 end
 

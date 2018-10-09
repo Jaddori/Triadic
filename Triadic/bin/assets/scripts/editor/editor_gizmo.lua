@@ -1,21 +1,21 @@
 local gizmo = 
 {
 	position = Vec3.create(),
-	orientation = {0,0,1,0},
-	scale = {1,1,1},
+	orientation = Vec4.create({0,0,1,0}),
+	scale = Vec3.create({1,1,1}),
 	visible = false,
-	x = {10,0,0},
-	y = {0,10,0},
-	z = {0,0,10},
+	x = Vec3.create({10,0,0}),
+	y = Vec3.create({0,10,0}),
+	z = Vec3.create({0,0,10}),
 	
 	xbounds = nil,
 	ybounds = nil,
 	zbounds = nil,
 	
-	red = {1,0,0,1},
-	green = {0,1,0,1},
-	blue = {0,0,1,1},
-	cyan = {0,1,1,1},
+	red =   Vec4.create({1,0,0,1}),
+	green = Vec4.create({0,1,0,1}),
+	blue =  Vec4.create({0,0,1,1}),
+	cyan =  Vec4.create({0,1,1,1}),
 
 	selectedAxis = -1,
 }
@@ -65,11 +65,13 @@ function gizmo:setPosition( position )
 end
 
 function gizmo:setOrientation( orientation )
-	copyVec( orientation, self.orientation )
+	--copyVec( orientation, self.orientation )
+	self.orientation = orientation:copy()
 end
 
 function gizmo:setScale( scale )
-	copyVec( scale, self.scale )
+	--copyVec( scale, self.scale )
+	self.scale = scale:copy()
 end
 
 function gizmo:setMode( mode )

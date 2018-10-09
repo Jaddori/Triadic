@@ -11,35 +11,35 @@ EditorListbox =
 	textureIndex = -1,
 
 	visible = false,
-	position = {0,0},
-	size = {0,0},
+	position = Vec2.create({0,0}),
+	size = Vec2.create({0,0}),
 	depth = 0,
-	itemSize = {0,0},
-	backgroundColor = {0.25, 0.25, 0.25, 1.0},
-	itemColor = {0.5, 0.5, 0.5, 1.0},
-	itemHoverColor = {0.75, 0.75, 0.75, 1.0},
-	itemPressColor = {0.4, 0.4, 0.4, 1.0},
-	textColor = {1,1,1,1},
+	itemSize = Vec2.create({0,0}),
+	backgroundColor = Vec4.create({0.25, 0.25, 0.25, 1.0}),
+	itemColor = Vec4.create({0.5, 0.5, 0.5, 1.0}),
+	itemHoverColor = Vec4.create({0.75, 0.75, 0.75, 1.0}),
+	itemPressColor = Vec4.create({0.4, 0.4, 0.4, 1.0}),
+	textColor = Vec4.create({1,1,1,1}),
 
 	scrollbar =
 	{
-		position = {0,4},
-		size = {EDITOR_LISTBOX_SCROLLBAR_WIDTH, EDITOR_LISTBOX_SCROLLBAR_HEIGHT},
+		position = Vec2.create({0,4}),
+		size = Vec2.create({EDITOR_LISTBOX_SCROLLBAR_WIDTH, EDITOR_LISTBOX_SCROLLBAR_HEIGHT}),
 		depth = 0,
-		color = { 0.5, 0.5, 0.5, 1.0 },
-		hoverColor = { 0.75, 0.75, 0.75, 1.0 },
-		pressColor = { 0.4, 0.4, 0.4, 1.0 },
+		color = Vec4.create({ 0.5, 0.5, 0.5, 1.0 }),
+		hoverColor = Vec4.create({ 0.75, 0.75, 0.75, 1.0 }),
+		pressColor = Vec4.create({ 0.4, 0.4, 0.4, 1.0 }),
 		captured = false,
-		captureOffset = {0,0},
+		captureOffset = Vec2.create({0,0}),
 	},
 
 	gutter =
 	{
-		position = {0,4},
-		size = {EDITOR_LISTBOX_SCROLLBAR_WIDTH, 0},
+		position = Vec2.create({0,4}),
+		size = Vec2.create({EDITOR_LISTBOX_SCROLLBAR_WIDTH, 0}),
 		depth = 0,
 
-		color = { 0.15, 0.15, 0.15, 1.0 },
+		color = Vec2.create({ 0.15, 0.15, 0.15, 1.0 }),
 	},
 
 	padding = 4,
@@ -59,10 +59,12 @@ function EditorListbox.create( position, size )
 
 	local result =
 	{
-		position = tableVal( position ),
-		size = tableVal( size ),
+		--position = tableVal( position ),
+		position = position and position:copy() or Vec2.create({0,0}),
+		--size = tableVal( size ),
+		size = size and size:copy() or Vec2.create({0,0}),
 		depth = 0,
-		itemSize = {0,EDITOR_LISTBOX_ITEM_HEIGHT},
+		itemSize = Vec2.create({0,EDITOR_LISTBOX_ITEM_HEIGHT}),
 		visible = true,
 		items = {},
 		itemOffset = 0,
@@ -71,22 +73,22 @@ function EditorListbox.create( position, size )
 
 		scrollbar =
 		{
-			position = {0,4},
-			size = {EDITOR_LISTBOX_SCROLLBAR_WIDTH, EDITOR_LISTBOX_SCROLLBAR_HEIGHT},
+			position = Vec2.create({0,4}),
+			size = Vec2.create({EDITOR_LISTBOX_SCROLLBAR_WIDTH, EDITOR_LISTBOX_SCROLLBAR_HEIGHT}),
 			depth = 0,
 			captured = false,
-			captureOffset = {0,0},
-			color = { 0.5, 0.5, 0.5, 1.0 },
-			hoverColor = { 0.75, 0.75, 0.75, 1.0 },
-			pressColor = { 0.4, 0.4, 0.4, 1.0 },
+			captureOffset = Vec2.create({0,0}),
+			color = Vec4.create({ 0.5, 0.5, 0.5, 1.0 }),
+			hoverColor = Vec4.create({ 0.75, 0.75, 0.75, 1.0 }),
+			pressColor = Vec4.create({ 0.4, 0.4, 0.4, 1.0 }),
 		},
 
 		gutter =
 		{
-			position = {0,4},
-			size = {EDITOR_LISTBOX_SCROLLBAR_WIDTH, 0},
+			position = Vec4.create({0,4}),
+			size = Vec4.create({EDITOR_LISTBOX_SCROLLBAR_WIDTH, 0}),
 			depth = 0,
-			color = { 0.15, 0.15, 0.15, 1.0 },
+			color = Vec4.create({ 0.15, 0.15, 0.15, 1.0 }),
 		},
 	}
 
@@ -100,19 +102,17 @@ end
 function EditorListbox.createWithHeight( height )
 	assert( isnumber( height ), "Height must be a number." )
 
-	return EditorListbox.create( nil, {0, height} )
+	return EditorListbox.create( nil, Vec2.create({0, height}) )
 end
 
 function EditorListbox:setPosition( position )
-	self.position[1] = position[1]
-	self.position[2] = position[2]
+	self.position = position:copy()
 
 	self:calculateItemOffset()
 end
 
 function EditorListbox:setSize( size )
-	self.size[1] = size[1]
-	self.size[2] = size[2]
+	self.size = size:copy()
 
 	self.itemSize[1] = self.size[1] - EDITOR_LISTBOX_SCROLLBAR_WIDTH - self.padding*3
 	self.scrollbar.position[1] = self.size[1] - self.scrollbar.size[1] - self.padding
@@ -142,7 +142,7 @@ function EditorListbox:addItem( text, tag )
 end
 
 function EditorListbox:getItemPosition( index )
-	local position = { self.position[1] + self.padding, self.position[2] + self.padding + ((index-1)*(EDITOR_LISTBOX_ITEM_HEIGHT+self.padding)) }
+	local position = Vec2.create({ self.position[1] + self.padding, self.position[2] + self.padding + ((index-1)*(EDITOR_LISTBOX_ITEM_HEIGHT+self.padding)) })
 
 	return position
 end

@@ -6,16 +6,16 @@ Entity =
 	selected = false,
 	hovered = false,
 	
-	position = {0,0,0},
-	prevPosition = {0,0,0},
+	position = Vec3.create({0,0,0}),
+	prevPosition = Vec3.create({0,0,0}),
 	
-	orientation = {0,0,0},
-	prevOrientation = {0,0,0},
+	orientation = Vec3.create({0,0,0}),
+	prevOrientation = Vec3.create({0,0,0}),
 
-	quatOrientation = {0,0,0,1},
+	quatOrientation = Vec3.create({0,0,0,1}),
 	
-	scale = {1,1,1},
-	prevScale = {1,1,1},
+	scale = Vec3.create({1,1,1}),
+	prevScale = Vec3.create({1,1,1}),
 
 	componentList = {},
 	windowList = {},
@@ -26,14 +26,14 @@ Entity =
 function Entity.create( name, position, orientation, scale)
 	local result =
 	{
-		position = position or {0,0,0},
-		prevPosition = {0,0,0},
+		position = position and position:copy() or Vec3.create({0,0,0}),
+		prevPosition = Vec3.create({0,0,0}),
 		
-		orientation = orientation or {0,0,0},
-		prevOrientation = {0,0,0},
+		orientation = orientation and orientation:copy() or Vec3.create({0,0,0}),
+		prevOrientation = Vec3.create({0,0,0}),
 		
-		scale = scale or {1,1,1},
-		prevScale = {1,1,1},
+		scale = scale and scale:copy() or Vec3.create({1,1,1}),
+		prevScale = Vec3.create({1,1,1}),
 	
 		visible = true,
 		name = name,
@@ -101,28 +101,6 @@ end
 
 function Entity:compile( file, level )
 	level = level or 0
-
-	--[[writeIndent( file, level, self.name .. " =\n" )
-	writeIndent( file, level, "{\n" )
-	level = level + 1
-
-	writeIndent( file, level, "position = {" .. stringVec( self.position ) .. "},\n" )
-	writeIndent( file, level, "orientation = {" .. stringVec( self.orientation ) .. "},\n" )
-	writeIndent( file, level, "scale = {" .. stringVec( self.scale ) .. "},\n" )
-
-	writeIndent( file, level, "components =\n" )
-	writeIndent( file, level, "{\n" )
-	level = level + 1
-
-	for _,v in pairs(self.components) do
-		v:compile( file, level )
-	end
-
-	level = level - 1
-	writeIndent( file, level, "}\n" )
-
-	level = level - 1
-	writeIndent( file, level, "}\n" )--]]
 
 	writeIndent( file, level, "-- " .. self.name .. "\n" )
 	for _,v in pairs(self.components) do
@@ -204,7 +182,7 @@ function Entity:render()
 	end
 
 	if not rendered or self.hovered or self.selected then
-		local color = {0,1,0,1}
+		local color = Vec4.create({0,1,0,1})
 		if self.hovered then
 			color[1] = 1
 		end

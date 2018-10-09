@@ -21,7 +21,7 @@ local file =
 function file:load( xoffset, items, depth )
 	local width = 64
 	
-	self.fileButton = EditorButton.create( {xoffset, 0}, {width, GUI_MENU_HEIGHT}, "File" )
+	self.fileButton = EditorButton.create( Vec2.create({xoffset, 0}), Vec2.create({width, GUI_MENU_HEIGHT}), "File" )
 	self.fileButton.depth = depth + GUI_DEPTH_INC
 	self.fileButton:setTextAlignment( ALIGN_NEAR, ALIGN_NEAR )
 	self.fileButton.onClick = function( button )
@@ -32,7 +32,7 @@ function file:load( xoffset, items, depth )
 	
 	-- drop down menu
 	local yoffset = GUI_MENU_HEIGHT
-	self.newButton = EditorButton.create( {xoffset, yoffset}, {GUI_MENU_FILE_BUTTON_WIDTH, GUI_BUTTON_HEIGHT}, "New" )
+	self.newButton = EditorButton.create( Vec2.create({xoffset, yoffset}), Vec2.create({GUI_MENU_FILE_BUTTON_WIDTH, GUI_BUTTON_HEIGHT}), "New" )
 	self.newButton.depth = self.fileButton.depth + GUI_DEPTH_INC
 	self.newButton:setTextAlignment( ALIGN_NEAR, ALIGN_NEAR )
 	self.newButton.onClick = function( button )
@@ -42,7 +42,7 @@ function file:load( xoffset, items, depth )
 	end
 	yoffset = yoffset + GUI_BUTTON_HEIGHT
 	
-	self.openButton = EditorButton.create( {xoffset, yoffset}, {GUI_MENU_FILE_BUTTON_WIDTH, GUI_BUTTON_HEIGHT}, "Open" )
+	self.openButton = EditorButton.create( Vec2.create({xoffset, yoffset}), Vec2.create({GUI_MENU_FILE_BUTTON_WIDTH, GUI_BUTTON_HEIGHT}), "Open" )
 	self.openButton.depth = self.fileButton.depth + GUI_DEPTH_INC
 	self.openButton:setTextAlignment( ALIGN_NEAR, ALIGN_NEAR )
 	self.openButton.onClick = function( button )
@@ -52,7 +52,7 @@ function file:load( xoffset, items, depth )
 	end
 	yoffset = yoffset + GUI_BUTTON_HEIGHT
 	
-	self.saveButton = EditorButton.create( {xoffset, yoffset}, {GUI_MENU_FILE_BUTTON_WIDTH, GUI_BUTTON_HEIGHT}, "Save" )
+	self.saveButton = EditorButton.create( Vec2.create({xoffset, yoffset}), Vec2.create({GUI_MENU_FILE_BUTTON_WIDTH, GUI_BUTTON_HEIGHT}), "Save" )
 	self.saveButton.depth = self.fileButton.depth + GUI_DEPTH_INC
 	self.saveButton:setTextAlignment( ALIGN_NEAR, ALIGN_NEAR )
 	self.saveButton.onClick = function( button )
@@ -62,7 +62,7 @@ function file:load( xoffset, items, depth )
 	end
 	yoffset = yoffset + GUI_BUTTON_HEIGHT
 	
-	self.saveAsButton = EditorButton.create( {xoffset, yoffset}, {GUI_MENU_FILE_BUTTON_WIDTH, GUI_BUTTON_HEIGHT}, "Save As" )
+	self.saveAsButton = EditorButton.create( Vec2.create({xoffset, yoffset}), Vec2.create({GUI_MENU_FILE_BUTTON_WIDTH, GUI_BUTTON_HEIGHT}), "Save As" )
 	self.saveAsButton.depth = self.fileButton.depth + GUI_DEPTH_INC
 	self.saveAsButton:setTextAlignment( ALIGN_NEAR, ALIGN_NEAR )
 	self.saveAsButton.onClick = function( button )
@@ -72,7 +72,7 @@ function file:load( xoffset, items, depth )
 	end
 	yoffset = yoffset + GUI_BUTTON_HEIGHT
 
-	self.compileButton = EditorButton.create( {xoffset, yoffset}, {GUI_MENU_FILE_BUTTON_WIDTH, GUI_BUTTON_HEIGHT}, "Compile" )
+	self.compileButton = EditorButton.create( Vec2.create({xoffset, yoffset}), Vec2.create({GUI_MENU_FILE_BUTTON_WIDTH, GUI_BUTTON_HEIGHT}), "Compile" )
 	self.compileButton.depth = self.fileButton.depth + GUI_DEPTH_INC
 	self.compileButton:setTextAlignment( ALIGN_NEAR, ALIGN_NEAR )
 	self.compileButton.onClick = function( button )
@@ -82,7 +82,7 @@ function file:load( xoffset, items, depth )
 	end
 	yoffset = yoffset + GUI_BUTTON_HEIGHT
 	
-	self.exitButton = EditorButton.create( {xoffset, yoffset}, {GUI_MENU_FILE_BUTTON_WIDTH, GUI_BUTTON_HEIGHT}, "Exit" )
+	self.exitButton = EditorButton.create( Vec2.create({xoffset, yoffset}), Vec2.create({GUI_MENU_FILE_BUTTON_WIDTH, GUI_BUTTON_HEIGHT}), "Exit" )
 	self.exitButton.depth = self.fileButton.depth + GUI_DEPTH_INC
 	self.exitButton:setTextAlignment( ALIGN_NEAR, ALIGN_NEAR )
 	self.exitButton.onClick = function( button )
