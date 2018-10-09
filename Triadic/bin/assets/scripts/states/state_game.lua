@@ -8,8 +8,10 @@ function StateGame:load()
 	doscript( "game/chat.lua" )
 	
 	doscript( "game/bounding_boxes.lua" )
+
 	doscript( "game/lights.lua" )
 	doscript( "game/props.lua" )
+	doscript( "game/particles.lua" )
 
 	if IS_SERVER then
 		doscript( "game/server.lua" )
@@ -20,7 +22,7 @@ function StateGame:load()
 	PlayerHandler:load()
 	Chat:load()
 
-	self:loadLevel( "walkable_level.lua" )
+	self:loadLevel( "walkable_level02.lua" )
 
 	Graphics.setLightingEnabled( true )
 end
@@ -36,6 +38,7 @@ end
 
 function StateGame:update( deltaTime )
 	PlayerHandler:update( deltaTime )
+	Particles:update( deltaTime )
 end
 
 function StateGame:fixedUpdate()
@@ -54,6 +57,7 @@ function StateGame:render()
 	BoundingBoxes:render()
 	Lights:render()
 	Props:render()
+	Particles:render()
 end
 
 function StateGame:clientWrite()

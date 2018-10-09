@@ -195,6 +195,8 @@ function Player:render()
 	local position = self.ghostTransform:getPosition()
 	local ghostMin = { position[1]-1, position[2]-1, position[3]-1 }
 	local ghostMax = { position[1]+1, position[2]+1, position[3]+1 }
+
+	DebugShapes.addAABB( ghostMin, ghostMax, {0,1,0,1}, true )
 	
 	-- render debug information
 	if self.isLocal then
