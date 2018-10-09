@@ -15,7 +15,6 @@ Player =
 	isLocal = false,
 	commands = {},
 
-	movementRays = {},
 	collisionMargin = 0.1,
 
 	-- DEBUG
@@ -41,10 +40,6 @@ function Player.create( isLocal )
 
 	if IS_CLIENT then
 		player.ghostTransform = Transform.create()
-
-		--for i=1, 50 do
-		--	player.movementRays[i] = { first = {0,0,0}, last = {0,0,0}, color = {0,0,0,0} }
-		--end
 
 		if player.isLocal then
 			player.camera = Graphics.getPerspectiveCamera()
@@ -200,13 +195,7 @@ function Player:render()
 	local position = self.ghostTransform:getPosition()
 	local ghostMin = { position[1]-1, position[2]-1, position[3]-1 }
 	local ghostMax = { position[1]+1, position[2]+1, position[3]+1 }
-	DebugShapes.addAABB( ghostMin, ghostMax, {0,1,0,1}, false )
-
-	-- render movement rays
-	--for _,v in pairs(self.movementRays) do
-	--	DebugShapes.addLine( v.first, v.last, v.color, true )
-	--end
-
+	
 	-- render debug information
 	if self.isLocal then
 		self.grid:render()

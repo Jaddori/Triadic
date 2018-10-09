@@ -282,7 +282,7 @@ function GameClient:readHandshake( message )
 
 		self.handshake.phase = 2
 		self.handshake.retries = 0
-		self.handshake.lastTime = 0
+		self.handshake.lastSend = 0
 	else
 		Log.warning( "GameClient: handshake phase mismatch" )
 	end
