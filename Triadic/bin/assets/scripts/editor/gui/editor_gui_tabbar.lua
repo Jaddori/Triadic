@@ -4,7 +4,7 @@ local bar =
 {
 	items = {},
 	currentTab = -1,
-	selectionColor = {0.75, 0.75, 0.0, 1.0},
+	selectionColor = Vec4.create({0.75, 0.75, 0.0, 1.0}),
 	depth = 0,
 
 	onTabChanged = nil,
@@ -33,7 +33,7 @@ function bar:load( position, depth )
 	self.depth = depth + GUI_DEPTH_INC
 
 	-- info
-	local infoButton = EditorButton.create( {xoffset, yoffset}, { GUI_TAB_BUTTON_WIDTH, GUI_BUTTON_HEIGHT }, "Info" )
+	local infoButton = EditorButton.create( Vec2.create({xoffset, yoffset}), Vec2.create({ GUI_TAB_BUTTON_WIDTH, GUI_BUTTON_HEIGHT }), "Info" )
 	infoButton.depth = self.depth
 	infoButton:setTextAlignment( ALIGN_NEAR, ALIGN_NEAR )
 	infoButton.onClick = function( button )
@@ -43,7 +43,7 @@ function bar:load( position, depth )
 	xoffset = xoffset + GUI_TAB_BUTTON_WIDTH
 
 	-- entities
-	local entitiesButton = EditorButton.create( {xoffset, yoffset}, {GUI_TAB_BUTTON_WIDTH, GUI_BUTTON_HEIGHT}, "Entities" )
+	local entitiesButton = EditorButton.create( Vec2.create({xoffset, yoffset}), Vec2.create({GUI_TAB_BUTTON_WIDTH, GUI_BUTTON_HEIGHT}), "Entities" )
 	entitiesButton.depth = self.depth
 	entitiesButton:setTextAlignment( ALIGN_NEAR, ALIGN_NEAR )
 	entitiesButton.onClick = function( button )
@@ -53,7 +53,7 @@ function bar:load( position, depth )
 	xoffset = xoffset + GUI_TAB_BUTTON_WIDTH
 
 	-- prefabs
-	local prefabsButton = EditorButton.create( {xoffset, yoffset}, {GUI_TAB_BUTTON_WIDTH, GUI_BUTTON_HEIGHT}, "Prefabs" )
+	local prefabsButton = EditorButton.create( Vec2.create({xoffset, yoffset}), Vec2.create({GUI_TAB_BUTTON_WIDTH, GUI_BUTTON_HEIGHT}), "Prefabs" )
 	prefabsButton.depth = self.depth
 	prefabsButton:setTextAlignment( ALIGN_NEAR, ALIGN_NEAR )
 	prefabsButton.onClick = function( button )
@@ -75,16 +75,6 @@ function bar:update( deltaTime, mousePosition )
 	for _,v in pairs(self.items) do
 		v:update( deltaTime, mousePosition )
 	end
-	
-	--[[
-	local capture = { mouseCaptured = false, keyboardCaptured = false }
-
-	for _,v in pairs(self.items) do
-		local result = v:update( deltaTime )
-		setCapture( result, capture )
-	end
-
-	return capture--]]
 end
 
 function bar:render()

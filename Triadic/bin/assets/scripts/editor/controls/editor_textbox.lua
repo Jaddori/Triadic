@@ -6,17 +6,17 @@ EditorTextbox =
 	fontHeight = -1,
 	font = nil,
 	textureIndex = -1,
-	position = {0,0},
-	size = {0,0},
+	position = Vec2.create({0,0}),
+	size = Vec2.create({0,0}),
 	depth = 0,
-	color = {0.4, 0.4, 0.4, 1.0},
-	hoverColor = {0.75, 0.75, 0.75, 1},
-	pressColor = {0.3, 0.3, 0.3, 1},
-	focusColor = { 0.65, 0.65, 0.15, 1},
-	textColor = {1.0, 1.0, 1.0, 1.0},
-	selectionColor = { 0.35, 0.35, 0.35, 0.5 },
-	disabledColor = {0.45, 0.45, 0.45, 1},
-	disabledTextColor = {0.75, 0.75, 0.75, 1.0},
+	color = Vec4.create({0.4, 0.4, 0.4, 1.0}),
+	hoverColor = Vec4.create({0.75, 0.75, 0.75, 1}),
+	pressColor = Vec4.create({0.3, 0.3, 0.3, 1}),
+	focusColor = Vec4.create({ 0.65, 0.65, 0.15, 1}),
+	textColor = Vec4.create({1.0, 1.0, 1.0, 1.0}),
+	selectionColor = Vec4.create({ 0.35, 0.35, 0.35, 0.5 }),
+	disabledColor = Vec4.create({0.45, 0.45, 0.45, 1}),
+	disabledTextColor = Vec4.create({0.75, 0.75, 0.75, 1.0}),
 	text = "",
 	readOnly = false,
 	disabled = false,
@@ -26,7 +26,7 @@ EditorTextbox =
 	focus = false,
 	
 	caretVisible = false,
-	caretElapsed = 0.0,
+	caretElapsed = 0,
 	caretIndex = 0,
 	
 	selectionStart = 0,
@@ -51,14 +51,17 @@ function EditorTextbox.create( position, size )
 	local textbox = {}
 	setmetatable( textbox, { __index = EditorTextbox } )
 	
-	textbox.position = tableVal( position )
-	textbox.size = tableVal( size )
+	--textbox.position = tableVal( position )
+	textbox.position = position and position:copy() or Vec2.create({0,0})
+	--textbox.size = tableVal( size )
+	textbox.size = size and size:copy() or Vec2.create({0,0})
 	textbox.depth = 0
 	textbox.hovered = false
 	textbox.pressed = false
 	textbox.focus = false
 	textbox.readOnly = false
 	textbox.disabled = false
+	textbox.caretElapsed = 0
 	
 	return textbox
 end
@@ -66,21 +69,19 @@ end
 function EditorTextbox.createWithWidth( width )
 	assert( isnumber( width ), "Width must be a number." )
 
-	return EditorTextbox.create( nil, {width,GUI_BUTTON_HEIGHT} )
+	return EditorTextbox.create( nil, Vec2.create({width,GUI_BUTTON_HEIGHT}) )
 end
 
 function EditorTextbox.createDefault()
-	return EditorTextbox.create( nil, {0, GUI_BUTTON_HEIGHT} )
+	return EditorTextbox.create( nil, Vec2.create({0, GUI_BUTTON_HEIGHT}) )
 end
 
 function EditorTextbox:setPosition( position )
-	self.position[1] = position[1]
-	self.position[2] = position[2]
+	self.position = position:copy()
 end
 
 function EditorTextbox:setSize( size )
-	self.size[1] = size[1]
-	self.size[2] = size[2]
+	self.size = size:copy()
 end
 
 function EditorTextbox:setDepth( depth )
@@ -362,7 +363,7 @@ function EditorTextbox:render()
 	Graphics.queueQuad( self.textureIndex, self.position, self.size, self.depth, color )
 	
 	-- draw text
-	local textPosition = {self.position[1] + textPadding, self.position[2]}
+	local textPosition = Vec2.create({self.position[1] + textPadding, self.position[2]})
 	Graphics.queueText( self.fontIndex, self.text, textPosition, self.depth + GUI_DEPTH_SMALL_INC, textColor )
 	if self.caretVisible then
 		local xoffset = self.font:measureText( self.text:sub(1, self.caretIndex) )[1] - 2
@@ -388,8 +389,8 @@ function EditorTextbox:render()
 		local selectionText = self.text:sub( first+1, last )
 		local selectionWidth = self.font:measureText( selectionText )[1]
 		
-		local position = { self.position[1] + preSelectionWidth + textPadding, self.position[2]+2 }
-		local size = { selectionWidth, self.size[2]-4 }
+		local position = Vec2.create({ self.position[1] + preSelectionWidth + textPadding, self.position[2]+2 })
+		local size = Vec2.create({ selectionWidth, self.size[2]-4 })
 		
 		Graphics.queueQuad( self.textureIndex, position, size, self.depth + GUI_DEPTH_SMALL_INC*3, self.selectionColor )
 	end

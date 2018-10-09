@@ -134,10 +134,12 @@ function Editor:load()
 	
 	self.gui.panel.tabs[GUI_TAB_INFO].positionInputbox.textbox.onFinish = function( textbox )
 		if textbox.text:len() > 0 then
-			local newPosition = vecString( textbox.text )
+			local newPosition = Vec3.create( vecString( textbox.text ) )
 
-			copyVec( self.selectedEntity.position, self.command.old)
-			copyVec( newPosition, self.command.new )
+			--copyVec( self.selectedEntity.position, self.command.old)
+			--copyVec( newPosition, self.command.new )
+			self.command.old = self.selectedEntity.position:copy()
+			self.command.new = newPosition:copy()
 
 			local moveCommand = CommandMove.create( self.command.old, self.command.new, self.selectedEntity )
 			self.commandHistory:addCommand( moveCommand )
@@ -149,7 +151,7 @@ function Editor:load()
 
 	self.gui.panel.tabs[GUI_TAB_INFO].orientationInputbox.textbox.onFinish = function( textbox )
 		if textbox.text:len() > 0 then
-			local newOrientation = vecString( textbox.text )
+			local newOrientation = Vec3.create( vecString( textbox.text ) )
 
 			for i=1, #newOrientation do
 				while newOrientation[i] >= 360 do
@@ -163,8 +165,10 @@ function Editor:load()
 
 			textbox:setText( stringVec( newOrientation ) )
 
-			copyVec( self.selectedEntity.orientation, self.command.old )
-			copyVec( newOrientation, self.command.new )
+			--copyVec( self.selectedEntity.orientation, self.command.old )
+			--copyVec( newOrientation, self.command.new )
+			self.command.old = self.selectedEntity.orientation:copy()
+			self.command.new = newOrientation:copy()
 
 			local rotateCommand = CommandRotate.create( self.command.old, self.command.new, self.selectedEntity )
 			self.commandHistory:addCommand( rotateCommand )
@@ -176,10 +180,12 @@ function Editor:load()
 
 	self.gui.panel.tabs[GUI_TAB_INFO].scaleInputbox.textbox.onFinish = function( textbox )
 		if textbox.text:len() > 0 then
-			local newScale = vecString( textbox.text )
+			local newScale = Vec3.create( vecString( textbox.text ) )
 
-			copyVec( self.selectedEntity.scale, self.command.old )
-			copyVec( newScale, self.command.new )
+			--copyVec( self.selectedEntity.scale, self.command.old )
+			--copyVec( newScale, self.command.new )
+			self.command.old = self.selectedEntity.scale:copy()
+			self.command.new = newScale:copy()
 
 			local scaleCommand = CommandScale.create( self.command.old, self.command.new, self.selectedEntity )
 			self.commandHistory:addCommand( scaleCommand )
@@ -298,7 +304,7 @@ function Editor:update( deltaTime )
 			end
 		end
 
-		return
+		return ------------------------------------------------------------------
 	end
 	
 	self.gizmo:update( deltaTime )
@@ -429,8 +435,8 @@ function Editor:update( deltaTime )
 						self.capture.axis = 2
 
 						local forward = self.camera.camera:getForward()
-						local xnormal = {1,0,0}
-						local znormal = {0,0,1}
+						local xnormal = Vec3.create({1,0,0})
+						local znormal = Vec3.create({0,0,1})
 
 						local xdot = Vec3.dot( xnormal, forward )
 						local zdot = Vec3.dot( znormal, forward )
@@ -737,7 +743,7 @@ end
 
 function Editor:copyEntity()
 	local position = self.selectedEntity.position
-	local entity = Entity.create( "NewEntity", {position[1]+1, position[2], position[3]+1} )
+	local entity = Entity.create( "NewEntity", Vec3.create({position[1]+1, position[2], position[3]+1}) )
 	
 	for _,v in pairs(self.selectedEntity.components) do
 		local component = v:copy( entity )

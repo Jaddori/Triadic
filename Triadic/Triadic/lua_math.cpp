@@ -90,8 +90,6 @@ namespace LuaMath
 	{
 		LDEC( create )
 		{
-			int result = 0;
-
 			int args = lua_gettop( lua );
 			if( args <= 0 )
 			{
@@ -102,13 +100,11 @@ namespace LuaMath
 
 				lua_pushnumber( lua, 0 );
 				lua_rawseti( lua, -2, 2 );
-
-				result = 1;
 			}
 
 			luaL_setmetatable( lua, "vec2Meta" );
 
-			return result;
+			return 1;
 		}
 
 		LDEC( copy )
@@ -403,8 +399,6 @@ namespace LuaMath
 	{
 		LDEC( create )
 		{
-			int result = 0;
-
 			int args = lua_gettop( lua );
 			if( args <= 0 )
 			{
@@ -418,13 +412,11 @@ namespace LuaMath
 
 				lua_pushnumber( lua, 0 );
 				lua_rawseti( lua, -2, 3 );
-
-				result = 1;
 			}
 
 			luaL_setmetatable( lua, "vec3Meta" );
 
-			return result;
+			return 1;
 		}
 
 		LDEC( copy )
@@ -773,8 +765,6 @@ namespace LuaMath
 	{
 		LDEC( create )
 		{
-			int result = 0;
-
 			int args = lua_gettop( lua );
 			if( args <= 0 )
 			{
@@ -791,13 +781,11 @@ namespace LuaMath
 
 				lua_pushnumber( lua, 0 );
 				lua_rawseti( lua, -2, 4 );
-
-				result = 1;
 			}
 
 			luaL_setmetatable( lua, "vec4Meta" );
 
-			return result;
+			return 1;
 		}
 
 		LDEC( copy )

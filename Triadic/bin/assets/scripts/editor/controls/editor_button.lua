@@ -1,18 +1,18 @@
 EditorButton =
 {
 	textureIndex = -1,
-	position = {0,0},
-	size = {0,0},
+	position = Vec3.create({0,0}),
+	size = Vec2.create({0,0}),
 	depth = 0,
-	color = {0.6,0.6,0.6,1},
-	hoverColor = { 0.75, 0.75, 0.75, 1 },
-	pressColor = { 0.35, 0.35, 0.35, 1 },
-	disabledColor = { 0.35, 0.35, 0.35, 1.0 },
+	color = Vec3.create({0.6,0.6,0.6,1}),
+	hoverColor = Vec3.create({ 0.75, 0.75, 0.75, 1 }),
+	pressColor = Vec3.create({ 0.35, 0.35, 0.35, 1 }),
+	disabledColor = Vec3.create({ 0.35, 0.35, 0.35, 1.0 }),
 	
 	fontIndex = -1,
 	alignText = {},
-	textColor = {1,1,1,1},
-	disabledTextColor = {0.75, 0.75, 0.75, 1.0},
+	textColor = Vec4.create({1,1,1,1}),
+	disabledTextColor = Vec4.create({0.75, 0.75, 0.75, 1.0}),
 
 	disabled = false,
 	hovered = false,
@@ -32,15 +32,15 @@ function EditorButton.create( position, size, text )
 	setmetatable( button, { __index = EditorButton } )
 	
 	if position then
-		button.position = {position[1], position[2]}
+		button.position = position:copy()
 	else
-		button.position = {0,0}
+		button.position = Vec2.create({0,0})
 	end
 
 	if size then
-		button.size = {size[1], size[2]}
+		button.size = size:copy()
 	else
-		button.size = {0,0}
+		button.size = Vec2.create({0,0})
 	end
 	
 	button.depth = 0
@@ -57,18 +57,16 @@ end
 function EditorButton.createWithText( text )
 	assert( isstring( text ), "Text must be a string." )
 
-	return EditorButton.create( nil, {0, GUI_BUTTON_HEIGHT}, text )
+	return EditorButton.create( nil, Vec2.create({0, GUI_BUTTON_HEIGHT}), text )
 end
 
 function EditorButton:setPosition( position )
-	self.position[1] = position[1]
-	self.position[2] = position[2]
+	self.position = position:copy()
 	self.alignText:align()
 end
 
 function EditorButton:setSize( size )
-	self.size[1] = size[1]
-	self.size[2] = size[2]
+	self.size = size:copy()
 	self.alignText:align()
 end
 

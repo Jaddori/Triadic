@@ -3,8 +3,8 @@ local list =
 	fontIndex = -1,
 	fontHeight = 0,
 	meshes = {},
-	position = { WINDOW_WIDTH - 128, 0 },
-	textColor = {1,1,1,1},
+	position = Vec2.create({ WINDOW_WIDTH - 128, 0 }),
+	textColor = Vec4.create({1,1,1,1}),
 }
 
 function list:load()
@@ -22,7 +22,7 @@ end
 function list:render()
 	if self.fontIndex < 0 then return end 
 
-	local position = { self.position[1], self.position[2] }
+	local position = Vec2.create({ self.position[1], self.position[2] })
 	
 	for _,v in pairs(self.meshes) do
 		Graphics.queueText( self.fontIndex, v, position, self.textColor )

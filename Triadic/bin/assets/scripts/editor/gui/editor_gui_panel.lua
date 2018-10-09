@@ -8,13 +8,13 @@ GUI_TAB_PREFABS = 3
 local panel =
 {
 	textureIndex = -1,
-	position = {0,0},
-	size = {0,0},
+	position = Vec2.create({0,0}),
+	size = Vec2.create({0,0}),
 	depth = GUI_PANEL_DEPTH,
-	color = {0.5, 0.5, 0.5, 1.0},
+	color = Vec4.create({0.5, 0.5, 0.5, 1.0}),
 
-	contentPosition = {0,0},
-	contentSize = {0,0},
+	contentPosition = Vec2.create({0,0}),
+	contentSize = Vec2.create({0,0}),
 
 	tabBar = {},
 	tabs = {},
@@ -23,11 +23,11 @@ local panel =
 function panel:load()
 	self.textureIndex = Assets.loadTexture( GUI_DEFAULT_BACKGROUND_TEXTURE )
 
-	self.position = { WINDOW_WIDTH - GUI_PANEL_WIDTH, GUI_MENU_HEIGHT }
-	self.size = { GUI_PANEL_WIDTH, WINDOW_HEIGHT - GUI_MENU_HEIGHT }
+	self.position = Vec2.create({ WINDOW_WIDTH - GUI_PANEL_WIDTH, GUI_MENU_HEIGHT })
+	self.size = Vec2.create({ GUI_PANEL_WIDTH, WINDOW_HEIGHT - GUI_MENU_HEIGHT })
 
-	self.contentPosition = { self.position[1], self.position[2] + GUI_BUTTON_HEIGHT }
-	self.contentSize = { self.size[1], self.size[2] - GUI_BUTTON_HEIGHT*2 }
+	self.contentPosition = Vec2.create({ self.position[1], self.position[2] + GUI_BUTTON_HEIGHT })
+	self.contentSize = Vec2.create({ self.size[1], self.size[2] - GUI_BUTTON_HEIGHT*2 })
 
 	-- load tab bar
 	self.tabBar = doscript( "editor/gui/editor_gui_tabbar.lua" )
@@ -52,24 +52,6 @@ end
 function panel:update( deltaTime, mousePosition )
 	self.tabBar:update( deltaTime, mousePosition )
 	self.tabs[self.tabBar.currentTab]:update( deltaTime, mousePosition )
-
-	--[[
-	local capture = { mouseCaptured = false, keyboardCaptured = false }
-
-	-- update tab bar
-	local currentTab = self.tabBar.currentTab
-	local result = self.tabBar:update( deltaTime )
-	setCapture( result, capture )
-
-	-- update tabs
-	if currentTab ~= self.tabBar.currentTab and self.tabBar.currentTab == GUI_TAB_ENTITIES then
-		self.tabs[GUI_TAB_ENTITIES]:onShow()
-	end
-
-	result = self.tabs[self.tabBar.currentTab]:update( deltaTime )
-	setCapture( result, capture )
-
-	return capture--]]
 end
 
 function panel:render()

@@ -1,7 +1,7 @@
 EditorLayoutHorizontal =
 {
-	position = {0,0},
-	size = {0,0},
+	position = Vec2.create({0,0}),
+	size = Vec2.create({0,0}),
 	padding = 4,
 	items = {},
 	displayItems = {},
@@ -16,8 +16,9 @@ function EditorLayoutHorizontal.create( position, width )
 
 	local result =
 	{
-		position = tableVal( position ),
-		size = { width or 0, 0 },
+		--position = tableVal( position ),
+		position = position and position:copy() or Vec2.create({0,0}),
+		size = Vec2.create({ width or 0, 0 }),
 		items = {},
 		displayItems = {},
 	}
@@ -98,11 +99,11 @@ function EditorLayoutHorizontal:layout()
 
 	local maxHeight = 0
 	for i=1, #self.items do
-		local position = {xoffset, yoffset}
+		local position = Vec2.create({xoffset, yoffset})
 		self.items[i]:setPosition( position )
 
 		if self.items[i].relativeSize[1] <= 0 then
-			local size = { itemWidth, self.items[i].size[2] }
+			local size = Vec2.create({ itemWidth, self.items[i].size[2] })
 			self.items[i]:setSize( size )
 		end
 
@@ -119,12 +120,14 @@ function EditorLayoutHorizontal:layout()
 end
 
 function EditorLayoutHorizontal:setPosition( position )
-	self.position = tableVal( position )
+	--self.position = tableVal( position )
+	self.position = position and position:copy() or Vec2.create({0,0})
 	self:layout()
 end
 
 function EditorLayoutHorizontal:setSize( size )
-	self.size = tableVal( size )
+	--self.size = tableVal( size )
+	self.size = size and size:copy() or Vec2.create({0,0})
 	self:layout()
 end
 

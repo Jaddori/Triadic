@@ -4,10 +4,10 @@ local DEFAULT_FONT_TEXTURE = "./assets/fonts/verdana12.dds"
 EditorLabel =
 {
 	fontIndex = -1,
-	position = {0,0},
-	size = {0,0},
+	position = Vec2.create({0,0}),
+	size = Vec2.create({0,0}),
 	depth = 0,
-	textColor = {1.0, 1.0, 1.0, 1.0},
+	textColor = Vec2.create({1.0, 1.0, 1.0, 1.0}),
 	alignText = {},
 }
 
@@ -19,8 +19,10 @@ function EditorLabel.create( position, size, text )
 	local label = {}
 	setmetatable( label, { __index = EditorLabel } )
 	
-	label.position = tableVal( position )
-	label.size = tableVal( size )
+	--label.position = tableVal( position )
+	label.position = position and position:copy() or Vec2.create({0,0})
+	--label.size = tableVal( size )
+	label.size = size and size:copy() or Vec2.create({0,0})
 	label.depth = 0
 	label.alignText = EditorAlignText.create( label, EditorLabel.fontIndex, text )
 	label.alignText:align( ALIGN_NEAR, ALIGN_NEAR )
@@ -31,20 +33,16 @@ end
 function EditorLabel.createWithText( text )
 	assert( isstring( text ), "Text must be a string." )
 
-	return EditorLabel.create( nil, {0, GUI_BUTTON_HEIGHT}, text )
+	return EditorLabel.create( nil, Vec2.create({0, GUI_BUTTON_HEIGHT}), text )
 end
 
 function EditorLabel:setPosition( position )
-	self.position[1] = position[1]
-	self.position[2] = position[2]
-
+	self.position = position:copy()
 	self.alignText:align()
 end
 
 function EditorLabel:setSize( size )
-	self.size[1] = size[1]
-	self.size[2] = size[2]
-
+	self.size = size:copy()
 	self.alignText:align()
 end
 

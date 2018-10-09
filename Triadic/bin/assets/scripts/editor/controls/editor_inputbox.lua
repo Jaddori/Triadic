@@ -2,16 +2,17 @@ EditorInputbox =
 {
 	label = {},
 	textbox = {},
-	position = {0,0},
-	size = {0,0},
+	position = Vec2.create({0,0}),
+	size = Vec2.create({0,0}),
 	depth = 0,
 }
 
 function EditorInputbox.create( position, width, text )
 	local result = 
 	{
-		position = tableVal( position ),
-		size = {0,0},
+		--position = tableVal( position ),
+		position = position and position:copy() or Vec2.create({0,0}),
+		size = Vec2.create({0,0}),
 		depth = 0,
 		label = {},
 		textbox = {},
@@ -20,16 +21,16 @@ function EditorInputbox.create( position, width, text )
 	setmetatable( result, { __index = EditorInputbox } )
 
 	local yoffset = 0
-	result.label = EditorLabel.create( {result.position[1], result.position[2] + yoffset}, {width, GUI_BUTTON_HEIGHT}, text )
+	result.label = EditorLabel.create( Vec2.create({result.position[1], result.position[2] + yoffset}), Vec2.create({width or 0, GUI_BUTTON_HEIGHT}), text )
 	yoffset = yoffset + GUI_BUTTON_HEIGHT
 
-	result.textbox = EditorTextbox.create( {result.position[1], result.position[2] + yoffset}, {width, GUI_BUTTON_HEIGHT} )
+	result.textbox = EditorTextbox.create( Vec2.create({result.position[1], result.position[2] + yoffset}), Vec2.create({width or 0, GUI_BUTTON_HEIGHT}) )
 	result.textbox.onFocus = function( textbox )
 		textbox:selectAll()
 	end
 	yoffset = yoffset + GUI_BUTTON_HEIGHT
 
-	result.size = {width, yoffset}
+	result.size = Vec2.create({width, yoffset})
 
 	return result
 end
@@ -42,12 +43,12 @@ end
 
 function EditorInputbox:setPosition( position )
 	self.label:setPosition( position )
-	self.textbox:setPosition( {position[1], position[2] + self.label.size[2]} )
+	self.textbox:setPosition( Vec2.create({position[1], position[2] + self.label.size[2]}) )
 end
 
 function EditorInputbox:setSize( size )
-	self.label:setSize( {size[1], GUI_BUTTON_HEIGHT} )
-	self.textbox:setSize( {size[1], GUI_BUTTON_HEIGHT} )
+	self.label:setSize( Vec2.create({size[1], GUI_BUTTON_HEIGHT}) )
+	self.textbox:setSize( Vec2.create({size[1], GUI_BUTTON_HEIGHT}) )
 end
 
 function EditorInputbox:setDepth( depth )

@@ -10,8 +10,8 @@ local info =
 	depth = 0,
 	crossTextureIndex = -1,
 
-	position = {0,0},
-	size = {0,0},
+	position = Vec2.create({0,0}),
+	size = Vec2.create({0,0}),
 	
 	layout = {},
 	subLayout = {},
@@ -38,8 +38,8 @@ local info =
 }
 
 function info:load( position, size, depth )
-	copyVec( position, self.position )
-	copyVec( size, self.size )
+	self.position = position:copy()
+	self.size = size:copy()
 
 	local padding = 4
 	local yoffset = 0
@@ -69,11 +69,11 @@ function info:load( position, size, depth )
 	local prefabSize = self.prefabInputbox.textbox.size
 	local prefabLabelHeight = self.prefabInputbox.label.size[2]
 	local detachSize = 16
-	self.prefabDetachButton = EditorButton.create( {0, prefabLabelHeight + (detachBounds-detachSize)*0.5}, {detachSize, detachSize}, "" )
+	self.prefabDetachButton = EditorButton.create( Vec2.create({0, prefabLabelHeight + (detachBounds-detachSize)*0.5}), Vec2.create({detachSize, detachSize}), "" )
 	self.prefabDetachButton.disabled = true
 	self.prefabDetachButton.textureIndex = Assets.loadTexture( GUI_DEFAULT_CROSS_TEXTURE )
-	self.prefabDetachButton.color = {1,1,1,1}
-	self.prefabDetachButton.hoverColor = {1.0, 0.35, 0.35, 1.0}
+	self.prefabDetachButton.color = Vec4.create({1,1,1,1})
+	self.prefabDetachButton.hoverColor = Vec4.create({1.0, 0.35, 0.35, 1.0})
 	self.prefabDetachButton:setDepth( self.depth )
 	self.prefabDetachButton.onClick = function( button )
 		if self.onDetachPrefab then
@@ -155,7 +155,7 @@ function info:load( position, size, depth )
 	end
 	self.prefabNameWindow:addItem( prefabNameInputbox )
 
-	local prefabNameCreateButton = EditorButton.create( nil, {0, GUI_BUTTON_HEIGHT}, "Create" )
+	local prefabNameCreateButton = EditorButton.create( nil, Vec2.create({0, GUI_BUTTON_HEIGHT}), "Create" )
 	prefabNameCreateButton.onClick = function( button )
 		self.prefabNameWindow:close()
 
@@ -186,7 +186,7 @@ function info:load( position, size, depth )
 	yoffset = yoffset + GUI_BUTTON_HEIGHT + padding
 
 	-- create sub layout
-	self.subLayout = EditorLayoutTopdown.create( {position[1], position[2] + self.layout.size[2]}, size[1] )
+	self.subLayout = EditorLayoutTopdown.create( Vec2.create({position[1], position[2] + self.layout.size[2]}), size[1] )
 end
 
 function info:showPrefabNameWindow()
@@ -200,7 +200,7 @@ function info:showPrefabNameWindow()
 	self.prefabNameWindow.items[1].textbox:setText("")
 	self.prefabNameWindow.items[2].disabled = true
 
-	self.prefabNameWindow:setPosition( {x,y} )
+	self.prefabNameWindow:setPosition( Vec2.create({x,y}) )
 	self.prefabNameWindow.visible = true
 end
 
@@ -246,17 +246,17 @@ function info:setEntity( entity )
 			end
 
 			local removePadding = ( button.size[2] - removeSize ) * 0.5
-			local removeButton = EditorButton.create( {0, removePadding}, {removeSize, removeSize}, "" )
+			local removeButton = EditorButton.create( Vec2.create({0, removePadding}), Vec2.create({removeSize, removeSize}), "" )
 			removeButton:setDepth( self.depth )
 			removeButton.textureIndex = self.crossTextureIndex
-			removeButton.color = {1,1,1,1}
-			removeButton.hoverColor = {1.0, 0.35, 0.35, 1.0}
+			removeButton.color = Vec4.create({1,1,1,1})
+			removeButton.hoverColor = Vec4.create({1.0, 0.35, 0.35, 1.0})
 			removeButton.onClick = function( button )
 				self.entity.components[v.name] = nil
 				self:setEntity( self.entity )
 			end
 
-			self.subLayout:addItem( {button, removeButton} )
+			self.subLayout:addItem( Vec2.create({button, removeButton}) )
 
 			yoffset = yoffset + GUI_BUTTON_HEIGHT + padding
 		end

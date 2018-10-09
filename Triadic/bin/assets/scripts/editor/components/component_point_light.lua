@@ -2,9 +2,9 @@ ComponentPointLight =
 {
 	name = "Point Light",
 	parent = nil,
-	position = {0,0,0},
-	offset = {0,0,0},
-	color = {1,1,1},
+	position = Vec3.create({0,0,0}),
+	offset = Vec3.create({0,0,0}),
+	color = Vec3.create({1,1,1}),
 	intensity = 2,
 	linear = 1,
 	constant = 0,
@@ -22,9 +22,9 @@ function ComponentPointLight.create( parent )
 	local result =
 	{
 		parent = parent,
-		position = {0,0,0},
-		offset = {0,0,0},
-		color = {1,1,1},
+		position = Vec3.create({0,0,0}),
+		offset = Vec3.create({0,0,0}),
+		color = Vec3.create({1,1,1}),
 		intensity = 2,
 		size = 1,
 	}
@@ -96,7 +96,8 @@ end
 function ComponentPointLight:copy( parent )
 	local result = self.create( parent )
 
-	copyVec( self.color, result.color )
+	--copyVec( self.color, result.color )
+	result.color = self.color:copy()
 	result.intensity = self.intensity
 	result.linear = self.linear
 	result.constant = self.constant
@@ -118,8 +119,11 @@ function ComponentPointLight:render()
 	if self.parent.selected then
 		local center = self.position
 		local radius = Graphics.getPointLightSize( self.color, self.intensity, self.linear, self.constant, self.exponent )
-		local color = {0,0,0}
-		copyVec( self.color, color )
+		local color = Vec4.create({0,0,0,0})
+		--copyVec( self.color, color )
+		color[1] = self.color[1]
+		color[2] = self.color[2]
+		color[3] = self.color[3]
 		color[4] = 1
 		DebugShapes.addSphere( center, radius, color )
 	end
@@ -177,60 +181,48 @@ function ComponentPointLightWindow:load()
 	self.window.visible = false
 
 	-- layout
-	local layout = EditorLayoutTopdown.create( {0,0}, self.window.size[1] )
+	local layout = EditorLayoutTopdown.create( Vec2.create({0,0}), self.window.size[1] )
 
 	-- offset
-	--local offsetInputbox = EditorInputbox.create( nil, nil, "Offset:" )
 	local offsetInputbox = EditorInputbox.createWithText( "Offset:" )
 	offsetInputbox.textbox.onFinish = function( textbox )
 		self.component.offset = vecString( textbox.text )
 	end
-	--self.window:addItem( offsetInputbox )
 	layout:addItem( offsetInputbox )
 
 	-- color
-	--local colorInputbox = EditorInputbox.create( nil, nil, "Color:" )
 	local colorInputbox = EditorInputbox.createWithText( "Color:" )
 	colorInputbox.textbox.onFinish = function( textbox )
 		self.component.color = vecString( textbox.text )
 	end
-	--self.window:addItem( colorInputbox )
 	layout:addItem( colorInputbox )
 
 	-- intensity
-	--local intensityInputbox = EditorInputbox.create( nil, nil, "Intensity:" )
 	local intensityInputbox = EditorInputbox.createWithText( "Intensity:" )
 	intensityInputbox.textbox.onFinish = function( textbox )
 		self.component.intensity = tonumber( textbox.text )
 	end
-	--self.window:addItem( intensityInputbox )
 	layout:addItem( intensityInputbox )
 
 	-- linear
-	--local linearInputbox = EditorInputbox.create( nil, nil, "Linear:" )
 	local linearInputbox = EditorInputbox.createWithText( "Linear:" )
 	linearInputbox.textbox.onFinish = function( textbox )
 		self.component.linear = tonumber( textbox.text )
 	end
-	--self.window:addItem( linearInputbox )
 	layout:addItem( linearInputbox )
 
 	-- constant
-	--local constantInputbox = EditorInputbox.create( nil, nil, "Constant:" )
 	local constantInputbox = EditorInputbox.createWithText( "Constant:" )
 	constantInputbox.textbox.onFinish = function( textbox )
 		self.component.constant = tonumber( textbox.text )
 	end
-	--self.window:addItem( constantInputbox )
 	layout:addItem( constantInputbox )
 
 	-- exponent
-	--local exponentInputbox = EditorInputbox.create( nil, nil, "Exponent:" )
 	local exponentInputbox = EditorInputbox.createWithText( "Exponent:" )
 	exponentInputbox.textbox.onFinish = function( textbox )
 		self.component.exponent = tonumber( textbox.text )
 	end
-	--self.window:addItem( exponentInputbox )
 	layout:addItem( exponentInputbox )
 
 	self.window:addItem( layout )

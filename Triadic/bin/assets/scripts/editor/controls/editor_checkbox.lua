@@ -7,16 +7,16 @@ EditorCheckbox =
 	fontIndex = -1,
 	backgroundTextureIndex = -1,
 	checkTextureIndex = -1,
-	position = {0,0},
+	position = Vec2.create({0,0}),
 	size = {DEFAULT_SIZE, DEFAULT_SIZE},
 	depth = 0,
-	checkColor = {1,1,1,1},
-	color = {0.4, 0.4, 0.4, 1.0},
-	hoverColor = {0.75, 0.75, 0.75, 1.0},
-	pressColor = {0.35, 0.35, 0.35, 1.0},
+	checkColor = Vec4.create({1,1,1,1}),
+	color = Vec4.create({0.4, 0.4, 0.4, 1.0}),
+	hoverColor = Vec4.create({0.75, 0.75, 0.75, 1.0}),
+	pressColor = Vec4.create({0.35, 0.35, 0.35, 1.0}),
 
 	text = "Checkbox",
-	textColor = {1,1,1,1},
+	textColor = Vec4.create({1,1,1,1}),
 
 	hovered = false,
 	pressed = false,
@@ -40,8 +40,8 @@ function EditorCheckbox.create( position, size, text )
 
 	local checkbox =
 	{
-		position = tableVal( position ),
-		size = size,
+		position = position and position:copy() or Vec2.create({0,0}),
+		size = size:copy(),
 		depth = 0,
 		hovered = false,
 		pressed = false,
@@ -50,7 +50,7 @@ function EditorCheckbox.create( position, size, text )
 		text = text,
 	}
 
-	checkbox.textPosition = {checkbox.position[1] + DEFAULT_SIZE + 4, checkbox.position[2] }
+	checkbox.textPosition = Vec2.create({checkbox.position[1] + DEFAULT_SIZE + 4, checkbox.position[2] })
 
 	setmetatable( checkbox, { __index = EditorCheckbox } )
 
@@ -58,14 +58,12 @@ function EditorCheckbox.create( position, size, text )
 end
 
 function EditorCheckbox.createWithText( text )
-	return EditorCheckbox.create( nil, { DEFAULT_SIZE, DEFAULT_SIZE }, text )
+	return EditorCheckbox.create( nil, Vec2.create({ DEFAULT_SIZE, DEFAULT_SIZE }), text )
 end
 
 function EditorCheckbox:setPosition( position )
-	self.position[1] = position[1]
-	self.position[2] = position[2]
-
-	self.textPosition = {self.position[1] + DEFAULT_SIZE + 4, self.position[2] - 2 }
+	self.position = position:copy()
+	self.textPosition = Vec2.create({self.position[1] + DEFAULT_SIZE + 4, self.position[2] - 2 })
 end
 
 function EditorCheckbox:setSize( size )
