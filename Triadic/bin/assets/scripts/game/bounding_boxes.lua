@@ -25,15 +25,15 @@ end
 function BoundingBoxes:render()
 	if self.debug then
 		for _,v in pairs( self.aabbs ) do
-			DebugShapes.addAABB( v.minPosition, v.maxPosition, self.ignoreDepth, self.aabbDebugColor )
+			DebugShapes.addAABB( v.minPosition, v.maxPosition, self.aabbDebugColor, self.ignoreDepth )
 		end
 
 		for _,v in pairs( self.spheres ) do
-			DebugShapes.addSphere( v.center, v.radius, self.ignoreDepth, self.sphereDebugColor )
+			DebugShapes.addSphere( v.center, v.radius, self.sphereDebugColor, self.ignoreDepth )
 		end
 
 		for _,v in pairs( self.rays ) do
-			DebugShapes.addRay( v.first, v.last, self.ignoreDepth, self.rayDebugColor )
+			DebugShapes.addRay( v.first, v.last, self.rayDebugColor, self.ignoreDepth )
 		end
 	end
 end

@@ -48,6 +48,11 @@ function StateGame:fixedUpdate()
 	if Input.keyReleased( Keys.T ) then
 		Graphics.setLightingEnabled( not Graphics.getLightingEnabled() )
 	end
+
+	if Input.keyReleased( Keys.B ) then
+		BoundingBoxes.ignoreDepth = true
+		BoundingBoxes.debug = not BoundingBoxes.debug
+	end
 end
 
 function StateGame:render()
@@ -76,5 +81,10 @@ function StateGame:serverRead()
 	GameServer:serverRead()
 end
 
+function StateGame:enter()
+end
+
+function StateGame:exit()
+end
+
 Game:addState( StateGame )
-Game:setState( StateGame.name )

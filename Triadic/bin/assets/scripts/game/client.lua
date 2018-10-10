@@ -240,7 +240,8 @@ function GameClient:writeHandshake()
 		
 		if elapsedTime > CLIENT_RESEND_TIME_MS then
 			self.handshake.retries = self.handshake.retries + 1
-			if self.handshake.retries < CLIENT_MAX_RETRIES then
+			if self.handshake.retries <= CLIENT_MAX_RETRIES then
+				Log.debug( "Client: handshake try #" .. tostring( self.handshake.retries) )
 				shouldSend = true
 				self.handshake.lastSend = curTime
 			else
