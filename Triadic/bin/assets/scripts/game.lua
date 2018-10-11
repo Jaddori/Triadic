@@ -18,11 +18,10 @@ function Game:load()
 		doscript( "states/state_main_menu.lua" )
 		doscript( "states/state_join_game_menu.lua" )
 		doscript( "states/state_play_menu.lua" )
-		doscript( "states/state_lobby_menu.lua" )
+		doscript( "states/state_loading.lua" )
 	else -- IS_SERVER
 		doscript( "game/server.lua" )
-		--doscript( "states/state_gameplay.lua" )
-		doscript( "states/state_lobby_menu.lua" )
+		doscript( "states/state_gameplay.lua" )
 	end
 
 	for _,v in pairs(self.states) do

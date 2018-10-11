@@ -4,7 +4,11 @@ StateGameplay =
 }
 
 function StateGameplay:load()
-	--doscript( "game/player_handler.lua" )
+	if IS_CLIENT then
+		Log.debug( "LOADING GAMEPLAY" )
+	end
+
+	doscript( "game/player_handler.lua" )
 	--doscript( "game/chat.lua" )
 	
 	doscript( "game/bounding_boxes.lua" )
@@ -20,10 +24,12 @@ function StateGameplay:load()
 		Graphics.setLightingEnabled( true )
 	end
 
-	--PlayerHandler:load()
+	PlayerHandler:load()
 	--Chat:load()
 
 	self:loadLevel( "walkable_level02.lua" )
+
+	Core.sleep( 2000 ) -- sleep one second to test the loading screen
 end
 
 function StateGameplay:loadLevel( level )

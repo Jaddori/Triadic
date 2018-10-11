@@ -9,6 +9,7 @@ namespace LuaCore
 		luaL_newmetatable( lua, "coreMeta" );
 		luaL_Reg assetsRegs[] =
 		{
+			{ "sleep", sleep },
 			{ "getTicks", getTicks },
 			{ "exit", exit },
 
@@ -21,6 +22,21 @@ namespace LuaCore
 		lua_setglobal( lua, "Core" );
 
 		g_coreData = coreData;
+	}
+
+	LDEC( sleep )
+	{
+		LUA_EXPECT_ARGS( 1 )
+		{
+			if( LUA_EXPECT_NUMBER( 1 ) )
+			{
+				int ms = lua_toint( lua, 1 );
+
+				SDL_Delay( ms );
+			}
+		}
+
+		return 0;
 	}
 
 	LDEC( getTicks )
