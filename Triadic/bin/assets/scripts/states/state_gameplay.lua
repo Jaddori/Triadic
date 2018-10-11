@@ -1,9 +1,9 @@
-StateGame =
+StateGameplay =
 {
-	name = "StateGame",
+	name = "Gameplay",
 }
 
-function StateGame:load()
+function StateGameplay:load()
 	doscript( "game/player_handler.lua" )
 	doscript( "game/chat.lua" )
 	
@@ -17,31 +17,30 @@ function StateGame:load()
 		doscript( "game/server.lua" )
 	else
 		doscript( "game/client.lua" )
+		Graphics.setLightingEnabled( true )
 	end
 
 	PlayerHandler:load()
 	Chat:load()
 
 	self:loadLevel( "walkable_level02.lua" )
-
-	Graphics.setLightingEnabled( true )
 end
 
-function StateGame:loadLevel( level )
+function StateGameplay:loadLevel( level )
 	dofile( "./assets/levels/" .. level )
 end
 
-function StateGame:unload()
+function StateGameplay:unload()
 	PlayerHandler:unload()
 	Chat:unload()
 end
 
-function StateGame:update( deltaTime )
+function StateGameplay:update( deltaTime )
 	PlayerHandler:update( deltaTime )
 	Particles:update( deltaTime )
 end
 
-function StateGame:fixedUpdate()
+function StateGameplay:fixedUpdate()
 	PlayerHandler:fixedUpdate()
 	Chat:fixedUpdate()
 
@@ -55,7 +54,7 @@ function StateGame:fixedUpdate()
 	end
 end
 
-function StateGame:render()
+function StateGameplay:render()
 	PlayerHandler:render()
 	Chat:render()
 
@@ -65,26 +64,20 @@ function StateGame:render()
 	Particles:render()
 end
 
-function StateGame:clientWrite()
+function StateGameplay:clientWrite()
 	GameClient:clientWrite()
 end
 
-function StateGame:clientRead()
+function StateGameplay:clientRead()
 	GameClient:clientRead()
 end
 
-function StateGame:serverWrite()
+function StateGameplay:serverWrite()
 	GameServer:serverWrite()
 end
 
-function StateGame:serverRead()
+function StateGameplay:serverRead()
 	GameServer:serverRead()
 end
 
-function StateGame:enter()
-end
-
-function StateGame:exit()
-end
-
-Game:addState( StateGame )
+Game:addState( StateGameplay )

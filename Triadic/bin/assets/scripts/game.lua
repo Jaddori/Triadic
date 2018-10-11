@@ -12,14 +12,16 @@ function Game:load()
 	for _,v in pairs(controls) do
 		doscript( "editor/controls/" .. v )
 	end
-
-	local stateScripts = Filesystem.getFiles( "./assets/scripts/states/*" )
-	for _,v in pairs(stateScripts) do
-		doscript( "states/" .. v )
+	
+	if IS_CLIENT then
+		doscript( "states/state_main_menu.lua" )
+		doscript( "states/state_join_game_menu.lua" )
+		doscript( "states/state_play_menu.lua" )
+	else -- IS_SERVER
+		doscript( "states/state_gameplay.lua" )
 	end
 
 	for _,v in pairs(self.states) do
-		--v:load()
 		if v.load then
 			v:load()
 		end
@@ -28,7 +30,6 @@ end
 
 function Game:unload()
 	for _,v in pairs(self.states) do
-		--v:unload()
 		if v.unload then
 			v:unload()
 		end
@@ -81,10 +82,10 @@ end
 
 function Game:setState( name )
 	self:safeCall( "exit" )
-
+	
 	self.stateStack = { name }
 	self.currentState = name
-
+	
 	self:safeCall( "enter" )
 end
 
