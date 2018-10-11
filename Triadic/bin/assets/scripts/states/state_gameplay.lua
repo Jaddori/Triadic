@@ -4,8 +4,8 @@ StateGameplay =
 }
 
 function StateGameplay:load()
-	doscript( "game/player_handler.lua" )
-	doscript( "game/chat.lua" )
+	--doscript( "game/player_handler.lua" )
+	--doscript( "game/chat.lua" )
 	
 	doscript( "game/bounding_boxes.lua" )
 
@@ -14,14 +14,14 @@ function StateGameplay:load()
 	doscript( "game/particles.lua" )
 
 	if IS_SERVER then
-		doscript( "game/server.lua" )
+		--doscript( "game/server.lua" )
 	else
-		doscript( "game/client.lua" )
+		--doscript( "game/client.lua" )
 		Graphics.setLightingEnabled( true )
 	end
 
-	PlayerHandler:load()
-	Chat:load()
+	--PlayerHandler:load()
+	--Chat:load()
 
 	self:loadLevel( "walkable_level02.lua" )
 end
@@ -32,7 +32,7 @@ end
 
 function StateGameplay:unload()
 	PlayerHandler:unload()
-	Chat:unload()
+	--Chat:unload()
 end
 
 function StateGameplay:update( deltaTime )
@@ -42,7 +42,7 @@ end
 
 function StateGameplay:fixedUpdate()
 	PlayerHandler:fixedUpdate()
-	Chat:fixedUpdate()
+	--Chat:fixedUpdate()
 
 	if Input.keyReleased( Keys.T ) then
 		Graphics.setLightingEnabled( not Graphics.getLightingEnabled() )
@@ -56,7 +56,7 @@ end
 
 function StateGameplay:render()
 	PlayerHandler:render()
-	Chat:render()
+	--Chat:render()
 
 	BoundingBoxes:render()
 	Lights:render()

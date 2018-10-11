@@ -5,7 +5,7 @@
 
 #define CLIENT_TICK_RATE 20
 #define CLIENT_TICK_TIME ( 1000.0f / CLIENT_TICK_RATE )
-#define CLIENT_DEFAULT_PORT 12345
+//#define CLIENT_DEFAULT_PORT 12345
 //#define CLIENT_HANDSHAKE_TIMEOUT_MS 1000
 //#define CLIENT_HANDSHAKE_MAX_RETRIES 3
 
@@ -17,11 +17,12 @@ namespace Network
 		Client();
 		~Client();
 
-		void start( int port = CLIENT_DEFAULT_PORT );
+		void start();
 		void stop();
 
 		//void processHandshake();
 		void processTick();
+		void setConnection( const char* ip, int port );
 
 		template<typename T>
 		void queue( T value )
@@ -42,8 +43,6 @@ namespace Network
 		Array<Message>& getMessages();
 
 		bool getValid() const;
-		//bool getConnected() const;
-		uint32_t getNetworkID() const;
 
 	private:
 		SOCKET mainSocket;
@@ -57,10 +56,6 @@ namespace Network
 		Message sendMessage;
 		Array<Message> recvMessages;
 		
-		//bool connected;
-		//uint32_t handshakePhase;
-		//int handshakeTicks;
-		//uint32_t handshakeRetries;
-		//uint32_t salt, networkID;
+		bool hasConnection;
 	};
 }

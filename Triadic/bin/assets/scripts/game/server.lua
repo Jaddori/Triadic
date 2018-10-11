@@ -8,6 +8,7 @@ SERVER_MAX_RETRIES = 3
 
 GameServer =
 {
+	notifies = {},
 	objects = {},
 	acks = {},
 
@@ -25,6 +26,24 @@ function GameServer:register( object, id )
 
 	self.objects[id] = object
 end
+
+--function GameServer:unregister( id )
+--	assert( isnumber( id ), "ID must be a number." )
+--	assert( self.objects[id], "No object found for id " .. tostring( id ) )
+--
+--	self.objects[id] = nil
+--end
+--
+--function GameServer:registerNotify( object )
+--	local id = #self.notifies + 1
+--	self.notifies[id] = object
+--
+--	return id
+--end
+--
+--function GameServer:unregisterNotify( id )
+--	self.notifies[id] = nil
+--end
 
 function GameServer:serverWrite()
 	for ackKey,ackValue in pairs(self.acks) do
@@ -238,7 +257,13 @@ function GameServer:readHandshake( message, hash )
 
 			local networkID = self.handshakes[hash].networkID
 
-			for k,v in pairs(self.objects) do
+			for _,v in pairs(self.objects) do
+				if v.serverOnHandshakeCompleted then
+					v:serverOnHandshakeCompleted( hash, networkID )
+				end
+			end
+
+			for _,v in pairs(self.notifies) do
 				if v.serverOnHandshakeCompleted then
 					v:serverOnHandshakeCompleted( hash, networkID )
 				end

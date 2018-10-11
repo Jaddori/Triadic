@@ -14,11 +14,15 @@ function Game:load()
 	end
 	
 	if IS_CLIENT then
+		doscript( "game/client.lua" )
 		doscript( "states/state_main_menu.lua" )
 		doscript( "states/state_join_game_menu.lua" )
 		doscript( "states/state_play_menu.lua" )
+		doscript( "states/state_lobby_menu.lua" )
 	else -- IS_SERVER
-		doscript( "states/state_gameplay.lua" )
+		doscript( "game/server.lua" )
+		--doscript( "states/state_gameplay.lua" )
+		doscript( "states/state_lobby_menu.lua" )
 	end
 
 	for _,v in pairs(self.states) do
@@ -57,19 +61,19 @@ function Game:render()
 end
 
 function Game:clientWrite()
-	self:safeCall( "clientWrite" )
+	GameClient:clientWrite()
 end
 
 function Game:clientRead()
-	self:safeCall( "clientRead" )
+	GameClient:clientRead()
 end
 
 function Game:serverWrite()
-	self:safeCall( "serverWrite" )
+	GameServer:serverWrite()
 end
 
 function Game:serverRead()
-	self:safeCall( "serverRead" )
+	GameServer:serverRead()
 end
 
 function Game:addState( state )

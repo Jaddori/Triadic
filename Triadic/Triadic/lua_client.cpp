@@ -10,6 +10,8 @@ namespace LuaClient
 		luaL_newmetatable( lua, "clientMeta" );
 		luaL_Reg clientRegs[] = 
 		{
+			{ "connect", connect },
+
 			{ "getMessages", getMessages },
 			//{ "getConnected", getConnected },
 			//{ "getNetworkID", getNetworkID },
@@ -28,6 +30,23 @@ namespace LuaClient
 		lua_setglobal( lua, "Client" );
 
 		g_coreData = coreData;
+	}
+
+	LDEC( connect )
+	{
+		LUA_EXPECT_ARGS( 2 )
+		{
+			if( LUA_EXPECT_STRING( 1 ) &&
+				LUA_EXPECT_NUMBER( 2 ) )
+			{
+				const char* ip = lua_tostring( lua, 1 );
+				int port = lua_toint( lua, 2 );
+
+				g_coreData->client->setConnection( ip, port );
+			}
+		}
+
+		return 0;
 	}
 
 	LDEC( getMessages )

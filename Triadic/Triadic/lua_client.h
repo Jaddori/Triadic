@@ -7,6 +7,8 @@ namespace LuaClient
 {
 	void bind( lua_State* lua, CoreData* coreData );
 
+	LDEC( connect );
+
 	LDEC( getMessages );
 	//LDEC( getConnected );
 	//LDEC( getNetworkID );

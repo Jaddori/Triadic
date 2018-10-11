@@ -8,6 +8,7 @@ CLIENT_MAX_RETRIES = 3
 
 GameClient =
 {
+	notifies = {},
 	objects = {},
 	localAck = 0,
 	remoteAck = 0,
@@ -34,12 +35,14 @@ GameClient =
 		salt = 0,
 		networkID = 0,
 	},
+
+	running = false,
 }
 
 function GameClient:register( object, id )
 	assert( isnumber( id ), "Id must be a number." )
 	assert( self.objects[id] == nil, "ID is already taken: " .. tostring( id ) )
-	
+
 	self.objects[id] = object
 	self.packets[id] = {}
 	self.reliablePackets[id] = {}
@@ -57,7 +60,22 @@ function GameClient:register( object, id )
 	end
 end
 
+--function GameClient:registerNotify( object )
+--	local id = #self.notifies + 1
+--	self.notifies[id] = object
+--
+--	return id
+--end
+--
+--function GameClient:unregisterNotify( id )
+--	self.notifies[id] = nil
+--end
+
 function GameClient:clientWrite()
+	if not self.running then
+		return
+	end
+
 	if self.handshake then
 		self:writeHandshake()
 	else
@@ -132,6 +150,10 @@ function GameClient:clientWrite()
 end
 
 function GameClient:clientRead()
+	if not self.running then
+		return
+	end
+
 	local curTick = Core.getTicks()
 	local messages = Client.getMessages()
 
@@ -265,6 +287,12 @@ function GameClient:writeHandshake()
 					end
 				end
 
+				for _,v in pairs(self.notifies) do
+					if v.clientOnHandshakeCompleted then
+						v:clientOnHandshakeCompleted()
+					end
+				end
+
 				self.handshake = nil
 				Log.debug( "GameClient: handshake completed." )
 			end
@@ -299,4 +327,9 @@ function GameClient:queue( id, type, value, reliable )
 		local count = #self.packets[id]
 		self.packets[id][count+1] = { type = type, value = value }
 	end
+end
+
+function GameClient:connect( ip, port )
+	Client.connect( ip, port )
+	self.running = true
 end

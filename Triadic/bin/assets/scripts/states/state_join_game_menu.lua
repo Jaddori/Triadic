@@ -12,9 +12,10 @@ function StateJoinGameMenu:load()
 
 	self.connectButton = EditorButton.create( Vec2.create({32+256-128, 128+self.ipInput.size[2]+8}), Vec2.create({128,32}), "Connect" )
 	self.connectButton.onClick = function( button )
-		doscript( "states/state_gameplay.lua" )
-		StateGameplay:load()
-		Game:setState( "Gameplay" )
+		--doscript( "states/state_gameplay.lua" )
+		--StateGameplay:load()
+		--Game:setState( "Gameplay" )
+		Game:pushState( "LobbyMenu" )
 	end
 
 	self.backButton = EditorButton.create( Vec2.create({32,256+32}), Vec2.create({128,24}), "Back" )
